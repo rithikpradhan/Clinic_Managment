@@ -6,6 +6,7 @@ import BeforeAfter from "../components/BeforeAfter";
 import AboutTeam from "../components/AboutTeam";
 import Contact from "../components/Contact";
 import Footer from "../components/Footer";
+import AppointmentForm from "../components/AppointmentForm";
 import FloatingBookingButton from "../components/FloatingBookingButton";
 
 function HomePage() {
@@ -18,6 +19,7 @@ function HomePage() {
       <BeforeAfter />
       <AboutTeam />
       <Contact />
+      <AppointmentForm />
       <Footer />
       <FloatingBookingButton />
     </div>
