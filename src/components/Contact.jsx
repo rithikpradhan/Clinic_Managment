@@ -3,6 +3,7 @@ import Reveal from "../hooks/Reveal";
 import { PopupModal } from "react-calendly";
 import { client } from "../lib/sanityClient";
 import { urlFor } from "../lib/imageBuilder";
+import { BookingCard } from "../components/BookingForm";
 
 export default function Contact() {
   const [open, setOpen] = useState(false);
@@ -91,7 +92,7 @@ export default function Contact() {
         </Reveal>
 
         {/* Right */}
-        <Reveal delay={0.15}>
+        {/* <Reveal delay={0.15}>
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 text-white">
             <h3 className="text-xl font-bold mb-4">
               Book Your Skin Consultation
@@ -129,7 +130,19 @@ export default function Contact() {
               rootElement={document.getElementById("root")}
             />
           </div>
-        </Reveal>
+        </Reveal> */}
+
+        <BookingCard
+          title="Book Your Skin Consultation"
+          subtitle="Choose a convenient time with our dermatologist..."
+          features={[
+            "Personalized skin analysis",
+            "Expert dermatologist consultation",
+            "Treatment plan tailored for your skin",
+          ]}
+          buttonLabel="Book Appointment Now"
+          note="Takes less than 30 seconds"
+        />
       </div>
     </section>
   );
