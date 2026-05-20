@@ -109,20 +109,20 @@ export default function CalendarPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-2rem)] -m-6 bg-[#f8fbff]">
       {/* HEADER */}
-      <div className="flex items-center justify-between p-6 bg-white border-b border-slate-100 shrink-0 z-10 shadow-sm">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 p-6 bg-white border-b border-slate-100 shrink-0 z-10 shadow-sm">
         <div>
           <h1 className="text-2xl font-500 text-slate-900 tracking-tight">Daily Schedule</h1>
           <p className="text-sm text-slate-500 mt-1">Manage doctor schedules and patient queues.</p>
         </div>
         
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           {/* Date Controls */}
-          <div className="flex items-center p-1 bg-slate-100 rounded-2xl">
+          <div className="flex items-center p-1 bg-slate-100 rounded-2xl w-full sm:w-auto justify-between">
             <Button variant="ghost" onClick={prevDay} className="h-9 px-3 rounded-xl hover:bg-white hover:shadow-sm text-slate-500">
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <div className="flex items-center gap-2 px-4 font-semibold text-sm text-slate-800 min-w-40 justify-center">
-              <CalendarIcon className="w-4 h-4 text-blue-500" />
+            <div className="flex items-center gap-2 px-2 sm:px-4 font-semibold text-sm text-slate-800 justify-center">
+              <CalendarIcon className="w-4 h-4 text-blue-500 hidden sm:block" />
               {date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
             </div>
             <Button variant="ghost" onClick={nextDay} className="h-9 px-3 rounded-xl hover:bg-white hover:shadow-sm text-slate-500">
@@ -130,14 +130,17 @@ export default function CalendarPage() {
             </Button>
           </div>
 
-          <Button onClick={goToday} variant="outline" className="h-11 rounded-2xl border-slate-200 text-slate-600 font-semibold hover:text-blue-700 hover:bg-blue-50 px-6">
-            Today
-          </Button>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <Button onClick={goToday} variant="outline" className="flex-1 sm:flex-none h-11 rounded-2xl border-slate-200 text-slate-600 font-semibold hover:text-blue-700 hover:bg-blue-50 px-6">
+              Today
+            </Button>
 
-          <Button onClick={() => navigate("/admin/appointments")} className="h-11 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg shadow-blue-200 px-6">
-            <Plus className="w-4 h-4 mr-2" />
-            New Appointment
-          </Button>
+            <Button onClick={() => navigate("/admin/appointments")} className="flex-1 sm:flex-none h-11 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg shadow-blue-200 px-4 sm:px-6">
+              <Plus className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">New Appointment</span>
+              <span className="sm:hidden">New</span>
+            </Button>
+          </div>
         </div>
       </div>
 

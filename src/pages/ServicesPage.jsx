@@ -255,8 +255,10 @@ export default function ServicesPage() {
         </CardHeader>
 
         <CardContent className="p-0">
-          <Table>
-            <TableHeader className="bg-slate-50/50">
+          <div className="hidden md:block overflow-x-auto">
+            <div className="min-w-[900px] w-full">
+              <Table>
+                <TableHeader className="bg-slate-50/50">
               <TableRow className="hover:bg-transparent border-slate-100">
                 <TableHead className="pl-10 w-[80px] h-14 text-xs font-semibold text-slate-400 uppercase tracking-wider">S.No</TableHead>
                 <TableHead className="h-14 text-xs font-semibold text-slate-400 uppercase tracking-wider">Treatment</TableHead>
@@ -331,8 +333,76 @@ export default function ServicesPage() {
                   </TableCell>
                 </TableRow>
               ))}
-            </TableBody>
-          </Table>
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+
+          {/* Mobile Cards View */}
+          <div className="md:hidden flex flex-col divide-y divide-gray-50">
+            {paginatedServices.map((s, i) => (
+              <div key={s.id} className={`p-4 space-y-4 ${!s.active ? "opacity-60" : ""}`}>
+                {/* Header: Name, Category, More */}
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-3">
+                    <div className={`mt-1 h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${s.active ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-400"}`}>
+                      <Stethoscope size={18} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900 leading-tight">{s.name}</h3>
+                      <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{s.description}</p>
+                      <Badge variant="secondary" className="mt-2 bg-slate-100 text-slate-500 font-semibold px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wide border-none shadow-none">
+                        {s.category}
+                      </Badge>
+                    </div>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-gray-400 hover:text-gray-900">
+                        <MoreHorizontal size={18} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-52 rounded-2xl p-1.5 shadow-xl border-gray-100">
+                      <DropdownMenuItem onClick={() => openEdit(s)} className="gap-3 font-medium text-sm rounded-xl py-2 px-3">
+                        <Pencil size={16} className="text-gray-400" /> Edit Service
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => toggleStatus(s.id)} className="gap-3 font-medium text-sm rounded-xl py-2 px-3">
+                        {s.active ? <EyeOff size={16} className="text-gray-400" /> : <Eye size={16} className="text-gray-400" />} 
+                        {s.active ? "Hide from Form" : "Show on Form"}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator className="bg-gray-50" />
+                      <DropdownMenuItem onClick={() => handleDelete(s.id)} className="gap-3 font-medium text-sm rounded-xl py-2 px-3 text-rose-600 focus:text-rose-600 focus:bg-rose-50">
+                        <Trash2 size={16} /> Delete Service
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                {/* Footer: Details */}
+                <div className="flex items-center justify-between pt-2">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                      <Clock size={14} className="text-slate-300" /> {s.duration || 0} min
+                    </div>
+                    <div className="font-bold text-gray-900 text-sm">
+                      ₹{(s.price || 0).toLocaleString()}
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className={`text-[9px] font-bold uppercase tracking-wider ${s.active ? "text-emerald-600" : "text-slate-400"}`}>
+                      {s.active ? "Active" : "Hidden"}
+                    </span>
+                    <Switch checked={s.active} onCheckedChange={() => toggleStatus(s.id)} className="scale-75 origin-right data-[state=checked]:bg-emerald-500" />
+                  </div>
+                </div>
+              </div>
+            ))}
+            {paginatedServices.length === 0 && (
+              <div className="p-8 text-center text-slate-500 text-sm">
+                No services found.
+              </div>
+            )}
+          </div>
         </CardContent>
 
         <div className="p-6 border-t border-gray-50 flex items-center justify-between">
