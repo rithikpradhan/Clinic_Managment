@@ -64,7 +64,7 @@ export default function StatsCards({ stats, loading }) {
             {loading ? (
               <div className="h-9 w-16 bg-gray-100 rounded-lg animate-pulse mb-1" />
             ) : (
-              <p className="text-3xl font-bold text-gray-900 tracking-tight">
+              <p className="text-3xl  text-gray-900 tracking-tight">
                 {card.value.toLocaleString()}
               </p>
             )}

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppointments } from "../hooks/useAppointments";
-import { Users, ChevronRight, Search } from "lucide-react";
+import { Users, ChevronRight, Search, MessageCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { AVATAR_COLORS, getInitials, formatDate } from "../components/shared";
 
 export default function PatientsPage() {
@@ -42,10 +43,18 @@ export default function PatientsPage() {
   }
 
   function goToHistory(patient) {
-    // Use email if available, otherwise name — encode it for the URL
     const key = encodeURIComponent(patient.email || patient.name);
     navigate(`/admin/patients/${key}`);
   }
+
+  const handleWhatsApp = (e, p) => {
+    e.stopPropagation(); // Prevent navigating to history
+    if (!p.phone) return;
+    const cleanPhone = p.phone.replace(/\D/g, '');
+    const message = `Hello ${p.name},\n\nThis is CareDoc Clinic. We are reaching out regarding your clinical records. Please let us know if you have any questions!`;
+    const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  };
 
   return (
     <div className="space-y-6">
@@ -67,7 +76,7 @@ export default function PatientsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name, email, phone…"
-              className="w-full pl-9 pr-4 h-9 bg-gray-50 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:bg-white transition-all"
+              className="w-full pl-9 pr-4 h-9 bg-gray-50 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:bg-white transition-all"
             />
           </div>
         </div>
@@ -122,7 +131,7 @@ export default function PatientsPage() {
                     <tr
                       key={p.email || p.name}
                       onClick={() => goToHistory(p)}
-                      className="hover:bg-rose-50/40 transition-colors cursor-pointer group"
+                      className="hover:bg-blue-50/40 transition-colors cursor-pointer group"
                     >
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
@@ -131,7 +140,7 @@ export default function PatientsPage() {
                           >
                             {getInitials(p.name)}
                           </div>
-                          <p className="text-sm font-medium text-gray-900 group-hover:text-rose-600 transition-colors">
+                          <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
                             {p.name}
                           </p>
                         </div>
@@ -146,17 +155,46 @@ export default function PatientsPage() {
                         {formatDate(p.appointment_date)}
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-rose-50 text-rose-600 border border-rose-200">
-                          {treatment}
-                        </span>
+                        {(() => {
+                          const list = (treatment || "").split(",").map(t => t.trim());
+                          if (list.length <= 1) {
+                            return (
+                              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-200 whitespace-nowrap inline-block">
+                                {treatment}
+                              </span>
+                            );
+                          }
+                          return (
+                            <div className="flex items-center gap-1.5" title={treatment}>
+                              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-200 max-w-[120px] truncate">
+                                {list[0]}
+                              </span>
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap cursor-help">
+                                +{list.length - 1} more
+                              </span>
+                            </div>
+                          );
+                        })()}
                       </td>
                       <td className="px-5 py-3.5">
                         <span className="text-sm font-bold text-gray-700 bg-gray-100 px-2.5 py-1 rounded-full">
                           {visits} visit{visits !== 1 ? "s" : ""}
                         </span>
                       </td>
-                      <td className="px-4 py-3.5">
-                        <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-rose-400 transition-colors" />
+                      <td className="px-4 py-3.5 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {p.phone && (
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg"
+                              onClick={(e) => handleWhatsApp(e, p)}
+                            >
+                              <MessageCircle size={16} />
+                            </Button>
+                          )}
+                          <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-blue-400 transition-colors" />
+                        </div>
                       </td>
                     </tr>
                   );

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchStaff, supabase } from "../lib/supabase";
+import { fetchStaff, supabase, createNotification, fetchConsultationFee } from "../lib/supabase";
 import {
   fetchTreatments,
   fetchAvailableSlots,
@@ -239,7 +239,7 @@ function ModalLeftPanel({ doctorName, specialty }) {
 }
 
 // ── The inner form with all steps ──────────────────────────────
-function ModalForm({ onClose }) {
+function ModalForm({ onClose, onSuccess, prefill }) {
   const [step, setStep] = useState(0);
   const [doctors, setDoctors] = useState([]);
   const [treatments, setTreatments] = useState([]);
@@ -252,44 +252,95 @@ function ModalForm({ onClose }) {
 
   const [form, setForm] = useState({
     staff_id: "",
-    treatment_id: "",
-    treatment_name: "",
+    is_consultation: false,
+    consultation_fee: 0,
+    treatment_ids: [],
+    treatment_names: [],
     appointment_date: "",
     appointment_time: "",
-    name: "",
-    email: "",
-    phone: "",
+    name: prefill?.name || "",
+    email: prefill?.email || "",
+    phone: prefill?.phone || "",
     notes: "",
   });
+  const [clinicConsultFee, setClinicConsultFee] = useState(500);
 
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
-    Promise.all([fetchStaff(), fetchTreatments(true)]).then(([d, t]) => {
-      setDoctors(d.filter((s) => s.available));
+    Promise.all([fetchStaff(), fetchTreatments(true), fetchConsultationFee()]).then(([d, t, fee]) => {
+      const availDocs = d.filter((s) => s.available);
+      setDoctors(availDocs);
       setTreatments(t);
+      setClinicConsultFee(fee);
+      
+      // Auto-advance to Step 1 (Treatments) if only 1 doctor is available
+      if (availDocs.length === 1) {
+        setForm(f => ({ ...f, staff_id: availDocs[0].id }));
+        setStep(1);
+      }
     });
   }, []);
 
   useEffect(() => {
-    if (!form.staff_id || !form.appointment_date) return;
+    // Fetch slots when: date is set AND (consultation selected OR at least one treatment picked)
+    if (!form.appointment_date) return;
+    if (!form.is_consultation && form.treatment_ids.length === 0) return;
+
     setLoadingSlots(true);
     setForm((f) => ({ ...f, appointment_time: "" }));
-    fetchAvailableSlots(form.staff_id, form.appointment_date).then((s) => {
+    
+    // For consultation-only, use default 30 min duration; otherwise sum treatment durations
+    const totalDuration = form.is_consultation && form.treatment_ids.length === 0
+      ? 30
+      : selTreatments.reduce((sum, t) => sum + (t.duration || 30), 0);
+    
+    fetchAvailableSlots(form.staff_id || null, form.appointment_date, totalDuration).then((s) => {
       setSlots(s);
       setLoadingSlots(false);
     });
-  }, [form.staff_id, form.appointment_date]);
+  }, [form.staff_id, form.appointment_date, form.treatment_ids, form.is_consultation]);
 
   const selDoctor = doctors.find((d) => d.id === form.staff_id);
-  const selTreatment = treatments.find((t) => t.id === form.treatment_id);
+  const selTreatments = treatments.filter((t) => form.treatment_ids.includes(t.id));
 
   async function handleSubmit() {
     setSubmitting(true);
+    
+    // Verify slot is still available (prevents double bookings/concurrency issues)
+    const totalDuration = selTreatments.reduce((sum, t) => sum + (t.duration || 30), 0);
+    
+    let finalStaffId = form.staff_id;
+
+    if (!finalStaffId) {
+      // Find a specific doctor who is free at this time
+      for (const doc of doctors) {
+        const docSlots = await fetchAvailableSlots(doc.id, form.appointment_date, totalDuration);
+        if (docSlots.includes(form.appointment_time)) {
+          finalStaffId = doc.id;
+          break;
+        }
+      }
+    } else {
+      const availableSlots = await fetchAvailableSlots(finalStaffId, form.appointment_date, totalDuration);
+      if (!availableSlots.includes(form.appointment_time)) {
+        finalStaffId = null; // Forces failure below
+      }
+    }
+
+    if (!finalStaffId) {
+      alert("Sorry, this time slot is no longer available. Please select a different time.");
+      setSubmitting(false);
+      setStep(2); // Go back to calendar step
+      return;
+    }
+
     const { error } = await supabase.from("appointments").insert({
-      staff_id: form.staff_id,
-      treatment_id: form.treatment_id || null,
-      treatment: form.treatment_name,
+      staff_id: finalStaffId,
+      treatment_id: form.treatment_ids[0] || null,
+      treatment: form.is_consultation && form.treatment_names.length === 0
+        ? "General Consultation"
+        : form.treatment_names.join(", "),
       appointment_date: form.appointment_date,
       appointment_time: form.appointment_time,
       name: form.name,
@@ -297,10 +348,19 @@ function ModalForm({ onClose }) {
       phone: form.phone,
       notes: form.notes,
       status: "pending",
+      is_consultation: form.is_consultation,
+      consultation_fee: form.is_consultation ? clinicConsultFee : 0,
+      created_at: new Date().toISOString(),
     });
     setSubmitting(false);
-    if (!error) setStep(5);
-    else {
+    if (!error) {
+      setStep(5);
+      const bookingDesc = form.is_consultation
+        ? `${form.name} booked a General Consultation for ${form.appointment_date} at ${formatTime(form.appointment_time)}`
+        : `${form.name} booked ${form.treatment_names.join(", ")} for ${form.appointment_date} at ${formatTime(form.appointment_time)}`;
+      createNotification("New Appointment Booking", bookingDesc, "booking");
+      if (onSuccess) onSuccess();
+    } else {
       alert("Something went wrong. Please try again.");
       console.error(error);
     }
@@ -400,6 +460,23 @@ function ModalForm({ onClose }) {
           </p>
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2">
+          <button
+            onClick={() => {
+              setForm((f) => ({ ...f, staff_id: "" }));
+              setTimeout(() => setStep(1), 150);
+            }}
+            className={`w-full flex items-center gap-3 p-4 rounded-2xl border-2 text-left transition-all ${form.staff_id === "" ? "border-blue-500 bg-blue-50" : "border-gray-100 bg-white hover:border-blue-200 hover:bg-blue-50/40"}`}
+          >
+            <div className={`w-11 h-11 rounded-xl text-sm font-bold flex items-center justify-center shrink-0 ${form.staff_id === "" ? "bg-blue-600 text-white" : "bg-blue-100 text-blue-700"}`}>
+              <User className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-gray-900 text-sm">Any Available Doctor</p>
+              <p className="text-xs text-gray-500 truncate">First available specialist</p>
+            </div>
+            {form.staff_id === "" && <Check className="w-5 h-5 text-blue-600 shrink-0" />}
+          </button>
+          
           {doctors.length === 0 ? (
             <div className="flex items-center justify-center h-20 text-sm text-gray-400">
               <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -451,27 +528,58 @@ function ModalForm({ onClose }) {
     return (
       <div className="flex flex-col h-full">
         <div className="px-6 pt-5 pb-4 border-b border-gray-100 flex items-center gap-3 shrink-0">
-          <BackBtn to={0} />
           <div>
             <h3 className="text-lg font-bold text-gray-900">
-              Select treatment
+              What brings you in?
             </h3>
-            <p className="text-sm text-gray-500">What brings you in today?</p>
+            <p className="text-sm text-gray-500">Select a treatment or book a general consultation</p>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2">
+
+          {/* ── General Consultation Option ── */}
+          <button
+            onClick={() => {
+              setForm((f) => ({ ...f, is_consultation: !f.is_consultation }));
+            }}
+            className={`w-full flex items-start gap-3 p-4 rounded-2xl border-2 text-left transition-all ${form.is_consultation ? "border-emerald-500 bg-emerald-50" : "border-gray-100 bg-white hover:border-emerald-200 hover:bg-emerald-50/40"}`}
+          >
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${form.is_consultation ? "bg-emerald-600" : "bg-emerald-100"}`}>
+              <span className={`text-base font-bold ${form.is_consultation ? "text-white" : "text-emerald-600"}`}>?</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-gray-900 text-sm">I don't know / General Consultation</p>
+              <p className="text-xs text-gray-500 mt-0.5">Not sure what you need? A doctor will examine and advise you.</p>
+              <p className="text-xs text-emerald-600 font-semibold mt-0.5">₹{clinicConsultFee.toLocaleString()} consultation fee</p>
+            </div>
+            {form.is_consultation && (
+              <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+            )}
+          </button>
+
+          {/* ── Divider ── */}
+          <div className="flex items-center gap-2 py-1">
+            <div className="flex-1 h-px bg-gray-100" />
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Or select a treatment</span>
+            <div className="flex-1 h-px bg-gray-100" />
+          </div>
+
+          {/* ── Treatment List ── */}
           {treatments.slice(txPage * PER, txPage * PER + PER).map((t) => {
-            const sel = form.treatment_id === t.id;
+            const sel = form.treatment_ids.includes(t.id);
             return (
               <button
                 key={t.id}
                 onClick={() => {
-                  setForm((f) => ({
-                    ...f,
-                    treatment_id: t.id,
-                    treatment_name: t.name,
-                  }));
-                  setTimeout(() => setStep(2), 150);
+                  setForm((f) => {
+                    const ids = f.treatment_ids.includes(t.id) 
+                      ? f.treatment_ids.filter(id => id !== t.id)
+                      : [...f.treatment_ids, t.id];
+                    const names = f.treatment_names.includes(t.name)
+                      ? f.treatment_names.filter(n => n !== t.name)
+                      : [...f.treatment_names, t.name];
+                    return { ...f, treatment_ids: ids, treatment_names: names };
+                  });
                 }}
                 className={`w-full flex items-start gap-3 p-4 rounded-2xl border-2 text-left transition-all ${sel ? "border-blue-500 bg-blue-50" : "border-gray-100 bg-white hover:border-blue-200 hover:bg-blue-50/40"}`}
               >
@@ -491,11 +599,14 @@ function ModalForm({ onClose }) {
                       {t.description}
                     </p>
                   )}
-                  {t.duration && (
-                    <p className="text-xs text-blue-500 font-medium mt-0.5">
-                      {t.duration} min
-                    </p>
-                  )}
+                  <div className="flex items-center gap-2 mt-0.5">
+                    {t.duration && (
+                      <p className="text-xs text-blue-500 font-medium">{t.duration} min</p>
+                    )}
+                    {t.price && (
+                      <p className="text-xs text-gray-400 font-medium">₹{t.price.toLocaleString()}</p>
+                    )}
+                  </div>
                 </div>
                 {sel && (
                   <Check className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
@@ -504,6 +615,18 @@ function ModalForm({ onClose }) {
             );
           })}
           <Pager page={txPage} setPage={setTxPage} total={treatments.length} />
+        </div>
+        <div className="px-6 py-4 border-t border-gray-100 shrink-0">
+          <button
+            onClick={() => setStep(2)}
+            disabled={!form.is_consultation && form.treatment_ids.length === 0}
+            className="w-full h-11 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold rounded-xl transition-all"
+          >
+            Continue
+          </button>
+          {form.is_consultation && form.treatment_ids.length === 0 && (
+            <p className="text-center text-[11px] text-emerald-600 font-medium mt-2">General Consultation selected — ₹{clinicConsultFee.toLocaleString()}</p>
+          )}
         </div>
       </div>
     );
@@ -662,8 +785,8 @@ function ModalForm({ onClose }) {
                 <Calendar className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="text-sm font-bold text-gray-900">
-                  {selTreatment?.name}
+                <p className="text-sm font-bold text-gray-900 line-clamp-2">
+                  {form.treatment_names.join(", ")}
                 </p>
                 <p className="text-xs text-blue-700 font-semibold mt-0.5">
                   {formatDisplayDate(form.appointment_date)}
@@ -677,11 +800,11 @@ function ModalForm({ onClose }) {
 
           <div className="bg-white border border-gray-100 rounded-2xl divide-y divide-gray-100 overflow-hidden shadow-sm">
             {[
-              { icon: User, label: "Doctor", value: selDoctor?.name },
+              { icon: User, label: "Doctor", value: selDoctor?.name || "Assigned by Clinic" },
               {
                 icon: Stethoscope,
                 label: "Treatment",
-                value: selTreatment?.name,
+                value: form.treatment_names.join(", "),
               },
               { icon: User, label: "Patient", value: form.name },
               { icon: Globe, label: "Email", value: form.email },
@@ -723,7 +846,7 @@ function ModalForm({ onClose }) {
 }
 
 // ── Modal shell ────────────────────────────────────────────────
-function BookingModal({ onClose }) {
+function BookingModal({ onClose, onSuccess, prefill }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -812,7 +935,6 @@ function BookingModal({ onClose }) {
           <ModalLeftPanel />
         </div>
 
-        {/* Right form */}
         <div
           style={{
             flex: 1,
@@ -821,7 +943,7 @@ function BookingModal({ onClose }) {
             overflow: "hidden",
           }}
         >
-          <ModalForm onClose={handleClose} />
+          <ModalForm onClose={handleClose} onSuccess={onSuccess} prefill={prefill} />
         </div>
 
         {/* Close button */}
@@ -1061,6 +1183,8 @@ export default function BookingButton({
   trigger,
   className,
   style: cs,
+  onSuccess,
+  prefill,
 }) {
   const [open, setOpen] = useState(false);
   const btn = (
@@ -1101,7 +1225,7 @@ export default function BookingButton({
       ) : (
         btn
       )}
-      {open && <BookingModal onClose={() => setOpen(false)} />}
+      {open && <BookingModal onClose={() => setOpen(false)} onSuccess={onSuccess} prefill={prefill} />}
     </>
   );
 }

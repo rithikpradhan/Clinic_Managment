@@ -84,6 +84,7 @@ export async function upsertDoctorSchedule(staff_id, day_of_week, schedule) {
     console.error("upsertDoctorSchedule:", error.message);
     return false;
   }
+
   return true;
 }
 
@@ -102,6 +103,7 @@ export async function fetchBlockedDates(staff_id = null) {
     console.error("fetchBlockedDates:", error.message);
     return [];
   }
+
   return data ?? [];
 }
 
@@ -184,53 +186,166 @@ export async function deleteTreatment(id) {
 
 /**
  * Returns array of available time strings like ['09:00','09:30','10:00']
- * for a given doctor on a given date.
+ * Logic:
+ *  1. Check clinic is open that day (clinic_settings.open_days)
+ *  2. Check no clinic-wide blocked date
+ *  3. For each available doctor: use their doctor_schedule if set + is_working,
+ *     otherwise fall back to clinic hours
+ *  4. Union all free slots across doctors
  */
-export async function fetchAvailableSlots(staff_id, date) {
+export async function fetchAvailableSlots(staff_id, date, durationMinutes = 30) {
   const dateObj = new Date(date + "T00:00:00");
-  const dayOfWeek = dateObj.getDay();
+  const dayOfWeek = dateObj.getDay(); // 0=Sun … 6=Sat
 
-  // 1. Get doctor's schedule for that day
+  // ── 1. Fetch clinic settings ──────────────────────────────────
+  const { data: clinicSettings } = await supabase
+    .from("clinic_settings")
+    .select("open_days, open_time, close_time")
+    .eq("id", 1)
+    .single();
+
+  // If clinic is closed that day, return no slots
+  if (clinicSettings && clinicSettings.open_days && !clinicSettings.open_days.includes(dayOfWeek)) {
+    return [];
+  }
+  const clinicOpen = clinicSettings?.open_time || "09:00";
+  const clinicClose = clinicSettings?.close_time || "18:00";
+
+  // ── 2. Check clinic-wide blocked date ────────────────────────
+  const { data: blocked } = await supabase
+    .from("blocked_dates")
+    .select("id, staff_id")
+    .eq("date", date);
+
+  // If there's a clinic-wide block (staff_id is null), no slots available
+  if (blocked && blocked.some(b => b.staff_id === null)) {
+    return [];
+  }
+  const blockedStaffIds = new Set(blocked ? blocked.map(b => b.staff_id).filter(Boolean) : []);
+
+  // ── 3. Get all available staff members ───────────────────────
+  let staffQuery = supabase
+    .from("staff")
+    .select("id, name, available")
+    .eq("available", true);
+
+  if (staff_id) {
+    staffQuery = staffQuery.eq("id", staff_id);
+  }
+  const { data: availableStaff } = await staffQuery;
+  if (!availableStaff || availableStaff.length === 0) return [];
+
+  // Filter out individually blocked doctors
+  const workingStaff = availableStaff.filter(s => !blockedStaffIds.has(s.id));
+  if (workingStaff.length === 0) return [];
+
+  // ── 4. Get doctor_schedules for this day ─────────────────────
+  const staffIds = workingStaff.map(s => s.id);
   const { data: scheduleRows } = await supabase
     .from("doctor_schedules")
     .select("*")
-    .eq("staff_id", staff_id)
-    .eq("day_of_week", dayOfWeek)
-    .eq("is_working", true)
-    .single();
+    .in("staff_id", staffIds)
+    .eq("day_of_week", dayOfWeek);
 
-  if (!scheduleRows) return []; // doctor doesn't work that day
+  // Build a map: staff_id → schedule row
+  const scheduleMap = {};
+  if (scheduleRows) {
+    scheduleRows.forEach(row => { scheduleMap[row.staff_id] = row; });
+  }
 
-  // 2. Check if that date is blocked
-  const { data: blocked } = await supabase
-    .from("blocked_dates")
-    .select("id")
-    .eq("date", date)
-    .or(`staff_id.eq.${staff_id},staff_id.is.null`);
-
-  if (blocked && blocked.length > 0) return []; // day is blocked
-
-  // 3. Get already-booked slots for that doctor on that date
-  const { data: booked } = await supabase
+  // ── 5. Fetch all appointments on this date ────────────────────
+  let bookedQuery = supabase
     .from("appointments")
-    .select("appointment_time")
-    .eq("staff_id", staff_id)
+    .select("appointment_time, staff_id, treatment")
     .eq("appointment_date", date)
     .not("status", "eq", "cancelled");
 
-  const bookedTimes = new Set(
-    (booked ?? []).map((b) => b.appointment_time?.slice(0, 5)),
-  );
+  if (staff_id) {
+    bookedQuery = bookedQuery.eq("staff_id", staff_id);
+  }
+  const { data: booked } = await bookedQuery;
 
-  // 4. Generate all slots
-  const slots = generateSlots(
-    scheduleRows.start_time,
-    scheduleRows.end_time,
-    scheduleRows.slot_duration,
-  );
+  // Fetch treatment durations
+  const { data: treatments } = await supabase
+    .from("treatments")
+    .select("name, duration");
+  const treatmentDurations = {};
+  if (treatments) {
+    treatments.forEach(t => {
+      treatmentDurations[t.name.toLowerCase()] = t.duration || 30;
+    });
+  }
 
-  // 5. Return only available (not booked) slots
-  return slots.filter((slot) => !bookedTimes.has(slot));
+  // ── 6. Build union of free slots across all working doctors ──
+  const unionSlots = new Set();
+
+  for (const staff of workingStaff) {
+    const sched = scheduleMap[staff.id];
+
+    // Skip if doctor explicitly set is_working = false for this day
+    // (sched exists but is_working is false)
+    if (sched && sched.is_working === false) continue;
+
+    // Determine effective working window:
+    // - Use doctor's custom schedule if is_working = true and times set
+    // - Otherwise fall back to clinic hours
+    const startTime = (sched && sched.is_working && sched.start_time) ? sched.start_time : clinicOpen;
+    const endTime   = (sched && sched.is_working && sched.end_time)   ? sched.end_time   : clinicClose;
+    const slotDur   = (sched && sched.slot_duration) ? sched.slot_duration : 30;
+
+    // Find appointments for this doctor
+    const doctorBooked = (booked || []).filter(b => b.staff_id === staff.id);
+
+    // Compute blocked time slots due to existing bookings
+    const blockedTimes = new Set();
+    doctorBooked.forEach(b => {
+      if (!b.appointment_time) return;
+      const startStr = b.appointment_time.slice(0, 5);
+      const [sh, sm] = startStr.split(":").map(Number);
+
+      const tList = (b.treatment || "").split(",").map(t => t.trim());
+      const apptDuration = tList.reduce((sum, t) => {
+        const cleanName = t.replace(/\s*\(.*?\)/g, "").trim().toLowerCase();
+        return sum + (treatmentDurations[cleanName] || 30);
+      }, 0) || 30;
+
+      const startMin = sh * 60 + sm;
+      const endMin = startMin + apptDuration;
+      for (let min = startMin; min < endMin; min += slotDur) {
+        const h = Math.floor(min / 60);
+        const m = min % 60;
+        blockedTimes.add(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+      }
+    });
+
+    // Generate all slots for this doctor's window
+    const docSlots = generateSlots(startTime, endTime, slotDur);
+    const slotsNeeded = Math.ceil(durationMinutes / slotDur);
+
+    docSlots.forEach((slot, idx) => {
+      let isFree = true;
+      for (let offset = 0; offset < slotsNeeded; offset++) {
+        if (idx + offset >= docSlots.length) { isFree = false; break; }
+        if (blockedTimes.has(docSlots[idx + offset])) { isFree = false; break; }
+      }
+      if (isFree) unionSlots.add(slot);
+    });
+  }
+
+  // ── 7. Filter out past slots if today ─────────────────────────
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
+
+  return Array.from(unionSlots).filter(slot => {
+    if (date < todayStr) return false;
+    if (date === todayStr) {
+      const [h, m] = slot.split(":").map(Number);
+      if (h < currentHour || (h === currentHour && m <= currentMinute)) return false;
+    }
+    return true;
+  }).sort();
 }
 
 /**
@@ -280,6 +395,8 @@ export function generateSlots(startTime, endTime, durationMinutes) {
 
   return slots;
 }
+
+
 
 export function formatTime(timeStr) {
   if (!timeStr) return "—";

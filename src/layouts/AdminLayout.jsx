@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
+import { useNotifications } from "../hooks/useNotifications";
+import { formatDate } from "../components/shared";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -16,6 +24,8 @@ import {
   ChevronRight,
   Calendar,
   CalendarClock,
+  CreditCard,
+  Tag,
 } from "lucide-react";
 
 const NAVITEMS = [
@@ -26,10 +36,12 @@ const NAVITEMS = [
     icon: CalendarDays,
     badge: "Live",
   },
-  { to: "/admin/calendar", label: "Calendar", icon: Calendar },
+  { to: "/admin/calendar", label: "Doctor's Schedule", icon: Calendar },
   { to: "/admin/patients", label: "Patients", icon: Users },
-  { to: "/admin/staff", label: "Doctors & Staff", icon: UserRound },
+  { to: "/admin/staff", label: "Manage Staff", icon: UserRound },
   { to: "/admin/schedule", label: "Schedule", icon: CalendarClock },
+  { to: "/admin/billing", label: "Billing", icon: CreditCard },
+  { to: "/admin/services", label: "Service Menu", icon: Tag },
   { to: "/admin/analytics", label: "Analytics", icon: BarChart2 },
 ];
 
@@ -47,7 +59,7 @@ function Sidebar({ onClose }) {
       {/* Header */}
       <div className="h-16 flex items-center justify-between px-5 border-b border-gray-100 shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-linear-to-br from-rose-400 to-pink-600 flex items-center justify-center shadow-sm">
+          <div className="w-8 h-8 rounded-xl bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-sm">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
           <div>
@@ -84,8 +96,8 @@ function Sidebar({ onClose }) {
               end={exact}
               onClick={onClose}
               className={({ isActive }) =>
-                `group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  isActive ? "bg-rose-50" : "hover:bg-gray-50"
+                `group flex items-center gap-3 px-3 py-2.5 rounded-xl text- font-medium transition-all ${
+                  isActive ? "bg-blue-50" : "hover:bg-gray-50"
                 }`
               }
             >
@@ -95,7 +107,7 @@ function Sidebar({ onClose }) {
                   <Icon
                     className={`w-4 h-4 shrink-0 transition-colors ${
                       isActive
-                        ? "text-rose-500"
+                        ? "text-blue-500"
                         : "text-gray-400 group-hover:text-gray-600"
                     }`}
                   />
@@ -104,7 +116,7 @@ function Sidebar({ onClose }) {
                   <span
                     className={`flex-1 ${
                       isActive
-                        ? "text-rose-600"
+                        ? "text-blue-600"
                         : "text-gray-500 group-hover:text-gray-800"
                     }`}
                   >
@@ -113,14 +125,14 @@ function Sidebar({ onClose }) {
 
                   {/* Badge */}
                   {badge && (
-                    <span className="text-[10px] font-semibold bg-rose-100 text-rose-500 px-1.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-semibold bg-blue-100 text-blue-500 px-1.5 py-0.5 rounded-full">
                       {badge}
                     </span>
                   )}
 
                   {/* Active Arrow */}
                   {isActive && (
-                    <ChevronRight className="w-3 h-3 text-rose-400" />
+                    <ChevronRight className="w-3 h-3 text-blue-400" />
                   )}
                 </>
               )}
@@ -133,9 +145,9 @@ function Sidebar({ onClose }) {
       <div className="px-3 pb-4 pt-2 border-t border-gray-100 shrink-0">
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-500 transition-all group"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 hover:bg-blue-50 hover:text-blue-500 transition-all group"
         >
-          <LogOut className="w-4 h-4 text-gray-400 group-hover:text-red-400" />
+          <LogOut className="w-4 h-4 text-gray-400 group-hover:text-blue-400" />
           Sign Out
         </button>
       </div>
@@ -146,6 +158,7 @@ function Sidebar({ onClose }) {
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { session } = useAuth();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
   return (
     <div className="flex h-screen bg-[#F7F8FA] overflow-hidden font-sans">
@@ -183,21 +196,67 @@ export default function AdminLayout() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             <input
               placeholder="Search…"
-              className="w-full pl-9 pr-4 h-9 bg-gray-50 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:bg-white transition-all"
+              className="w-full pl-9 pr-4 h-9 bg-gray-50 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:bg-white transition-all"
             />
           </div>
 
           <div className="flex-1" />
 
           {/* Notifications */}
-          <button className="relative w-9 h-9 rounded-xl text-gray-500 hover:bg-gray-100 flex items-center justify-center transition-colors">
-            <Bell className="w-4 h-4" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white" />
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="relative w-9 h-9 rounded-xl text-gray-500 hover:bg-gray-100 flex items-center justify-center transition-colors">
+                <Bell className="w-4 h-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-500 rounded-full border-2 border-white" />
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-80 rounded-2xl p-0 shadow-xl border-gray-100 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50 bg-gray-50/50">
+                <p className="text-sm font-semibold text-gray-900">Notifications</p>
+                {unreadCount > 0 && (
+                  <button 
+                    onClick={markAllAsRead}
+                    className="text-xs font-medium text-blue-600 hover:text-blue-700"
+                  >
+                    Mark all read
+                  </button>
+                )}
+              </div>
+              <div className="max-h-96 overflow-y-auto">
+                {notifications.length === 0 ? (
+                  <div className="px-4 py-8 text-center text-sm text-gray-500">
+                    No new notifications
+                  </div>
+                ) : (
+                  notifications.map((notif) => (
+                    <div 
+                      key={notif.id}
+                      onClick={() => !notif.read && markAsRead(notif.id)}
+                      className={`px-4 py-3 border-b border-gray-50 last:border-0 cursor-pointer hover:bg-gray-50 transition-colors ${!notif.read ? "bg-blue-50/20" : ""}`}
+                    >
+                      <div className="flex justify-between items-start gap-2 mb-1">
+                        <p className={`text-sm ${!notif.read ? "font-bold text-gray-900" : "font-medium text-gray-700"}`}>
+                          {notif.title}
+                        </p>
+                        <span className="text-[10px] text-gray-400 whitespace-nowrap">
+                          {formatDate(notif.created_at)}
+                        </span>
+                      </div>
+                      <p className={`text-xs ${!notif.read ? "text-gray-600" : "text-gray-500"} line-clamp-2`}>
+                        {notif.message}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {/* Profile */}
           <div className="flex items-center gap-2.5 pl-2 border-l border-gray-100">
-            <div className="w-8 h-8 rounded-xl bg-linear-to-br from-rose-400 to-pink-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+            <div className="w-8 h-8 rounded-xl bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
               {session?.user?.email?.[0]?.toUpperCase() ?? "A"}
             </div>
             <div className="hidden sm:block">

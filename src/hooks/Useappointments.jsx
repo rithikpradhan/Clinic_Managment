@@ -6,11 +6,16 @@ import {
   updateAppointmentStaff,
   updateAppointmentNotes,
   fetchStaff,
+  deleteAppointment,
+  createNotification,
+  fetchAllDoctorSchedules,
 } from "../lib/supabase";
+import { toast } from "sonner";
 
 export function useAppointments() {
   const [appointments, setAppointments] = useState([]);
   const [staffList, setStaffList] = useState([]);
+  const [schedules, setSchedules] = useState([]);
   const [stats, setStats] = useState({
     total: 0,
     today: 0,
@@ -23,14 +28,17 @@ export function useAppointments() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [appts, s, staff] = await Promise.all([
+
+    const [appts, s, staff, scheds] = await Promise.all([
       fetchAppointments(),
       fetchStats(),
       fetchStaff(),
+      fetchAllDoctorSchedules(),
     ]);
     setAppointments(appts);
     setStats(s);
     setStaffList(staff);
+    setSchedules(scheds);
     setLoading(false);
   }, []);
 
@@ -58,6 +66,12 @@ export function useAppointments() {
           fetchStats().then(setStats);
           return prev;
         });
+
+        if (status.toLowerCase() === "completed") {
+          createNotification("Treatment Completed", `${result.name}'s treatment has been marked as completed.`, "completed");
+        } else if (status.toLowerCase() === "cancelled") {
+          createNotification("Appointment Cancelled", `${result.name}'s appointment has been cancelled.`, "cancelled");
+        }
       } else {
         // DB failed — reload from server to show real state
         console.warn("Status update failed, reloading from server");
@@ -71,10 +85,9 @@ export function useAppointments() {
 
   // ── Assign staff ───────────────────────────────────────────
   const assignStaff = useCallback(
-    async (id, staff_id) => {
+    async (id, staff_id, treatment = null) => {
       setUpdatingId(id);
-
-      const result = await updateAppointmentStaff(id, staff_id);
+      const result = await updateAppointmentStaff(id, staff_id, treatment);
 
       if (result) {
         // Find the full staff object to attach
@@ -82,7 +95,12 @@ export function useAppointments() {
         setAppointments((prev) =>
           prev.map((a) =>
             a.id === id
-              ? { ...a, staff_id: result.staff_id, staff: staffMember }
+              ? { 
+                  ...a, 
+                  staff_id: result.staff_id, 
+                  staff: staffMember, 
+                  treatment: result.treatment ?? a.treatment 
+                }
               : a,
           ),
         );
@@ -108,15 +126,42 @@ export function useAppointments() {
     return false;
   }, []);
 
+  // ── Delete appointment ──────────────────────────────────────
+  const removeAppointment = useCallback((id) => {
+    toast('Are you sure you want to delete this appointment?', {
+      action: {
+        label: 'Delete',
+        onClick: async () => {
+          const toastId = toast.loading("Deleting appointment...");
+          const result = await deleteAppointment(id);
+          if (result) {
+            setAppointments((prev) => prev.filter((a) => a.id !== id));
+            toast.success("Appointment deleted successfully", { id: toastId });
+            createNotification("Appointment Deleted", `${result.name}'s appointment was deleted.`, "cancelled");
+          } else {
+            toast.error("Failed to delete appointment", { id: toastId });
+          }
+        }
+      },
+      cancel: {
+        label: 'Cancel',
+      }
+    });
+    return true; // Optimistic return
+  }, []);
+
   return {
     appointments,
     staffList,
+    schedules,
     stats,
     loading,
     updatingId,
     changeStatus,
     assignStaff,
+    onAssignStaff: assignStaff, // alias for consistency if needed
     saveNotes,
+    deleteAppointment: removeAppointment,
     refresh: load,
   };
 }
