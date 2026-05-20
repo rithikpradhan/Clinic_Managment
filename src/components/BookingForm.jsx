@@ -901,18 +901,8 @@ function BookingModal({ onClose, onSuccess, prefill }) {
 
       {/* Panel */}
       <div
+        className="relative z-10 w-full max-w-[740px] h-[90vh] md:h-[580px] flex flex-col md:flex-row rounded-2xl overflow-hidden bg-white shadow-2xl"
         style={{
-          position: "relative",
-          zIndex: 1,
-          width: "100%",
-          maxWidth: 740,
-          height: 580,
-          display: "flex",
-          flexDirection: "row",
-          borderRadius: 20,
-          overflow: "hidden",
-          background: "white",
-          boxShadow: "0 32px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.06)",
           opacity: visible ? 1 : 0,
           transform: visible
             ? "translateY(0) scale(1)"
@@ -922,60 +912,20 @@ function BookingModal({ onClose, onSuccess, prefill }) {
         }}
       >
         {/* Left info panel */}
-        <div
-          style={{
-            width: 210,
-            flexShrink: 0,
-            padding: "28px 22px",
-            borderRight: "1px solid #f1f5f9",
-            background: "white",
-            overflowY: "auto",
-          }}
-        >
+        <div className="hidden md:block w-[210px] shrink-0 p-7 border-r border-slate-100 bg-white overflow-y-auto">
           <ModalLeftPanel />
         </div>
 
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-          }}
-        >
+        <div className="flex-1 flex flex-col overflow-hidden relative">
           <ModalForm onClose={handleClose} onSuccess={onSuccess} prefill={prefill} />
         </div>
 
         {/* Close button */}
         <button
           onClick={handleClose}
-          style={{
-            position: "absolute",
-            top: 14,
-            right: 14,
-            zIndex: 10,
-            width: 32,
-            height: 32,
-            borderRadius: 8,
-            border: "1px solid #e2e8f0",
-            background: "white",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            color: "#94a3b8",
-            transition: "all 0.15s",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "#f8fafc";
-            e.currentTarget.style.color = "#334155";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "white";
-            e.currentTarget.style.color = "#94a3b8";
-          }}
+          className="absolute top-3 right-3 z-50 w-8 h-8 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-slate-700 transition-all shadow-sm"
         >
-          <X style={{ width: 15, height: 15 }} />
+          <X className="w-4 h-4" />
         </button>
       </div>
     </div>
