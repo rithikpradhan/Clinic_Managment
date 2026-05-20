@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { useNotifications } from "../hooks/useNotifications";
 import { formatDate } from "../components/shared";
+import InstallPWA from "../components/InstallPWA";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -201,6 +202,9 @@ export default function AdminLayout() {
           </div>
 
           <div className="flex-1" />
+          
+          <div className="flex items-center gap-3">
+            <InstallPWA />
 
           {/* Notifications */}
           <DropdownMenu>
@@ -267,6 +271,7 @@ export default function AdminLayout() {
                 {session?.user?.email}
               </p>
             </div>
+          </div>
           </div>
         </header>
 
