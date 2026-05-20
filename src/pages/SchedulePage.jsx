@@ -719,18 +719,13 @@ function BlockedDatesTab() {
   const [form, setForm] = useState({ staff_id: "", date: "", reason: "" });
   const [saving, setSaving] = useState(false);
 
-  // async function load() {
-  //   const [s, b] = await Promise.all([fetchStaff(), fetchBlockedDates()]);
-  //   setStaff(s);
-  //   setBlocked(b);
-  // }
+  async function load() {
+    const [s, b] = await Promise.all([fetchStaff(), fetchBlockedDates()]);
+    setStaff(s);
+    setBlocked(b);
+  }
   useEffect(() => {
-    let loadData = async () => {
-      const [s, b] = await Promise.all([fetchStaff(), fetchBlockedDates()]);
-      setStaff(s);
-      setBlocked(b);
-    };
-    loadData();
+    load();
   }, []);
 
   const today = new Date().toISOString().split("T")[0];
@@ -844,7 +839,7 @@ function BlockedDatesTab() {
                 );
                 setForm({ staff_id: "", date: "", reason: "" });
                 setSaving(false);
-                loadData();
+                load();
               }}
               disabled={saving || !form.date}
               className="h-10 bg-blue-600 hover:bg-blue-700 gap-2 rounded-xl"
