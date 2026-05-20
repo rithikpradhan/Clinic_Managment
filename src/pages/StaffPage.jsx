@@ -48,7 +48,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { useAppointments } from "../hooks/Useappointments";
+import { useAppointments } from "../hooks/useAppointments";
 import { formatTime } from "../lib/Scheduling";
 import {
   Tooltip,

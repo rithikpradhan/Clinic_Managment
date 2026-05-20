@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useAppointments } from "../hooks/Useappointments";
+import { useAppointments } from "../hooks/useAppointments";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie
 } from "recharts";

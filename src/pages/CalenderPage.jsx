@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useAppointments } from "../hooks/Useappointments";
+import { useAppointments } from "../hooks/useAppointments";
 import {
   Plus,
   Calendar as CalendarIcon,
