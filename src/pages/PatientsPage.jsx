@@ -82,6 +82,7 @@ export default function PatientsPage() {
         </div>
 
         <div className="overflow-x-auto">
+          <div className="min-w-[800px] w-full">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50/60">
@@ -202,6 +203,7 @@ export default function PatientsPage() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
 
         <div className="px-5 py-3 border-t border-gray-100 bg-gray-50/40">

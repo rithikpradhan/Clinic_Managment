@@ -316,7 +316,8 @@ export default function StaffPage() {
           </div>
         </CardHeader>
 
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
+          <div className="min-w-[800px] w-full">
           <Table>
             <TableHeader className="bg-slate-50/50">
               <TableRow className="hover:bg-transparent border-slate-100">
@@ -483,6 +484,7 @@ export default function StaffPage() {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
 
         <div className="p-6 border-t border-gray-50 bg-white">
