@@ -275,7 +275,7 @@ export default function BillingPage() {
         </CardHeader>
 
         <CardContent className="p-0 overflow-x-auto">
-          <div className="min-w-[800px] w-full">
+          <div className="hidden md:block min-w-[800px] w-full">
           <Table>
             <TableHeader className="bg-slate-50/50">
               <TableRow className="hover:bg-transparent border-slate-100">
@@ -428,6 +428,102 @@ export default function BillingPage() {
             )}
             </TableBody>
           </Table>
+          </div>
+          
+          {/* Mobile Card Layout */}
+          <div className="md:hidden flex flex-col p-4 space-y-4">
+            {paginatedInvoices.length === 0 ? (
+              <div className="text-center py-10">
+                <FileText size={32} className="mb-4 text-slate-200 mx-auto" />
+                <p className="text-sm font-semibold text-slate-500">No invoices found</p>
+              </div>
+            ) : (
+              paginatedInvoices.map((inv) => {
+                const initial = (inv.patient?.[0] || "default").toLowerCase();
+                const colorClass = AVATAR_COLORS[initial] || AVATAR_COLORS.default;
+                
+                return (
+                  <div key={inv.id} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm flex flex-col gap-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10 rounded-xl ring-1 ring-gray-100 shadow-sm">
+                          <AvatarFallback className={`text-[11px] font-semibold rounded-xl ${colorClass}`}>
+                            {getInitials(inv.patient)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-bold text-slate-900">{inv.patient}</span>
+                          <span className="text-xs text-slate-500 font-medium font-mono">Invoice #{inv.id}</span>
+                        </div>
+                      </div>
+                      <Badge 
+                        variant="outline" 
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold border shadow-none uppercase tracking-wide ${getStatusStyle(inv.status)}`}
+                      >
+                        {inv.status}
+                      </Badge>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 bg-gray-50/50 rounded-xl p-3 border border-gray-50/50">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Date & Treatment</span>
+                        <span className="text-xs font-semibold text-slate-700">
+                          {new Date(inv.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                        <span className="text-[10px] text-slate-500 font-medium truncate max-w-[140px]">{inv.treatment}</span>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Amount</span>
+                        <span className="text-sm font-bold text-slate-900">₹{inv.amount.toLocaleString()}</span>
+                        {inv.is_consultation && inv.consultation_fee > 0 && (
+                          <span className="text-[10px] text-slate-400 font-medium">incl. ₹{inv.consultation_fee} fee</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end border-t border-gray-50 pt-3">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm" className="h-8 rounded-lg text-gray-500 border-gray-200 shadow-sm gap-2 text-xs">
+                            Manage Invoice <MoreHorizontal size={14} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-52 rounded-2xl p-1.5 shadow-xl border-gray-100">
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              setSelectedInvoice(inv);
+                              setTimeout(() => window.print(), 100);
+                            }} 
+                            className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3"
+                          >
+                            <Printer size={16} className="text-gray-400" /> Print Invoice
+                          </DropdownMenuItem>
+                          
+                          <DropdownMenuSeparator className="bg-gray-50" />
+
+                          <DropdownMenuSub>
+                            <DropdownMenuSubTrigger className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
+                              <Clock size={16} className="text-gray-400" /> Change Status
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuSubContent className="rounded-2xl p-1.5 shadow-xl border-gray-100 ml-1">
+                              {["Paid", "Pending", "Overdue"].map((s) => (
+                                <DropdownMenuItem 
+                                  key={s} 
+                                  onClick={() => updateStatus(inv.id, s)}
+                                  className={`rounded-xl px-3 py-2 font-medium text-sm mb-0.5 last:mb-0 ${inv.status === s ? "bg-blue-50 text-blue-600" : "text-gray-500"}`}
+                                >
+                                  {s}
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuSubContent>
+                          </DropdownMenuSub>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </CardContent>
 

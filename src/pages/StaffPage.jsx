@@ -317,7 +317,7 @@ export default function StaffPage() {
         </CardHeader>
 
         <CardContent className="p-0 overflow-x-auto">
-          <div className="min-w-[800px] w-full">
+          <div className="hidden md:block min-w-[800px] w-full">
           <Table>
             <TableHeader className="bg-slate-50/50">
               <TableRow className="hover:bg-transparent border-slate-100">
@@ -484,6 +484,107 @@ export default function StaffPage() {
               )}
             </TableBody>
           </Table>
+          </div>
+
+          {/* Mobile Card Layout */}
+          <div className="md:hidden flex flex-col p-4 space-y-4">
+            {loading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-32 bg-slate-50 animate-pulse rounded-2xl" />
+              ))
+            ) : filtered.length === 0 ? (
+              <div className="text-center py-10">
+                <User size={32} strokeWidth={1} className="mb-4 opacity-20 mx-auto" />
+                <p className="text-sm font-medium text-slate-400">No team members found</p>
+              </div>
+            ) : (
+              filtered.map((m) => {
+                const initial = (m.name?.[0] || "default").toLowerCase();
+                const colorClass = AVATAR_COLORS[initial] || AVATAR_COLORS.default;
+                
+                const todayStr = getTodayStr();
+                const todayAppts = appointments.filter(appt => {
+                  if (appt.appointment_date !== todayStr) return false;
+                  if (appt.status === 'cancelled') return false;
+                  return isDoctorAssigned(m.name, m.id, appt);
+                });
+                
+                return (
+                  <div key={m.id} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm flex flex-col gap-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10 rounded-xl ring-1 ring-gray-100 shadow-sm">
+                          <AvatarImage src={m.photo_url} className="object-cover" />
+                          <AvatarFallback className={`text-[11px] font-semibold rounded-xl ${colorClass}`}>
+                            {getInitials(m.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-bold text-slate-900">{m.name}</span>
+                          <span className="text-xs text-slate-500 font-medium">{m.role || "Specialist"} • {m.specialty || "General"}</span>
+                        </div>
+                      </div>
+                      <Badge 
+                        variant="outline" 
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold border shadow-none uppercase tracking-wide ${m.available ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-slate-50 text-slate-500 border-slate-100"}`}
+                      >
+                        {m.available ? "Available" : "Off Duty"}
+                      </Badge>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 bg-gray-50/50 rounded-xl p-3 border border-gray-50/50">
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Contact Info</span>
+                        <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                          <PhoneIcon size={12} className="text-slate-400" />
+                          {m.phone || "No phone"}
+                        </div>
+                        <div className="flex items-center gap-2 text-[10px] text-slate-500 truncate">
+                          <Mail size={12} className="text-slate-400 shrink-0" />
+                          <span className="truncate">{m.email}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Today's Schedule</span>
+                        {todayAppts.length === 0 ? (
+                          <span className="text-xs text-slate-400 italic font-medium mt-1">No patients</span>
+                        ) : (
+                          <Badge 
+                            variant="outline"
+                            className="rounded-full px-2 py-0.5 text-[10px] font-bold border bg-violet-50 text-violet-600 border-violet-100 uppercase tracking-wide w-fit mt-1 shadow-none"
+                          >
+                            {todayAppts.length} Patient{todayAppts.length > 1 ? 's' : ''}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end border-t border-gray-50 pt-3">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm" className="h-8 rounded-lg text-gray-500 border-gray-200 shadow-sm gap-2 text-xs">
+                            Manage Staff <MoreHorizontal size={14} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48 rounded-2xl p-1.5 shadow-xl border-gray-100">
+                          <DropdownMenuItem onClick={() => setModal(m)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
+                            <Pencil size={16} className="text-gray-400" /> Edit Profile
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleSave({...m, available: !m.available})} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
+                            <div className={`w-2 h-2 rounded-full ${m.available ? "bg-slate-300" : "bg-emerald-500"}`} />
+                            Mark as {m.available ? "Off Duty" : "Available"}
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator className="bg-gray-50" />
+                          <DropdownMenuItem onClick={() => handleDelete(m.id)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3 text-rose-600 focus:text-rose-600 focus:bg-rose-50">
+                            <Trash2 size={16} /> Remove Member
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </CardContent>
 

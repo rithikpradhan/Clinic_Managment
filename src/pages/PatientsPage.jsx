@@ -81,7 +81,7 @@ export default function PatientsPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="hidden md:block overflow-x-auto">
           <div className="min-w-[800px] w-full">
           <table className="w-full">
             <thead>
@@ -204,6 +204,64 @@ export default function PatientsPage() {
             </tbody>
           </table>
           </div>
+        </div>
+
+        {/* Mobile Card Layout */}
+        <div className="md:hidden flex flex-col p-4 space-y-4">
+          {patients.length === 0 ? (
+            <div className="text-center py-10">
+              <Users className="w-8 h-8 text-gray-200 mx-auto mb-2" />
+              <p className="text-sm text-gray-400">No patients found</p>
+            </div>
+          ) : (
+            patients.map((p, i) => {
+              const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
+              const visits = visitCount(p);
+              const treatment = latestTreatment(p);
+
+              return (
+                <div key={p.email || p.name} onClick={() => goToHistory(p)} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm flex flex-col gap-3 cursor-pointer active:scale-[0.98] transition-all">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-xl text-sm font-semibold flex items-center justify-center shrink-0 ${color}`}>
+                        {getInitials(p.name)}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-gray-900">{p.name}</span>
+                        <span className="text-xs text-gray-500 font-medium">{p.phone || p.email || "No contact info"}</span>
+                      </div>
+                    </div>
+                    {p.phone && (
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 bg-emerald-50 hover:bg-emerald-100 rounded-lg shrink-0" onClick={(e) => handleWhatsApp(e, p)}>
+                        <MessageCircle size={16} />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3 bg-gray-50/50 rounded-xl p-3 border border-gray-50/50 mt-1">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Last Visit</span>
+                      <span className="text-xs font-semibold text-slate-700">{formatDate(p.appointment_date)}</span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Visits</span>
+                      <span className="text-xs font-semibold text-slate-700">{visits} visit{visits !== 1 ? "s" : ""}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between border-t border-gray-50 pt-3">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Latest Treatment</span>
+                      <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md inline-block max-w-[200px] truncate">
+                        {treatment || "General Checkup"}
+                      </span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-gray-300" />
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
 
         <div className="px-5 py-3 border-t border-gray-100 bg-gray-50/40">
