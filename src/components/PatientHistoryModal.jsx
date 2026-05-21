@@ -197,7 +197,7 @@ export default function PatientHistoryModal({
       />
 
       {/* Modal */}
-      <div className="relative bg-[#F7F8FA] rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col z-10 overflow-hidden">
+      <div className="relative bg-[#F7F8FA] rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90dvh] flex flex-col z-10 overflow-hidden">
         {/* ── Header ── */}
         <div className="bg-white px-6 py-5 border-b border-gray-100 flex items-start justify-between shrink-0">
           <div className="flex items-center gap-4">

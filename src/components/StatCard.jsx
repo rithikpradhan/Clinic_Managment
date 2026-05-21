@@ -2,7 +2,7 @@ import { LayoutDashboard, Calendar, Users, Settings } from "lucide-react";
 
 export default function AdminLayout({ children }) {
   return (
-    <div className="flex min-h-screen bg-slate-100">
+    <div className="flex min-h-dvh bg-slate-100">
       {/* Sidebar */}
       <div className="w-64 bg-white border-r p-6">
         <h2 className="text-xl font-bold mb-8">Clinic Admin</h2>

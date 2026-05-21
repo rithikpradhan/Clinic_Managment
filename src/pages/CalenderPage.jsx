@@ -5,6 +5,8 @@ import {
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  Filter,
   Clock,
   User,
   Activity
@@ -13,6 +15,12 @@ import { useNavigate } from "react-router-dom";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { getInitials } from "../components/shared";
@@ -34,6 +42,7 @@ export default function CalendarPage() {
   const navigate = useNavigate();
   const { appointments = [], staffList = [], loading } = useAppointments();
   const [date, setDate] = useState(new Date());
+  const [selectedDoctorId, setSelectedDoctorId] = useState("all");
 
   const selectedStr = date.toLocaleDateString("en-CA");
 
@@ -54,7 +63,7 @@ export default function CalendarPage() {
     if (annotatedDoctors.length > 0) {
       return annotatedDoctors.includes(docName.trim().toLowerCase());
     }
-    
+
     return appt.staff_id === docId || (appt.staff?.name && appt.staff.name.trim().toLowerCase() === docName.trim().toLowerCase());
   };
 
@@ -70,6 +79,12 @@ export default function CalendarPage() {
       .sort((a, b) => (a.appointment_time || "").localeCompare(b.appointment_time || ""));
     return { ...staff, appts };
   }).filter(s => s.appts.length > 0 || s.available);
+
+  const displayDoctors = selectedDoctorId === "all"
+    ? doctorsWithAppts
+    : doctorsWithAppts.filter(d => d.id === selectedDoctorId);
+
+  const showUnassigned = selectedDoctorId === "all" && unassigned.length > 0;
 
   const prevDay = () => setDate(d => { const nd = new Date(d); nd.setDate(nd.getDate() - 1); return nd; });
   const nextDay = () => setDate(d => { const nd = new Date(d); nd.setDate(nd.getDate() + 1); return nd; });
@@ -87,14 +102,14 @@ export default function CalendarPage() {
       <Card key={appt.id} className="mb-3 rounded-2xl shadow-sm border-slate-100 hover:shadow-md hover:border-blue-100 transition-all cursor-pointer group">
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-2">
-            <Badge variant="outline" className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${sColor}`}>
+            <Badge variant="outline" className={`text-[10px] font-500 px-2 py-0.5 rounded-full ${sColor}`}>
               {appt.status.toUpperCase()}
             </Badge>
-            <span className="text-[11px] font-black text-slate-800 bg-slate-100 px-2 py-1 rounded-lg">
+            <span className="text-[11px] font-500 text-slate-800 bg-slate-100 px-2 py-1 rounded-lg">
               {formatTime(appt.appointment_time)}
             </span>
           </div>
-          <p className="text-sm font-bold text-slate-900 group-hover:text-blue-700 transition-colors">{appt.name}</p>
+          <p className="text-sm font-500 text-slate-900 group-hover:text-blue-700 transition-colors">{appt.name}</p>
           <div className="flex items-center gap-1.5 mt-2">
             <Activity className="w-3.5 h-3.5 text-blue-400 shrink-0" />
             <p className="text-[11px] font-medium text-slate-500 leading-tight">
@@ -107,49 +122,77 @@ export default function CalendarPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-2rem)] -m-6 bg-[#f8fbff]">
+    <div className="flex flex-col h-[calc(100dvh-2rem)] -m-3 bg-[#f8fbff]">
       {/* HEADER */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 p-6 bg-white border-b border-slate-100 shrink-0 z-10 shadow-sm">
-        <div>
-          <h1 className="text-2xl font-500 text-slate-900 tracking-tight">Daily Schedule</h1>
-          <p className="text-sm text-slate-500 mt-1">Manage doctor schedules and patient queues.</p>
+      <div className="flex flex-col gap-4 p-4 sm:p-6 bg-white border-b border-slate-100 shrink-0 z-10 shadow-sm">
+
+        {/* Headings */}
+        <div className="flex flex-col shrink-0">
+          <h1 className="text-xl sm:text-2xl font-500 text-slate-900 tracking-tight whitespace-nowrap">Daily Schedule</h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">Doctor schedules and patient queues.</p>
         </div>
-        
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          {/* Date Controls */}
-          <div className="flex items-center p-1 bg-slate-100 rounded-2xl w-full sm:w-auto justify-between">
-            <Button variant="ghost" onClick={prevDay} className="h-9 px-3 rounded-xl hover:bg-white hover:shadow-sm text-slate-500">
+
+        {/* Controls */}
+        <div className="flex flex-row flex-wrap items-center gap-2 sm:gap-3 w-full">
+          {/* 1. Date Picker */}
+          <div className="flex items-center p-1 bg-slate-100 rounded-xl sm:rounded-2xl w-max shrink-0">
+            <Button variant="ghost" onClick={prevDay} className="h-8 sm:h-9 px-2 sm:px-2 rounded-lg sm:rounded-xl hover:bg-white hover:shadow-sm text-slate-500">
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <div className="flex items-center gap-2 px-2 sm:px-4 font-semibold text-sm text-slate-800 justify-center">
-              <CalendarIcon className="w-4 h-4 text-blue-500 hidden sm:block" />
-              {date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+            <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 font-semibold text-xs sm:text-sm text-slate-800 justify-center">
+              <CalendarIcon className="w-3.5 h-3.5 text-blue-500 hidden sm:block" />
+              <span className="whitespace-nowrap">{date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</span>
             </div>
-            <Button variant="ghost" onClick={nextDay} className="h-9 px-3 rounded-xl hover:bg-white hover:shadow-sm text-slate-500">
+            <Button variant="ghost" onClick={nextDay} className="h-8 sm:h-9 px-2 sm:px-2 rounded-lg sm:rounded-xl hover:bg-white hover:shadow-sm text-slate-500">
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <Button onClick={goToday} variant="outline" className="flex-1 sm:flex-none h-11 rounded-2xl border-slate-200 text-slate-600 font-semibold hover:text-blue-700 hover:bg-blue-50 px-6">
-              Today
-            </Button>
+          {/* 2. Today Button */}
+          <Button onClick={goToday} variant="outline" className="h-10 sm:h-11 rounded-xl sm:rounded-2xl border-slate-200 text-slate-600 font-semibold hover:text-blue-700 hover:bg-blue-50 px-4 sm:px-6 text-xs sm:text-sm shrink-0">
+            Today
+          </Button>
 
-            <Button onClick={() => navigate("/admin/appointments")} className="flex-1 sm:flex-none h-11 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg shadow-blue-200 px-4 sm:px-6">
-              <Plus className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">New Appointment</span>
-              <span className="sm:hidden">New</span>
-            </Button>
-          </div>
+          {/* 3. Filter Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="h-10 sm:h-11 rounded-xl sm:rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold shadow-sm px-3 sm:px-6 justify-between gap-2 transition-all shrink-0">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
+                  <span className="truncate max-w-[100px] sm:max-w-[160px] text-xs sm:text-sm">
+                    {selectedDoctorId === "all" ? "All Doctors" : staffList.find(d => d.id === selectedDoctorId)?.name || "All Doctors"}
+                  </span>
+                </div>
+                <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 rounded-2xl p-1.5 shadow-xl border-slate-100">
+              <DropdownMenuItem
+                onClick={() => setSelectedDoctorId("all")}
+                className={`rounded-xl px-3 py-2 font-medium text-sm mb-0.5 cursor-pointer ${selectedDoctorId === "all" ? "bg-blue-50 text-blue-600" : "text-slate-600 hover:bg-slate-50"}`}
+              >
+                All Doctors
+              </DropdownMenuItem>
+              {staffList.filter(s => s.role === 'doctor' || s.specialty || s.available).map(doc => (
+                <DropdownMenuItem
+                  key={doc.id}
+                  onClick={() => setSelectedDoctorId(doc.id)}
+                  className={`rounded-xl px-3 py-2 font-medium text-sm mb-0.5 cursor-pointer ${selectedDoctorId === doc.id ? "bg-blue-50 text-blue-600" : "text-slate-600 hover:bg-slate-50"}`}
+                >
+                  {doc.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
       {/* KANBAN BOARD */}
       <div className="flex-1 overflow-x-auto p-6" style={{ scrollbarWidth: "thin" }}>
         <div className="flex gap-6 h-full items-start w-max">
-          
+
           {/* UNASSIGNED COLUMN */}
-          {unassigned.length > 0 && (
+          {showUnassigned && (
             <div className="w-80 flex flex-col h-full rounded-3xl bg-slate-100/50 border border-slate-200/50 shrink-0">
               <div className="p-4 border-b border-slate-200/50 flex items-center justify-between bg-white/50 rounded-t-3xl backdrop-blur-sm shrink-0">
                 <div className="flex items-center gap-3">
@@ -157,11 +200,11 @@ export default function CalendarPage() {
                     <User className="w-5 h-5 text-slate-400" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-800 text-sm">Unassigned</h3>
+                    <h3 className="font-500 text-slate-800 text-sm">Unassigned</h3>
                     <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Awaiting Doctor</p>
                   </div>
                 </div>
-                <Badge variant="secondary" className="bg-slate-200 text-slate-700 font-bold">{unassigned.length}</Badge>
+                <Badge variant="secondary" className="bg-slate-200 text-slate-700 font-500">{unassigned.length}</Badge>
               </div>
               <div className="p-4 overflow-y-auto flex-1" style={{ scrollbarWidth: "none" }}>
                 {unassigned.map(renderCard)}
@@ -170,7 +213,7 @@ export default function CalendarPage() {
           )}
 
           {/* DOCTOR COLUMNS */}
-          {doctorsWithAppts.map(doc => {
+          {displayDoctors.map(doc => {
             const initial = (doc.name?.[0] || "d").toLowerCase();
             const colorClass = AVATAR_COLORS[initial] || AVATAR_COLORS.default;
 
@@ -180,25 +223,25 @@ export default function CalendarPage() {
                   <div className="flex items-center gap-3 min-w-0 pr-2">
                     <Avatar className="w-10 h-10 rounded-xl shadow-sm border border-white shrink-0">
                       <AvatarImage src={doc.photo_url} className="object-cover" />
-                      <AvatarFallback className={`text-xs font-bold rounded-xl ${colorClass}`}>
+                      <AvatarFallback className={`text-xs font-500 rounded-xl ${colorClass}`}>
                         {getInitials(doc.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0">
-                      <h3 className="font-bold text-slate-800 text-sm truncate">{doc.name}</h3>
+                      <h3 className="font-500 text-slate-800 text-sm truncate">{doc.name}</h3>
                       <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider truncate">{doc.specialty || doc.role || "Specialist"}</p>
                     </div>
                   </div>
-                  <Badge variant="secondary" className="bg-white text-slate-700 font-bold border border-slate-200 shadow-sm shrink-0">
+                  <Badge variant="secondary" className="bg-white text-slate-700 font-500 border border-slate-200 shadow-sm shrink-0">
                     {doc.appts.length}
                   </Badge>
                 </div>
-                
+
                 <div className="p-4 overflow-y-auto flex-1" style={{ scrollbarWidth: "none" }}>
                   {loading ? (
                     <div className="flex flex-col items-center justify-center py-10 opacity-50 h-full">
-                       <Clock className="w-6 h-6 text-slate-300 animate-spin mb-3" />
-                       <p className="text-xs font-medium text-slate-400">Loading schedule...</p>
+                      <Clock className="w-6 h-6 text-slate-300 animate-spin mb-3" />
+                      <p className="text-xs font-medium text-slate-400">Loading schedule...</p>
                     </div>
                   ) : doc.appts.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full min-h-[8rem] border-2 border-dashed border-slate-200 rounded-2xl bg-white/30 m-2">
@@ -213,7 +256,7 @@ export default function CalendarPage() {
               </div>
             );
           })}
-          
+
         </div>
       </div>
     </div>

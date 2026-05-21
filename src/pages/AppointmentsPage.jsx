@@ -29,7 +29,7 @@ export default function AppointmentsPage() {
   } = useAppointments();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-dvh">
       <AppointmentsTable
         appointments={appointments}
         staffList={staffList}

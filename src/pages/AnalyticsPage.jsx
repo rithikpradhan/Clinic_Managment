@@ -150,7 +150,7 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-[60vh]">
+      <div className="flex flex-col items-center justify-center h-[60dvh]">
         <Activity className="w-10 h-10 text-violet-500 animate-bounce mb-4" />
         <p className="text-slate-500 font-medium">Crunching the numbers...</p>
       </div>
@@ -159,7 +159,7 @@ export default function AnalyticsPage() {
 
   if (!data) {
     return (
-      <div className="flex flex-col items-center justify-center h-[60vh]">
+      <div className="flex flex-col items-center justify-center h-[60dvh]">
         <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
           <Calendar className="w-8 h-8 text-slate-400" />
         </div>

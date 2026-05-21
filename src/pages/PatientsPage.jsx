@@ -59,7 +59,7 @@ export default function PatientsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Patients</h1>
+        <h1 className="text-2xl font-500 text-gray-900">Patients</h1>
         <p className="text-sm text-gray-500 mt-0.5">
           {loading
             ? "Loading…"
@@ -83,131 +83,131 @@ export default function PatientsPage() {
 
         <div className="hidden md:block overflow-x-auto">
           <div className="min-w-[800px] w-full">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50/60">
-                {[
-                  "Patient",
-                  "Email",
-                  "Phone",
-                  "Last Visit",
-                  "Latest Treatment",
-                  "Total Visits",
-                  "",
-                ].map((h) => (
-                  <th
-                    key={h}
-                    className="text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wide px-5 py-3"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {loading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i}>
-                    {Array.from({ length: 7 }).map((_, j) => (
-                      <td key={j} className="px-5 py-4">
-                        <div className="h-4 bg-gray-100 rounded animate-pulse w-3/4" />
-                      </td>
-                    ))}
-                  </tr>
-                ))
-              ) : patients.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="text-center py-16">
-                    <Users className="w-8 h-8 text-gray-200 mx-auto mb-2" />
-                    <p className="text-sm text-gray-400">No patients found</p>
-                  </td>
-                </tr>
-              ) : (
-                patients.map((p, i) => {
-                  const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
-                  const visits = visitCount(p);
-                  const treatment = latestTreatment(p);
-
-                  return (
-                    <tr
-                      key={p.email || p.name}
-                      onClick={() => goToHistory(p)}
-                      className="hover:bg-blue-50/40 transition-colors cursor-pointer group"
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50/60">
+                  {[
+                    "Patient",
+                    "Email",
+                    "Phone",
+                    "Last Visit",
+                    "Latest Treatment",
+                    "Total Visits",
+                    "",
+                  ].map((h) => (
+                    <th
+                      key={h}
+                      className="text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wide px-5 py-3"
                     >
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-9 h-9 rounded-xl text-xs font-semibold flex items-center justify-center shrink-0 ${color}`}
-                          >
-                            {getInitials(p.name)}
-                          </div>
-                          <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
-                            {p.name}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="px-5 py-3.5 text-sm text-gray-600">
-                        {p.email || "—"}
-                      </td>
-                      <td className="px-5 py-3.5 text-sm text-gray-600">
-                        {p.phone || "—"}
-                      </td>
-                      <td className="px-5 py-3.5 text-sm text-gray-500">
-                        {formatDate(p.appointment_date)}
-                      </td>
-                      <td className="px-5 py-3.5">
-                        {(() => {
-                          const list = (treatment || "").split(",").map(t => t.trim());
-                          if (list.length <= 1) {
-                            return (
-                              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-200 whitespace-nowrap inline-block">
-                                {treatment}
-                              </span>
-                            );
-                          }
-                          return (
-                            <div className="flex items-center gap-1.5" title={treatment}>
-                              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-200 max-w-[120px] truncate">
-                                {list[0]}
-                              </span>
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap cursor-help">
-                                +{list.length - 1} more
-                              </span>
-                            </div>
-                          );
-                        })()}
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <span className="text-sm font-bold text-gray-700 bg-gray-100 px-2.5 py-1 rounded-full">
-                          {visits} visit{visits !== 1 ? "s" : ""}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          {p.phone && (
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg"
-                              onClick={(e) => handleWhatsApp(e, p)}
-                            >
-                              <MessageCircle size={16} />
-                            </Button>
-                          )}
-                          <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-blue-400 transition-colors" />
-                        </div>
-                      </td>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {loading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i}>
+                      {Array.from({ length: 7 }).map((_, j) => (
+                        <td key={j} className="px-5 py-4">
+                          <div className="h-4 bg-gray-100 rounded animate-pulse w-3/4" />
+                        </td>
+                      ))}
                     </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+                  ))
+                ) : patients.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-16">
+                      <Users className="w-8 h-8 text-gray-200 mx-auto mb-2" />
+                      <p className="text-sm text-gray-400">No patients found</p>
+                    </td>
+                  </tr>
+                ) : (
+                  patients.map((p, i) => {
+                    const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
+                    const visits = visitCount(p);
+                    const treatment = latestTreatment(p);
+
+                    return (
+                      <tr
+                        key={p.email || p.name}
+                        onClick={() => goToHistory(p)}
+                        className="hover:bg-blue-50/40 transition-colors cursor-pointer group"
+                      >
+                        <td className="px-5 py-3.5">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-9 h-9 rounded-xl text-xs font-semibold flex items-center justify-center shrink-0 ${color}`}
+                            >
+                              {getInitials(p.name)}
+                            </div>
+                            <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                              {p.name}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="px-5 py-3.5 text-sm text-gray-600">
+                          {p.email || "—"}
+                        </td>
+                        <td className="px-5 py-3.5 text-sm text-gray-600">
+                          {p.phone || "—"}
+                        </td>
+                        <td className="px-5 py-3.5 text-sm text-gray-500">
+                          {formatDate(p.appointment_date)}
+                        </td>
+                        <td className="px-5 py-3.5">
+                          {(() => {
+                            const list = (treatment || "").split(",").map(t => t.trim());
+                            if (list.length <= 1) {
+                              return (
+                                <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-200 whitespace-nowrap inline-block">
+                                  {treatment}
+                                </span>
+                              );
+                            }
+                            return (
+                              <div className="flex items-center gap-1.5" title={treatment}>
+                                <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-200 max-w-[120px] truncate">
+                                  {list[0]}
+                                </span>
+                                <span className="text-[10px] font-500 px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap cursor-help">
+                                  +{list.length - 1} more
+                                </span>
+                              </div>
+                            );
+                          })()}
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className="text-sm font-500 text-gray-700 bg-gray-100 px-2.5 py-1 rounded-full">
+                            {visits} visit{visits !== 1 ? "s" : ""}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {p.phone && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg"
+                                onClick={(e) => handleWhatsApp(e, p)}
+                              >
+                                <MessageCircle size={16} />
+                              </Button>
+                            )}
+                            <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-blue-400 transition-colors" />
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 
         {/* Mobile Card Layout */}
-        <div className="md:hidden flex flex-col p-4 space-y-4">
+        <div className="md:hidden flex flex-col p-4 space-y-3">
           {patients.length === 0 ? (
             <div className="text-center py-10">
               <Users className="w-8 h-8 text-gray-200 mx-auto mb-2" />
@@ -216,48 +216,23 @@ export default function PatientsPage() {
           ) : (
             patients.map((p, i) => {
               const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
-              const visits = visitCount(p);
-              const treatment = latestTreatment(p);
 
               return (
-                <div key={p.email || p.name} onClick={() => goToHistory(p)} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm flex flex-col gap-3 cursor-pointer active:scale-[0.98] transition-all">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-xl text-sm font-semibold flex items-center justify-center shrink-0 ${color}`}>
-                        {getInitials(p.name)}
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-bold text-gray-900">{p.name}</span>
-                        <span className="text-xs text-gray-500 font-medium">{p.phone || p.email || "No contact info"}</span>
-                      </div>
+                <div key={p.email || p.name} onClick={() => goToHistory(p)} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm flex items-center justify-between cursor-pointer active:scale-[0.98] transition-all">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-full text-lg font-500 flex items-center justify-center shrink-0 ${color}`}>
+                      {getInitials(p.name)}
                     </div>
-                    {p.phone && (
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 bg-emerald-50 hover:bg-emerald-100 rounded-lg shrink-0" onClick={(e) => handleWhatsApp(e, p)}>
-                        <MessageCircle size={16} />
-                      </Button>
-                    )}
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-3 bg-gray-50/50 rounded-xl p-3 border border-gray-50/50 mt-1">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Last Visit</span>
-                      <span className="text-xs font-semibold text-slate-700">{formatDate(p.appointment_date)}</span>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Visits</span>
-                      <span className="text-xs font-semibold text-slate-700">{visits} visit{visits !== 1 ? "s" : ""}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between border-t border-gray-50 pt-3">
                     <div className="flex flex-col">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Latest Treatment</span>
-                      <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md inline-block max-w-[200px] truncate">
-                        {treatment || "General Checkup"}
-                      </span>
+                      <span className="text-[15px] font-500 text-slate-900 tracking-tight">{p.name}</span>
+                      <span className="text-sm font-medium text-slate-500 mt-0.5">{p.phone || p.email || "No contact info"}</span>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-gray-300" />
                   </div>
+                  {p.phone && (
+                    <Button variant="ghost" size="icon" className="h-10 w-10 text-emerald-500 bg-emerald-50 hover:bg-emerald-100 rounded-full shrink-0" onClick={(e) => handleWhatsApp(e, p)}>
+                      <MessageCircle size={20} />
+                    </Button>
+                  )}
                 </div>
               );
             })

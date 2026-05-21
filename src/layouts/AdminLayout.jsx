@@ -162,7 +162,7 @@ export default function AdminLayout() {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
   return (
-    <div className="flex h-screen bg-[#F7F8FA] overflow-hidden font-sans">
+    <div className="flex h-dvh bg-[#F7F8FA] overflow-hidden font-sans">
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex shrink-0">
         <Sidebar />

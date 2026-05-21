@@ -37,7 +37,7 @@ export default function Hero() {
     : HeroImage;
 
   return (
-    <section className="relative mt-16 min-h-[90vh] flex items-center overflow-hidden">
+    <section className="relative mt-16 min-h-[90dvh] flex items-center overflow-hidden">
       <img
         src={imageSrc}
         alt="Skin treatment"

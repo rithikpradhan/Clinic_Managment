@@ -7,7 +7,7 @@ export default function AuthGuard({ children }) {
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gray-50">
+      <div className="h-dvh flex items-center justify-center bg-gray-50">
         <Loader2 className="w-6 h-6 animate-spin text-rose-400" />
       </div>
     );

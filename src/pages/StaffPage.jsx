@@ -43,6 +43,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuSeparator,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -216,7 +217,7 @@ export default function StaffPage() {
     if (annotatedDoctors.length > 0) {
       return annotatedDoctors.includes(docName.trim().toLowerCase());
     }
-    
+
     return appt.staff_id === docId || (appt.staff?.name && appt.staff.name.trim().toLowerCase() === docName.trim().toLowerCase());
   };
 
@@ -243,7 +244,7 @@ export default function StaffPage() {
   async function handleSave(form) {
     let result;
     const savePayload = { ...form };
-    
+
     // If we detected that the column doesn't exist, remove it from payload to prevent error
     if (!hasPhotoColumn) {
       delete savePayload.photo_url;
@@ -259,7 +260,7 @@ export default function StaffPage() {
       setModal(null);
       load();
     } else {
-      const errorMsg = !hasPhotoColumn && form.photo_url 
+      const errorMsg = !hasPhotoColumn && form.photo_url
         ? "Missing 'photo_url' column in database. Please add it to your Supabase 'staff' table to use images."
         : "Failed to save changes. Please check your connection or database schema.";
       alert(errorMsg);
@@ -304,7 +305,7 @@ export default function StaffPage() {
               <Button variant="outline" className="h-10 w-10 p-0 rounded-xl border-gray-200 text-gray-400 hover:text-blue-600 transition-all">
                 <Download size={18} />
               </Button>
-              
+
               <Button
                 onClick={() => setModal("add")}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-medium h-10 px-4 rounded-xl flex items-center gap-2 shadow-sm transition-all active:scale-95"
@@ -318,172 +319,172 @@ export default function StaffPage() {
 
         <CardContent className="p-0 overflow-x-auto">
           <div className="hidden md:block min-w-[800px] w-full">
-          <Table>
-            <TableHeader className="bg-slate-50/50">
-              <TableRow className="hover:bg-transparent border-slate-100">
-                <TableHead className="pl-10 w-[80px] h-14 text-xs font-semibold text-slate-400 uppercase tracking-wider">S.No</TableHead>
-                <TableHead className="h-14 text-xs font-semibold text-slate-400 uppercase tracking-wider">Doctor / Staff</TableHead>
-                <TableHead className="h-14 text-xs font-semibold text-slate-400 uppercase tracking-wider">Role & Specialty</TableHead>
-                <TableHead className="h-14 text-xs font-semibold text-slate-400 uppercase tracking-wider">Contact Info</TableHead>
-                <TableHead className="h-14 text-xs font-semibold text-slate-400 uppercase tracking-wider">Today's Schedule</TableHead>
-                <TableHead className="h-14 text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</TableHead>
-                <TableHead className="pr-10 h-14 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
+            <Table>
+              <TableHeader className="bg-slate-50/50">
+                <TableRow className="hover:bg-transparent border-slate-100">
+                  <TableHead className="pl-10 w-[80px] h-14 text-xs font-semibold text-slate-400 uppercase tracking-wider">S.No</TableHead>
+                  <TableHead className="h-14 text-xs font-semibold text-slate-400 uppercase tracking-wider">Doctor / Staff</TableHead>
+                  <TableHead className="h-14 text-xs font-semibold text-slate-400 uppercase tracking-wider">Role & Specialty</TableHead>
+                  <TableHead className="h-14 text-xs font-semibold text-slate-400 uppercase tracking-wider">Contact Info</TableHead>
+                  <TableHead className="h-14 text-xs font-semibold text-slate-400 uppercase tracking-wider">Today's Schedule</TableHead>
+                  <TableHead className="h-14 text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</TableHead>
+                  <TableHead className="pr-10 h-14 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
 
-            <TableBody>
-              {loading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i} className="h-20">
-                    <TableCell colSpan={7} className="py-4">
-                      <div className="flex items-center gap-4 px-10">
-                        <div className="w-10 h-10 bg-slate-50 animate-pulse rounded-xl" />
-                        <div className="space-y-2">
-                          <div className="h-4 w-32 bg-slate-50 animate-pulse rounded" />
-                          <div className="h-3 w-20 bg-slate-50 animate-pulse rounded" />
+              <TableBody>
+                {loading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i} className="h-20">
+                      <TableCell colSpan={7} className="py-4">
+                        <div className="flex items-center gap-4 px-10">
+                          <div className="w-10 h-10 bg-slate-50 animate-pulse rounded-xl" />
+                          <div className="space-y-2">
+                            <div className="h-4 w-32 bg-slate-50 animate-pulse rounded" />
+                            <div className="h-3 w-20 bg-slate-50 animate-pulse rounded" />
+                          </div>
                         </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : filtered.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-20">
+                      <div className="flex flex-col items-center text-slate-400">
+                        <User size={40} strokeWidth={1} className="mb-4 opacity-20" />
+                        <p className="text-sm font-medium">No team members found</p>
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              ) : filtered.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-20">
-                    <div className="flex flex-col items-center text-slate-400">
-                      <User size={40} strokeWidth={1} className="mb-4 opacity-20" />
-                      <p className="text-sm font-medium">No team members found</p>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filtered.map((m, index) => {
-                  const initial = (m.name?.[0] || "default").toLowerCase();
-                  const colorClass = AVATAR_COLORS[initial] || AVATAR_COLORS.default;
-                  
-                  const todayStr = getTodayStr();
-                  const todayAppts = appointments.filter(appt => {
-                    if (appt.appointment_date !== todayStr) return false;
-                    if (appt.status === 'cancelled') return false;
-                    return isDoctorAssigned(m.name, m.id, appt);
-                  });
-                  const sortedTodayAppts = todayAppts.sort((a, b) => (a.appointment_time || "").localeCompare(b.appointment_time || ""));
-                  
-                  return (
-                    <TableRow key={m.id} className="group hover:bg-gray-50/50 border-gray-50 transition-colors h-20">
-                      <TableCell className="pl-10 font-medium text-slate-400 text-sm">
-                        {index + 1}
-                      </TableCell>
-                      
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-10 w-10 rounded-xl ring-1 ring-gray-100 shadow-sm transition-transform group-hover:scale-105">
-                            <AvatarImage src={m.photo_url} className="object-cover" />
-                            <AvatarFallback className={`text-[11px] font-semibold rounded-xl ${colorClass}`}>
-                              {getInitials(m.name)}
-                            </AvatarFallback>
-                          </Avatar>
+                ) : (
+                  filtered.map((m, index) => {
+                    const initial = (m.name?.[0] || "default").toLowerCase();
+                    const colorClass = AVATAR_COLORS[initial] || AVATAR_COLORS.default;
+
+                    const todayStr = getTodayStr();
+                    const todayAppts = appointments.filter(appt => {
+                      if (appt.appointment_date !== todayStr) return false;
+                      if (appt.status === 'cancelled') return false;
+                      return isDoctorAssigned(m.name, m.id, appt);
+                    });
+                    const sortedTodayAppts = todayAppts.sort((a, b) => (a.appointment_time || "").localeCompare(b.appointment_time || ""));
+
+                    return (
+                      <TableRow key={m.id} className="group hover:bg-gray-50/50 border-gray-50 transition-colors h-20">
+                        <TableCell className="pl-10 font-medium text-slate-400 text-sm">
+                          {index + 1}
+                        </TableCell>
+
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-10 w-10 rounded-xl ring-1 ring-gray-100 shadow-sm transition-transform group-hover:scale-105">
+                              <AvatarImage src={m.photo_url} className="object-cover" />
+                              <AvatarFallback className={`text-[11px] font-semibold rounded-xl ${colorClass}`}>
+                                {getInitials(m.name)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-semibold text-slate-900">{m.name}</span>
+                              <span className="text-[11px] text-slate-400 font-medium">{m.email}</span>
+                            </div>
+                          </div>
+                        </TableCell>
+
+                        <TableCell>
                           <div className="flex flex-col">
-                            <span className="text-sm font-semibold text-slate-900">{m.name}</span>
-                            <span className="text-[11px] text-slate-400 font-medium">{m.email}</span>
+                            <span className="text-sm font-medium text-slate-900">{m.role || "Specialist"}</span>
+                            <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wide">{m.specialty || "General"}</span>
                           </div>
-                        </div>
-                      </TableCell>
+                        </TableCell>
 
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium text-slate-900">{m.role || "Specialist"}</span>
-                          <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wide">{m.specialty || "General"}</span>
-                        </div>
-                      </TableCell>
-
-                      <TableCell>
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-2 text-[12px] text-slate-500">
-                            <Mail size={12} className="text-slate-300" />
-                            {m.email}
+                        <TableCell>
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2 text-[12px] text-slate-500">
+                              <Mail size={12} className="text-slate-300" />
+                              {m.email}
+                            </div>
+                            <div className="flex items-center gap-2 text-[12px] text-slate-500">
+                              <PhoneIcon size={12} className="text-slate-300" />
+                              {m.phone || "No phone"}
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2 text-[12px] text-slate-500">
-                            <PhoneIcon size={12} className="text-slate-300" />
-                            {m.phone || "No phone"}
-                          </div>
-                        </div>
-                      </TableCell>
+                        </TableCell>
 
-                      <TableCell>
-                        {sortedTodayAppts.length === 0 ? (
-                          <span className="text-xs text-slate-400 italic font-medium">No patients today</span>
-                        ) : (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Badge 
-                                  variant="outline"
-                                  className="rounded-full px-3 py-0.5 text-[10px] font-bold border bg-violet-50 text-violet-600 border-violet-100 uppercase tracking-wide cursor-default hover:bg-violet-100 transition-colors shadow-none"
-                                >
-                                  {sortedTodayAppts.length} Patient{sortedTodayAppts.length > 1 ? 's' : ''} Today
-                                </Badge>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="p-4 w-72 bg-white border border-slate-100 rounded-2xl shadow-xl text-slate-800">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">Today's Schedule</p>
-                                <div className="space-y-2 max-h-60 overflow-y-auto">
-                                  {sortedTodayAppts.map((appt) => (
-                                    <div key={appt.id} className="flex items-start justify-between gap-3 pb-2 border-b border-slate-50 last:border-0 last:pb-0">
-                                      <div className="flex flex-col min-w-0">
-                                        <span className="text-xs font-semibold text-slate-900 truncate">{appt.name}</span>
-                                        <span className="text-[10px] text-slate-400 truncate mt-0.5">{appt.treatment}</span>
+                        <TableCell>
+                          {sortedTodayAppts.length === 0 ? (
+                            <span className="text-xs text-slate-400 italic font-medium">No patients today</span>
+                          ) : (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Badge
+                                    variant="outline"
+                                    className="rounded-full px-3 py-0.5 text-[10px] font-bold border bg-violet-50 text-violet-600 border-violet-100 uppercase tracking-wide cursor-default hover:bg-violet-100 transition-colors shadow-none"
+                                  >
+                                    {sortedTodayAppts.length} Patient{sortedTodayAppts.length > 1 ? 's' : ''} Today
+                                  </Badge>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="p-4 w-72 bg-white border border-slate-100 rounded-2xl shadow-xl text-slate-800">
+                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">Today's Schedule</p>
+                                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                                    {sortedTodayAppts.map((appt) => (
+                                      <div key={appt.id} className="flex items-start justify-between gap-3 pb-2 border-b border-slate-50 last:border-0 last:pb-0">
+                                        <div className="flex flex-col min-w-0">
+                                          <span className="text-xs font-semibold text-slate-900 truncate">{appt.name}</span>
+                                          <span className="text-[10px] text-slate-400 truncate mt-0.5">{appt.treatment}</span>
+                                        </div>
+                                        <Badge variant="secondary" className="text-[10px] font-bold bg-violet-50 text-violet-600 shrink-0">
+                                          {formatTime(appt.appointment_time)}
+                                        </Badge>
                                       </div>
-                                      <Badge variant="secondary" className="text-[10px] font-bold bg-violet-50 text-violet-600 shrink-0">
-                                        {formatTime(appt.appointment_time)}
-                                      </Badge>
-                                    </div>
-                                  ))}
-                                </div>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        )}
-                      </TableCell>
+                                    ))}
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </TableCell>
 
-                      <TableCell>
-                        <Badge 
-                          variant="outline" 
-                          className={`rounded-full px-3 py-0.5 text-[10px] font-bold border shadow-none uppercase tracking-wide ${m.available ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-slate-50 text-slate-500 border-slate-100"}`}
-                        >
-                          {m.available ? "Available" : "Off Duty"}
-                        </Badge>
-                      </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className={`rounded-full px-3 py-0.5 text-[10px] font-bold border shadow-none uppercase tracking-wide ${m.available ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-slate-50 text-slate-500 border-slate-100"}`}
+                          >
+                            {m.available ? "Available" : "Off Duty"}
+                          </Badge>
+                        </TableCell>
 
-                      <TableCell className="pr-10 text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-all">
-                              <MoreHorizontal size={20} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48 rounded-2xl p-1.5 shadow-xl border-gray-100">
-                            <DropdownMenuItem onClick={() => setModal(m)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
-                              <Pencil size={16} className="text-gray-400" /> Edit Profile
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => handleSave({...m, available: !m.available})} 
-                              className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3"
-                            >
-                              <div className={`w-2 h-2 rounded-full ${m.available ? "bg-slate-300" : "bg-emerald-500"}`} />
-                              Mark as {m.available ? "Off Duty" : "Available"}
-                            </DropdownMenuItem>
-                            <div className="h-[1px] bg-gray-50 my-1 mx-2" />
-                            <DropdownMenuItem onClick={() => handleDelete(m.id)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3 text-rose-600 focus:text-rose-600 focus:bg-rose-50">
-                              <Trash2 size={16} /> Remove Member
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
+                        <TableCell className="pr-10 text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-all">
+                                <MoreHorizontal size={20} />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48 rounded-2xl p-1.5 shadow-xl border-gray-100">
+                              <DropdownMenuItem onClick={() => setModal(m)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
+                                <Pencil size={16} className="text-gray-400" /> Edit Profile
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleSave({ ...m, available: !m.available })}
+                                className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3"
+                              >
+                                <div className={`w-2 h-2 rounded-full ${m.available ? "bg-slate-300" : "bg-emerald-500"}`} />
+                                Mark as {m.available ? "Off Duty" : "Available"}
+                              </DropdownMenuItem>
+                              <div className="h-[1px] bg-gray-50 my-1 mx-2" />
+                              <DropdownMenuItem onClick={() => handleDelete(m.id)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3 text-rose-600 focus:text-rose-600 focus:bg-rose-50">
+                                <Trash2 size={16} /> Remove Member
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
           </div>
 
           {/* Mobile Card Layout */}
@@ -501,14 +502,14 @@ export default function StaffPage() {
               filtered.map((m) => {
                 const initial = (m.name?.[0] || "default").toLowerCase();
                 const colorClass = AVATAR_COLORS[initial] || AVATAR_COLORS.default;
-                
+
                 const todayStr = getTodayStr();
                 const todayAppts = appointments.filter(appt => {
                   if (appt.appointment_date !== todayStr) return false;
                   if (appt.status === 'cancelled') return false;
                   return isDoctorAssigned(m.name, m.id, appt);
                 });
-                
+
                 return (
                   <div key={m.id} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm flex flex-col gap-4">
                     <div className="flex justify-between items-start">
@@ -524,8 +525,8 @@ export default function StaffPage() {
                           <span className="text-xs text-slate-500 font-medium">{m.role || "Specialist"} • {m.specialty || "General"}</span>
                         </div>
                       </div>
-                      <Badge 
-                        variant="outline" 
+                      <Badge
+                        variant="outline"
                         className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold border shadow-none uppercase tracking-wide ${m.available ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-slate-50 text-slate-500 border-slate-100"}`}
                       >
                         {m.available ? "Available" : "Off Duty"}
@@ -549,7 +550,7 @@ export default function StaffPage() {
                         {todayAppts.length === 0 ? (
                           <span className="text-xs text-slate-400 italic font-medium mt-1">No patients</span>
                         ) : (
-                          <Badge 
+                          <Badge
                             variant="outline"
                             className="rounded-full px-2 py-0.5 text-[10px] font-bold border bg-violet-50 text-violet-600 border-violet-100 uppercase tracking-wide w-fit mt-1 shadow-none"
                           >
@@ -570,7 +571,7 @@ export default function StaffPage() {
                           <DropdownMenuItem onClick={() => setModal(m)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
                             <Pencil size={16} className="text-gray-400" /> Edit Profile
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleSave({...m, available: !m.available})} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
+                          <DropdownMenuItem onClick={() => handleSave({ ...m, available: !m.available })} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
                             <div className={`w-2 h-2 rounded-full ${m.available ? "bg-slate-300" : "bg-emerald-500"}`} />
                             Mark as {m.available ? "Off Duty" : "Available"}
                           </DropdownMenuItem>

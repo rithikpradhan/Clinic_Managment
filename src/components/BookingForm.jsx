@@ -901,7 +901,7 @@ function BookingModal({ onClose, onSuccess, prefill }) {
 
       {/* Panel */}
       <div
-        className="relative z-10 w-full max-w-[740px] h-[90vh] md:h-[580px] flex flex-col md:flex-row rounded-2xl overflow-hidden bg-white shadow-2xl"
+        className="relative z-10 w-full max-w-[740px] h-[90dvh] md:h-[580px] flex flex-col md:flex-row rounded-2xl overflow-hidden bg-white shadow-2xl"
         style={{
           opacity: visible ? 1 : 0,
           transform: visible
