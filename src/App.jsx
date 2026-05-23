@@ -1,11 +1,16 @@
+import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 
 // Website
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
+import AboutPage from "./pages/AboutPage";
+import TreatmentsPage from "./pages/TreatmentsPage";
+import EffectivenessPage from "./pages/EffectivenessPage";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
+import ContactPage from "./pages/ContactPage";
 
 // Admin auth
 import { AuthProvider } from "./lib/AuthContext";
@@ -25,13 +30,24 @@ import BillingPage from "./pages/BillingPage";
 import ServicesPage from "./pages/ServicesPage";
 
 function WebsiteLayout() {
+  useEffect(() => {
+    document.body.classList.add("website-theme");
+    return () => {
+      document.body.classList.remove("website-theme");
+    };
+  }, []);
+
   return (
     <div>
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/treatments" element={<TreatmentsPage />} />
+        <Route path="/effectiveness" element={<EffectivenessPage />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogDetail />} />
+        <Route path="/contact" element={<ContactPage />} />
       </Routes>
     </div>
   );

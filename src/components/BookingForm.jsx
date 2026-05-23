@@ -99,7 +99,7 @@ function MiniCalendar({ selectedDate, onSelect }) {
                 : { year: c.year, month: c.month + 1 },
             )
           }
-          className="w-8 h-8 rounded-full flex items-center justify-center text-blue-600 hover:bg-blue-50 transition-colors"
+          className="w-8 h-8 rounded-full flex items-center justify-center text-[#024244] hover:bg-[#024244]/5 transition-colors"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
@@ -136,17 +136,17 @@ function MiniCalendar({ selectedDate, onSelect }) {
                 disabled={!avail}
                 className={`w-9 h-9 md:w-10 md:h-10 rounded-full text-sm font-semibold transition-all relative ${
                   isSel
-                    ? "bg-blue-600 text-white shadow-md"
+                    ? "bg-[#024244] text-white shadow-md"
                     : isToday && avail
-                      ? "border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                      ? "border-2 border-[#024244] text-[#024244] hover:bg-[#024244]/5"
                       : avail
-                        ? "text-blue-700 hover:bg-blue-50"
+                        ? "text-[#024244] hover:bg-[#024244]/5"
                         : "text-gray-300 cursor-not-allowed"
                 }`}
               >
                 {day}
                 {avail && !isSel && (
-                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-blue-400" />
+                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#024244]/70" />
                 )}
               </button>
             </div>
@@ -161,7 +161,7 @@ function TimeSlots({ slots, selected, onSelect, loading }) {
   if (loading)
     return (
       <div className="flex flex-col items-center justify-center h-40 gap-2">
-        <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
+        <Loader2 className="w-5 h-5 animate-spin text-[#024244]" />
         <p className="text-xs text-gray-400">Loading times…</p>
       </div>
     );
@@ -178,10 +178,10 @@ function TimeSlots({ slots, selected, onSelect, loading }) {
         <button
           key={slot}
           onClick={() => onSelect(slot)}
-          className={`flex-auto min-w-[90px] md:w-full py-2.5 md:py-3 px-3 rounded-xl text-sm font-semibold border-2 transition-all ${
+          className={`flex-auto min-w-[90px] md:w-full py-2 px-3 rounded-xl text-sm font-semibold border transition-all ${
             selected === slot
-              ? "bg-blue-600 border-blue-600 text-white shadow-md"
-              : "border-blue-200 text-blue-700 hover:border-blue-500 hover:bg-blue-50 bg-white"
+              ? "bg-[#024244] border-[#024244] text-white shadow-md"
+              : "border-slate-200 text-slate-700 hover:border-[#024244]/40 hover:bg-[#024244]/5 bg-white"
           }`}
         >
           {formatTime(slot)}
@@ -193,83 +193,82 @@ function TimeSlots({ slots, selected, onSelect, loading }) {
 
 function ModalLeftPanel({ doctorName, specialty, selectedTreatments = [] }) {
   return (
-    <div className="flex flex-col gap-6 h-full justify-between pb-2 bg-white">
+    <div className="flex flex-col gap-6 h-full justify-between pb-2">
       <div className="space-y-5">
         {/* Branding header */}
         <div className="flex items-center gap-2">
           <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center shadow-sm"
-            style={{ background: "linear-gradient(135deg,#0ea5e9,#14b8a6)" }}
+            className="w-6 h-6 rounded-md flex items-center justify-center bg-[#024244]"
           >
-            <Calendar className="w-4 h-4 text-white" />
+            <Calendar className="w-3.5 h-3.5 text-white" />
           </div>
-          <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">SkinClinic</span>
+          <span className="text-xs font-bold text-slate-800 tracking-wider">PSCar Skin Clinic</span>
         </div>
 
         {/* Selected Doctor (if any) */}
         {doctorName ? (
-          <div className="bg-slate-50/80 rounded-2xl p-4 border border-slate-100 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center shrink-0">
+          <div className="bg-white rounded-2xl p-3 border border-slate-100 shadow-sm flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-[#024244]/10 text-[#024244] font-bold text-xs flex items-center justify-center shrink-0">
               {doctorName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
             </div>
-            <div className="min-w-0">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Your Doctor</p>
-              <p className="text-xs font-bold text-gray-800 truncate">{doctorName}</p>
-              {specialty && <p className="text-[10px] text-gray-500 truncate">{specialty}</p>}
+            <div className="min-w-0 text-left">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Your Specialist</p>
+              <p className="text-xs font-semibold text-slate-850 truncate">{doctorName}</p>
+              {specialty && <p className="text-[9px] text-slate-500 truncate">{specialty}</p>}
             </div>
           </div>
         ) : (
-          <div className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100/60 border-dashed">
-            <p className="text-[10px] font-medium text-gray-400 text-center">No doctor selected yet</p>
+          <div className="bg-slate-100/40 rounded-2xl p-3 border border-slate-150/30 border-dashed text-center">
+            <p className="text-[10px] font-medium text-slate-450">No doctor selected yet</p>
           </div>
         )}
 
         {/* Selected Treatments or general info */}
         {selectedTreatments && selectedTreatments.length > 0 ? (
-          <div className="space-y-2">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+          <div className="space-y-2 text-left">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
               Selected Service
             </p>
             <div className="flex flex-wrap gap-1.5">
               {selectedTreatments.map((t) => (
-                <span key={t} className="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-[10px] font-bold border border-blue-100/50">
+                <span key={t} className="inline-flex items-center px-2 py-0.5 rounded-md bg-[#024244]/5 text-[#024244] text-[10px] font-bold border border-[#024244]/10">
                   {t}
                 </span>
               ))}
             </div>
           </div>
         ) : (
-          <div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+          <div className="text-left">
+            <p className="text-[10px] font-bold text-slate-450 uppercase tracking-wider mb-1">
               Service
             </p>
-            <h2 className="text-lg font-black text-gray-900 leading-tight">
+            <h2 className="text-[15px] font-bold text-slate-850 leading-tight">
               Appointment Schedule
             </h2>
-            <p className="text-xs text-gray-500 leading-relaxed mt-2">
+            <p className="text-[11px] text-slate-500 leading-relaxed mt-1.5">
               Book a premium skin consultation or customized treatment with our expert dermatologists.
             </p>
           </div>
         )}
 
-        <div className="space-y-2.5 pt-2">
-          <div className="flex items-center gap-2.5 text-xs text-gray-600 font-semibold">
-            <Clock className="w-4 h-4 text-blue-500 shrink-0" />
-            <span>30–60 min</span>
+        <div className="space-y-2.5 pt-3 border-t border-slate-100 text-left">
+          <div className="flex items-center gap-2 text-xs text-slate-600">
+            <Clock className="w-4 h-4 text-[#024244] opacity-80 shrink-0" />
+            <span className="font-medium">30–60 min</span>
           </div>
-          <div className="flex items-center gap-2.5 text-xs text-gray-600 font-semibold">
-            <Globe className="w-4 h-4 text-blue-500 shrink-0" />
-            <span>India Standard Time (IST)</span>
+          <div className="flex items-center gap-2 text-xs text-slate-600">
+            <Globe className="w-4 h-4 text-[#024244] opacity-80 shrink-0" />
+            <span className="font-medium">India Time (IST)</span>
           </div>
         </div>
       </div>
 
       {/* Support details at the bottom */}
-      <div className="border-t border-gray-100 pt-4 mt-auto">
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Need Help?</p>
-        <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+      <div className="border-t border-slate-100 pt-4 mt-auto text-left">
+        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Need Help?</p>
+        <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
           Contact support at:<br/>
-          <strong className="text-gray-700 font-semibold">+91 98765 43210</strong>
+          <strong className="text-slate-700 font-semibold">+91 98765 43210</strong>
         </p>
       </div>
     </div>
@@ -425,7 +424,7 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
   }
 
   const inputCls =
-    "w-full h-11 px-4 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent focus:bg-white transition-all";
+    "w-full h-11 px-4 bg-slate-50/50 border border-slate-200/80 rounded-xl text-sm text-gray-950 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#024244] focus:border-[#024244] focus:bg-white transition-all";
 
   function Pager({ page, setPage, total }) {
     const pages = Math.ceil(total / PER);
@@ -447,7 +446,7 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
             <button
               key={i}
               onClick={() => setPage(i)}
-              className={`w-7 h-7 rounded-lg text-xs font-semibold ${i === page ? "bg-blue-600 text-white" : "border border-gray-200 text-gray-500 hover:bg-gray-50"}`}
+              className={`w-7 h-7 rounded-lg text-xs font-semibold ${i === page ? "bg-[#024244] text-white" : "border border-gray-200 text-gray-500 hover:bg-gray-50"}`}
             >
               {i + 1}
             </button>
@@ -479,15 +478,15 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
   if (step === 5)
     return (
       <div className="flex flex-col items-center justify-center h-full text-center px-8 py-12">
-        <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mb-5 shadow-sm">
-          <Check className="w-8 h-8 text-blue-600" />
+        <div className="w-16 h-16 rounded-full bg-[#024244]/10 flex items-center justify-center mb-5 shadow-sm">
+          <Check className="w-8 h-8 text-[#024244]" />
         </div>
         <h3 className="text-2xl font-bold text-gray-900 mb-2">Confirmed!</h3>
         <p className="text-gray-500 text-sm mb-1">
           <strong className="text-gray-800">{form.name}</strong>, you're booked
           on
         </p>
-        <p className="text-blue-600 font-semibold text-sm mb-1">
+        <p className="text-[#024244] font-semibold text-sm mb-1">
           {formatDisplayDate(form.appointment_date)}
         </p>
         <p className="text-gray-900 font-bold text-2xl mb-6">
@@ -498,7 +497,7 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
         </p>
         <button
           onClick={onClose}
-          className="w-full max-w-xs h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
+          className="w-full max-w-xs h-11 bg-[#024244] hover:bg-[#013537] text-white font-semibold rounded-xl transition-colors"
         >
           Close
         </button>
@@ -517,22 +516,32 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
             Select a specialist to continue
           </p>
         </div>
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2">
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2.5">
           <button
             onClick={() => {
               setForm((f) => ({ ...f, staff_id: "" }));
               setTimeout(() => setStep(1), 150);
             }}
-            className={`w-full flex items-center gap-3 p-4 rounded-2xl border-2 text-left transition-all ${form.staff_id === "" ? "border-blue-500 bg-blue-50" : "border-gray-100 bg-white hover:border-blue-200 hover:bg-blue-50/40"}`}
+            className={`w-full flex items-center gap-3.5 p-3.5 rounded-2xl border transition-all ${
+              form.staff_id === "" 
+                ? "border-[#024244] bg-[#024244]/5 shadow-[0_4px_12px_rgba(2,66,68,0.03)]" 
+                : "border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50"
+            }`}
           >
-            <div className={`w-11 h-11 rounded-xl text-sm font-bold flex items-center justify-center shrink-0 ${form.staff_id === "" ? "bg-blue-600 text-white" : "bg-blue-100 text-blue-700"}`}>
-              <User className="w-5 h-5" />
+            <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+              form.staff_id === "" ? "bg-[#024244] text-white" : "bg-[#024244]/10 text-[#024244]"
+            }`}>
+              <User className="w-4 h-4" />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-gray-900 text-sm">Any Available Doctor</p>
-              <p className="text-xs text-gray-500 truncate">First available specialist</p>
+            <div className="flex-1 min-w-0 text-left">
+              <p className="font-semibold text-slate-900 text-sm">Any Available Doctor</p>
+              <p className="text-xs text-slate-500 mt-0.5">First available specialist</p>
             </div>
-            {form.staff_id === "" && <Check className="w-5 h-5 text-blue-600 shrink-0" />}
+            {form.staff_id === "" && (
+              <div className="w-5 h-5 rounded-full bg-[#024244] flex items-center justify-center text-white shrink-0">
+                <Check className="w-3 h-3 text-white" />
+              </div>
+            )}
           </button>
           
           {doctors.length === 0 ? (
@@ -556,22 +565,32 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
                     setForm((f) => ({ ...f, staff_id: doc.id }));
                     setTimeout(() => setStep(1), 150);
                   }}
-                  className={`w-full flex items-center gap-3 p-4 rounded-2xl border-2 text-left transition-all ${sel ? "border-blue-500 bg-blue-50" : "border-gray-100 bg-white hover:border-blue-200 hover:bg-blue-50/40"}`}
+                  className={`w-full flex items-center gap-3.5 p-3.5 rounded-2xl border transition-all ${
+                    sel 
+                      ? "border-[#024244] bg-[#024244]/5 shadow-[0_4px_12px_rgba(2,66,68,0.03)]" 
+                      : "border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50"
+                  }`}
                 >
                   <div
-                    className={`w-11 h-11 rounded-xl text-sm font-bold flex items-center justify-center shrink-0 ${sel ? "bg-blue-600 text-white" : "bg-blue-100 text-blue-700"}`}
+                    className={`w-9 h-9 rounded-full text-xs font-bold flex items-center justify-center shrink-0 ${
+                      sel ? "bg-[#024244] text-white" : "bg-[#024244]/10 text-[#024244]"
+                    }`}
                   >
                     {initials}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 text-sm">
+                  <div className="flex-1 min-w-0 text-left">
+                    <p className="font-semibold text-slate-900 text-sm">
                       {doc.name}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">
+                    <p className="text-xs text-slate-500 mt-0.5">
                       {doc.specialty || doc.role}
                     </p>
                   </div>
-                  {sel && <Check className="w-5 h-5 text-blue-600 shrink-0" />}
+                  {sel && (
+                    <div className="w-5 h-5 rounded-full bg-[#024244] flex items-center justify-center text-white shrink-0">
+                      <Check className="w-3 h-3 text-white" />
+                    </div>
+                  )}
                 </button>
               );
             })
@@ -593,33 +612,41 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
             <p className="text-sm text-gray-500">Select a treatment or book a general consultation</p>
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2">
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2.5">
 
           {/* ── General Consultation Option ── */}
           <button
             onClick={() => {
               setForm((f) => ({ ...f, is_consultation: !f.is_consultation }));
             }}
-            className={`w-full flex items-start gap-3 p-4 rounded-2xl border-2 text-left transition-all ${form.is_consultation ? "border-emerald-500 bg-emerald-50" : "border-gray-100 bg-white hover:border-emerald-200 hover:bg-emerald-50/40"}`}
+            className={`w-full flex items-start gap-3.5 p-3.5 rounded-2xl border transition-all ${
+              form.is_consultation 
+                ? "border-[#024244] bg-[#024244]/5 shadow-[0_4px_12px_rgba(2,66,68,0.03)]" 
+                : "border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50"
+            }`}
           >
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${form.is_consultation ? "bg-emerald-600" : "bg-emerald-100"}`}>
-              <span className={`text-base font-bold ${form.is_consultation ? "text-white" : "text-emerald-600"}`}>?</span>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+              form.is_consultation ? "bg-[#024244] text-white" : "bg-[#024244]/10 text-[#024244]"
+            }`}>
+              <span className="text-sm font-bold">?</span>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-gray-900 text-sm">I don't know / General Consultation</p>
-              <p className="text-xs text-gray-500 mt-0.5">Not sure what you need? A doctor will examine and advise you.</p>
-              <p className="text-xs text-emerald-600 font-semibold mt-0.5">₹{clinicConsultFee.toLocaleString()} consultation fee</p>
+            <div className="flex-1 min-w-0 text-left">
+              <p className="font-semibold text-slate-900 text-sm">General Consultation / Diagnostic Exam</p>
+              <p className="text-xs text-slate-500 mt-0.5">A specialist doctor will evaluate your skin condition and advise on treatments.</p>
+              <p className="text-xs text-[#024244] font-bold mt-1">₹{clinicConsultFee.toLocaleString()}</p>
             </div>
             {form.is_consultation && (
-              <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="w-5 h-5 rounded-full bg-[#024244] flex items-center justify-center text-white shrink-0 mt-0.5">
+                <Check className="w-3 h-3 text-white" />
+              </div>
             )}
           </button>
 
           {/* ── Divider ── */}
           <div className="flex items-center gap-2 py-1">
-            <div className="flex-1 h-px bg-gray-100" />
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Or select a treatment</span>
-            <div className="flex-1 h-px bg-gray-100" />
+            <div className="flex-1 h-px bg-slate-100" />
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Or select a treatment</span>
+            <div className="flex-1 h-px bg-slate-100" />
           </div>
 
           {/* ── Treatment List ── */}
@@ -639,35 +666,43 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
                     return { ...f, treatment_ids: ids, treatment_names: names };
                   });
                 }}
-                className={`w-full flex items-start gap-3 p-4 rounded-2xl border-2 text-left transition-all ${sel ? "border-blue-500 bg-blue-50" : "border-gray-100 bg-white hover:border-blue-200 hover:bg-blue-50/40"}`}
+                className={`w-full flex items-start gap-3.5 p-3.5 rounded-2xl border transition-all ${
+                  sel 
+                    ? "border-[#024244] bg-[#024244]/5 shadow-[0_4px_12px_rgba(2,66,68,0.03)]" 
+                    : "border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50"
+                }`}
               >
                 <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${sel ? "bg-blue-600" : "bg-blue-100"}`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                    sel ? "bg-[#024244] text-white" : "bg-[#024244]/10 text-[#024244]"
+                  }`}
                 >
                   <Stethoscope
-                    className={`w-4 h-4 ${sel ? "text-white" : "text-blue-600"}`}
+                    className="w-4 h-4"
                   />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-900 text-sm">
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="font-semibold text-slate-900 text-sm">
                     {t.name}
                   </p>
                   {t.description && (
-                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
+                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
                       {t.description}
                     </p>
                   )}
-                  <div className="flex items-center gap-2 mt-0.5">
+                  <div className="flex items-center gap-2 mt-1">
                     {t.duration && (
-                      <p className="text-xs text-blue-500 font-medium">{t.duration} min</p>
+                      <span className="text-[11px] text-[#024244] font-semibold">{t.duration} min</span>
                     )}
                     {t.price && (
-                      <p className="text-xs text-gray-400 font-medium">₹{t.price.toLocaleString()}</p>
+                      <span className="text-[11px] text-slate-400 font-medium">₹{t.price.toLocaleString()}</span>
                     )}
                   </div>
                 </div>
                 {sel && (
-                  <Check className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                  <div className="w-5 h-5 rounded-full bg-[#024244] flex items-center justify-center text-white shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 text-white" />
+                  </div>
                 )}
               </button>
             );
@@ -678,12 +713,12 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
           <button
             onClick={() => setStep(2)}
             disabled={!form.is_consultation && form.treatment_ids.length === 0}
-            className="w-full h-11 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold rounded-xl transition-all"
+            className="w-full h-11 bg-[#024244] hover:bg-[#013537] disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold rounded-xl transition-all"
           >
             Continue
           </button>
           {form.is_consultation && form.treatment_ids.length === 0 && (
-            <p className="text-center text-[11px] text-emerald-600 font-medium mt-2">General Consultation selected — ₹{clinicConsultFee.toLocaleString()}</p>
+            <p className="text-center text-[11px] text-[#024244] font-medium mt-2">General Consultation selected — ₹{clinicConsultFee.toLocaleString()}</p>
           )}
         </div>
       </div>
@@ -740,7 +775,7 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
                     onClick={() => setForm((f) => ({ ...f, appointment_date: ds }))}
                     className={`flex flex-col items-center justify-center min-w-[64px] h-[76px] rounded-2xl transition-all snap-start shadow-sm border ${
                       isSelected
-                        ? "bg-blue-600 text-white border-blue-600 scale-105 font-bold"
+                        ? "bg-[#024244] text-white border-[#024244] scale-105 font-bold"
                         : "bg-white text-gray-400 border-gray-100 hover:border-gray-300"
                     }`}
                   >
@@ -786,8 +821,8 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
           </div>
         ) : (
           <div className="w-full md:w-40 flex flex-col flex-1 items-center justify-center text-center px-6 py-12 md:py-0 shrink-0 bg-slate-50/50 border-t md:border-t-0 border-gray-100">
-            <div className="w-16 h-16 bg-blue-100/50 rounded-full flex items-center justify-center mb-4">
-              <Calendar className="w-8 h-8 text-blue-500" />
+            <div className="w-16 h-16 bg-[#024244]/10 rounded-full flex items-center justify-center mb-4">
+              <Calendar className="w-8 h-8 text-[#024244]" />
             </div>
             <h4 className="text-sm font-bold text-gray-900 mb-1">When are you free?</h4>
             <p className="text-xs text-gray-500 leading-relaxed max-w-[200px]">
@@ -836,7 +871,7 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
           ].map(({ label, key, type, ph }) => (
             <div key={key}>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                {label} <span className="text-blue-500">*</span>
+                {label} <span className="text-[#024244]">*</span>
               </label>
               <input
                 type={type}
@@ -861,7 +896,7 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
               onChange={(e) =>
                 setForm((f) => ({ ...f, notes: e.target.value }))
               }
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent focus:bg-white transition-all resize-none"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#024244]/30 focus:border-transparent focus:bg-white transition-all resize-none"
             />
           </div>
         </div>
@@ -874,7 +909,7 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
               setStep(4);
             }}
             disabled={!form.name || !form.email || !form.phone}
-            className="w-full h-11 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold rounded-xl transition-all"
+            className="w-full h-11 bg-[#024244] hover:bg-[#013537] disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold rounded-xl transition-all"
           >
             Review Booking
           </button>
@@ -892,19 +927,19 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {/* Summary highlight */}
-          <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5 mb-4">
+          <div className="bg-[#024244]/5 border border-[#024244]/10 rounded-2xl p-5 mb-4">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[#024244] flex items-center justify-center shrink-0">
                 <Calendar className="w-5 h-5 text-white" />
               </div>
               <div>
                 <p className="text-sm font-bold text-gray-900 line-clamp-2">
                   {form.treatment_names.join(", ")}
                 </p>
-                <p className="text-xs text-blue-700 font-semibold mt-0.5">
+                <p className="text-xs text-[#024244] font-semibold mt-0.5">
                   {formatDisplayDate(form.appointment_date)}
                 </p>
-                <p className="text-xl font-bold text-blue-600 mt-1">
+                <p className="text-xl font-bold text-[#024244] mt-1">
                   {formatTime(form.appointment_time)}
                 </p>
               </div>
@@ -924,8 +959,8 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
               { icon: Globe, label: "Phone", value: form.phone },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="flex items-center gap-3 px-4 py-3">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                  <Icon className="w-3.5 h-3.5 text-blue-600" />
+                <div className="w-7 h-7 rounded-lg bg-[#024244]/5 flex items-center justify-center shrink-0">
+                  <Icon className="w-3.5 h-3.5 text-[#024244]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-gray-400">{label}</p>
@@ -944,7 +979,7 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="w-full h-11 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
+            className="w-full h-11 bg-[#024244] hover:bg-[#013537] disabled:opacity-60 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
           >
             {submitting ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -1016,7 +1051,7 @@ function BookingModal({ onClose, onSuccess, prefill }) {
 
       {/* Panel */}
       <div
-        className="relative z-10 w-full max-w-[740px] h-[90dvh] md:h-[510px] flex flex-col md:flex-row rounded-2xl overflow-hidden bg-white shadow-2xl"
+        className="relative z-10 w-full max-w-[740px] h-[90dvh] md:h-[510px] flex flex-col md:flex-row rounded-[32px] overflow-hidden bg-white shadow-2xl"
         style={{
           opacity: visible ? 1 : 0,
           transform: visible
@@ -1027,7 +1062,7 @@ function BookingModal({ onClose, onSuccess, prefill }) {
         }}
       >
         {/* Left info panel */}
-        <div className="hidden md:block w-[210px] shrink-0 p-7 border-r border-slate-100 bg-white overflow-y-auto">
+        <div className="hidden md:block w-[230px] shrink-0 p-7 border-r border-slate-100/80 bg-slate-50/40 overflow-y-auto">
           <ModalLeftPanel
             doctorName={selectedDoctor?.name}
             specialty={selectedDoctor?.specialty}
@@ -1082,18 +1117,18 @@ export function BookingCard({
 
   return (
     <>
-      <div className="w-full max-w-[460px] bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden group">
+      <div className="w-full max-w-[460px] bg-[#024244] border border-[#024244]/10 rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden group">
         {/* Decorative shimmer */}
-        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-teal-500/30 to-transparent" />
-        <div className="absolute -top-12 -right-12 w-32 h-32 bg-teal-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-teal-500/15 transition-all duration-500" />
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#ebf9fa]/20 to-transparent" />
+        <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#ebf9fa]/5 rounded-full blur-3xl pointer-events-none group-hover:bg-[#ebf9fa]/10 transition-all duration-500" />
         
         {/* Title */}
-        <h3 className="text-xl sm:text-2xl font-black text-white leading-snug mb-3 tracking-tight">
+        <h3 className="text-xl sm:text-2xl font-black text-white leading-snug mb-3 tracking-tight font-sans">
           {title}
         </h3>
 
         {/* Subtitle */}
-        <p className="text-slate-400 text-sm leading-relaxed mb-6">
+        <p className="text-[#ebf9fa]/80 text-sm leading-relaxed mb-6">
           {subtitle}
         </p>
 
@@ -1104,10 +1139,10 @@ export function BookingCard({
               key={i}
               className="flex items-center gap-3 text-left"
             >
-              <span className="w-5 h-5 rounded-full bg-teal-500/15 border border-teal-500/25 flex items-center justify-center shrink-0 text-[10px] text-teal-400 font-bold">
+              <span className="w-5 h-5 rounded-full bg-white/10 border border-white/20 flex items-center justify-center shrink-0 text-[10px] text-white font-bold">
                 ✓
               </span>
-              <span className="text-sm font-semibold text-slate-200">
+              <span className="text-sm font-semibold text-white">
                 {f}
               </span>
             </li>
@@ -1117,16 +1152,16 @@ export function BookingCard({
         {/* CTA Button */}
         <button
           onClick={() => setOpen(true)}
-          className="w-full h-13 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-lg shadow-teal-500/10 hover:shadow-teal-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 border border-teal-400/20"
+          className="w-full h-13 bg-white hover:bg-slate-50 text-[#024244] font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-lg shadow-white/5 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 border border-transparent"
         >
-          <span className="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-            <Calendar className="w-3.5 h-3.5 text-white" />
+          <span className="w-6 h-6 rounded-lg bg-[#024244]/10 flex items-center justify-center shrink-0">
+            <Calendar className="w-3.5 h-3.5 text-[#024244]" />
           </span>
           <span>{buttonLabel}</span>
         </button>
 
         {/* Note */}
-        <p className="text-center text-xs text-slate-500 mt-4 tracking-wide">
+        <p className="text-center text-xs text-[#ebf9fa]/60 mt-4 tracking-wide">
           {note}
         </p>
       </div>
@@ -1149,7 +1184,7 @@ export default function BookingButton({
   const btn = (
     <button
       onClick={() => setOpen(true)}
-      className={className || "inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white font-bold text-sm rounded-xl shadow-md hover:shadow-lg shadow-teal-500/10 hover:shadow-teal-500/20 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] border border-teal-400/20"}
+      className={className || "inline-flex items-center gap-2 px-6 py-3 bg-[#024244] hover:bg-[#013537] text-white font-bold text-sm rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] border border-transparent"}
       style={cs}
     >
       <Calendar className="w-4 h-4" /> <span>{label}</span>

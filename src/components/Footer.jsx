@@ -1,227 +1,191 @@
-import { useEffect, useState } from "react";
-import { client } from "../lib/sanityClient";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Sparkles, Phone, Mail, Clock, Instagram, Facebook, Youtube, ShieldCheck } from "lucide-react";
+import { Facebook, Twitter, Linkedin, Globe, Instagram, ArrowRightCircle } from "lucide-react";
 
 export default function Footer() {
-  const [cmsFooter, setCmsFooter] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    client
-      .fetch(`*[_type=="footerSection"][0]`)
-      .then((data) => setCmsFooter(data));
-  }, []);
-
-  const brandName = cmsFooter?.brandName || "PScar";
-
-  const brandDescription =
-    cmsFooter?.brandDescription ||
-    "Advanced scar treatment clinic with over 10 years of clinical excellence and 50,000+ satisfied patients.";
-
-  const services = cmsFooter?.services || [
-    "Microneedling",
-    "TCA Cross",
-    "Laser Therapy",
-    "Chemical Peels",
-  ];
-
-  const companyLinks = cmsFooter?.companyLinks || [
-    "About Us",
-    "Our Team",
-    "Blog",
-    "Contact",
-  ];
-
-  const contactInfo = cmsFooter?.contactInfo || [
-    "0912-345-601",
-    "hello@pscar.in",
-    "Mon–Sat 9am–7pm",
-  ];
-
-  const copyright =
-    cmsFooter?.copyright || `© ${new Date().getFullYear()} ${brandName} Skin Clinic. All rights reserved.`;
-
-  const bottomLinks = cmsFooter?.bottomLinks || [
-    "Privacy Policy",
-    "Terms of Service",
-  ];
-
-  const handleCompanyClick = (item) => {
-    const text = item.toLowerCase();
-    if (text.includes("about") || text.includes("team")) {
-      if (location.pathname !== "/") {
-        navigate("/");
-        setTimeout(() => {
-          const el = document.getElementById("about");
-          if (el) el.scrollIntoView({ behavior: "smooth" });
-        }, 150);
-      } else {
-        const el = document.getElementById("about");
+  const handleNavClick = (targetId) => {
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(() => {
+        const el = document.getElementById(targetId);
         if (el) el.scrollIntoView({ behavior: "smooth" });
-      }
-    } else if (text.includes("blog")) {
-      navigate("/blog");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else if (text.includes("contact")) {
-      if (location.pathname !== "/") {
-        navigate("/");
-        setTimeout(() => {
-          const el = document.getElementById("contact");
-          if (el) el.scrollIntoView({ behavior: "smooth" });
-        }, 150);
-      } else {
-        const el = document.getElementById("contact");
-        if (el) el.scrollIntoView({ behavior: "smooth" });
-      }
+      }, 150);
+    } else {
+      const el = document.getElementById(targetId);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
     }
-  };
-
-  const getContactIcon = (item) => {
-    if (item.includes("@")) return <Mail className="w-4 h-4 text-teal-400 shrink-0" />;
-    // Check if contains phone-like formats (dashes, spaces, plus, length)
-    if (item.match(/\d/) && (item.includes("-") || item.includes("+") || item.includes(" ") || item.length > 8)) {
-      return <Phone className="w-4 h-4 text-teal-400 shrink-0" />;
-    }
-    return <Clock className="w-4 h-4 text-teal-400 shrink-0" />;
   };
 
   return (
-    <footer className="bg-slate-950 text-slate-400 border-t border-slate-900/60 px-6 md:px-12 pt-16 pb-8 relative overflow-hidden">
-      {/* Subtle background ambient blur */}
-      <div className="absolute bottom-0 left-1/4 w-[300px] h-[300px] bg-teal-500/5 rounded-full blur-[100px] pointer-events-none" />
+    <footer className="bg-[#024244] text-white/70 border-t-[2px] border-[#ffffff] px-6 md:px-12 pt-12 md:pt-20 pb-10 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto relative z-10">
 
-      <div className="max-w-6xl mx-auto relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-12 mb-16">
-          
-          {/* Brand */}
-          <div className="md:col-span-5 flex flex-col items-start max-w-sm">
-            <Link to="/" className="flex items-center gap-2 group mb-5 cursor-pointer">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 via-cyan-500 to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-teal-500/20 group-hover:scale-105 transition-all duration-300">
-                <Sparkles className="w-4.5 h-4.5 text-white" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-lg font-black tracking-tight bg-gradient-to-r from-teal-300 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
-                  {brandName}
-                </span>
-                <span className="text-[8px] uppercase tracking-[0.2em] text-slate-400 font-bold -mt-0.5">
-                  Skin Clinic
-                </span>
-              </div>
-            </Link>
-            
-            <p className="text-[13px] leading-relaxed text-slate-400 mb-6">
-              {brandDescription}
-            </p>
+        {/* Main Columns Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-10 md:gap-8 mb-16 text-left">
 
-            {/* Social Icons */}
-            <div className="flex items-center gap-3">
-              {[
-                { icon: Facebook, href: "#", name: "Facebook" },
-                { icon: Instagram, href: "#", name: "Instagram" },
-                { icon: Youtube, href: "#", name: "Youtube" },
-              ].map((social, i) => {
-                const IconComp = social.icon;
-                return (
-                  <a
-                    key={i}
-                    href={social.href}
-                    aria-label={social.name}
-                    className="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800/80 hover:border-teal-500/40 text-slate-400 hover:text-white flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5"
-                  >
-                    <IconComp className="w-4 h-4" />
-                  </a>
-                );
-              })}
-            </div>
+          {/* Column 1: Menu */}
+          <div className="md:col-span-3">
+            <h4 className="text-white text-[17px] font-medium tracking-wide mb-6">
+              Menu
+            </h4>
+            <ul className="space-y-3.5 text-[14px]">
+              <li>
+                <Link
+                  to="/about"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  className="hover:text-white transition-colors duration-200 cursor-pointer block"
+                >
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/treatments"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  className="hover:text-white transition-colors duration-200 cursor-pointer block"
+                >
+                  Treatments
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/effectiveness"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  className="hover:text-white transition-colors duration-200 cursor-pointer block"
+                >
+                  Why Choose
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/treatments"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  className="hover:text-white transition-colors duration-200 cursor-pointer block"
+                >
+                  Portfolio
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/blog"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  className="hover:text-white transition-colors duration-200 cursor-pointer block"
+                >
+                  Blog
+                </Link>
+              </li>
+            </ul>
           </div>
 
-          {/* Right column items grid */}
-          <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-8">
-            {/* Services */}
-            <div>
-              <p className="text-xs font-bold tracking-[2px] uppercase text-white mb-5">
-                Services
-              </p>
-              <ul className="space-y-3">
-                {services.map((item, i) => (
-                  <li key={i}>
-                    <span
-                      onClick={() => {
-                        if (location.pathname !== "/") {
-                          navigate("/");
-                          setTimeout(() => {
-                            const el = document.getElementById("treatments");
-                            if (el) el.scrollIntoView({ behavior: "smooth" });
-                          }, 150);
-                        } else {
-                          const el = document.getElementById("treatments");
-                          if (el) el.scrollIntoView({ behavior: "smooth" });
-                        }
-                      }}
-                      className="text-[13px] hover:text-white transition-colors duration-200 cursor-pointer flex items-center gap-1.5"
-                    >
-                      <span className="w-1 h-1 rounded-full bg-teal-500/50" />
-                      {item}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Company */}
-            <div>
-              <p className="text-xs font-bold tracking-[2px] uppercase text-white mb-5">
-                Company
-              </p>
-              <ul className="space-y-3">
-                {companyLinks.map((item, i) => (
-                  <li key={i}>
-                    <span
-                      onClick={() => handleCompanyClick(item)}
-                      className="text-[13px] hover:text-white transition-colors duration-200 cursor-pointer flex items-center gap-1.5"
-                    >
-                      <span className="w-1 h-1 rounded-full bg-teal-500/50" />
-                      {item}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Contact */}
-            <div className="col-span-2 sm:col-span-1">
-              <p className="text-xs font-bold tracking-[2px] uppercase text-white mb-5">
-                Contact
-              </p>
-              <ul className="space-y-3.5">
-                {contactInfo.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-[13px] text-slate-400">
-                    {getContactIcon(item)}
-                    <span className="leading-snug">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          {/* Column 2: Link */}
+          <div className="md:col-span-3">
+            <h4 className="text-white text-[17px] font-medium tracking-wide mb-6">
+              Support
+            </h4>
+            <ul className="space-y-3.5 text-[14px]">
+              <li>
+                <Link
+                  to="/contact"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  className="hover:text-white transition-colors duration-200 cursor-pointer block"
+                >
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/effectiveness"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  className="hover:text-white transition-colors duration-200 cursor-pointer block"
+                >
+                  Safety Calibrations
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/about"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  className="hover:text-white transition-colors duration-200 cursor-pointer block"
+                >
+                  Clinic Locations
+                </Link>
+              </li>
+            </ul>
           </div>
-        </div>
 
-        {/* Bottom copyright & legal */}
-        <div className="border-t border-slate-900 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-          <span>{copyright}</span>
+          {/* Column 3: Contact */}
+          <div className="md:col-span-3">
+            <h4 className="text-white text-[17px] font-medium tracking-wide mb-6">
+              Contact
+            </h4>
+            <ul className="space-y-3.5 text-[14px] break-words">
+              <li>
+                <span>Jl. Lorem Ipsum, City, Location</span>
+              </li>
+              <li>
+                <a href="tel:+1234567890" className="hover:text-white transition-colors duration-200">
+                  +123 456 7890
+                </a>
+              </li>
+              <li>
+                <a href="mailto:Support@Cretacy.Com" className="hover:text-white transition-colors duration-200">
+                  Support@Cretacy.Com
+                </a>
+              </li>
+            </ul>
+          </div>
 
-          <div className="flex gap-6">
-            {bottomLinks.map((l, i) => (
-              <span
-                key={i}
-                className="cursor-pointer hover:text-teal-400 transition-colors duration-200"
+          {/* Column 4: Newsletter Subscription */}
+          <div className="md:col-span-3">
+            <div className="flex items-center gap-2 max-w-[280px] w-full bg-white rounded-lg p-1.5 shadow-sm mt-1">
+              <input
+                type="email"
+                placeholder="Subscribe Now"
+                className="bg-transparent text-slate-800 placeholder:text-slate-400 text-sm focus:outline-none px-2.5 py-1 w-full"
+              />
+              <button
+                aria-label="Subscribe"
+                className="w-8 h-8 rounded-md bg-white hover:bg-slate-50 flex items-center justify-center text-[#024244] shrink-0 transition-colors"
               >
-                {l}
-              </span>
-            ))}
+                <ArrowRightCircle className="w-6 h-6 text-[#024244]" />
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Divider line */}
+        <div className="border-t border-white/10 my-8" />
+
+        {/* Bottom copyright & socials */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-6 text-sm">
+          {/* Social Icons */}
+          <div className="flex items-center gap-5">
+            <a href="#" aria-label="Facebook" className="text-white/60 hover:text-white transition-colors">
+              <Facebook className="w-[18px] h-[18px]" />
+            </a>
+            <a href="#" aria-label="Twitter" className="text-white/60 hover:text-white transition-colors">
+              <Twitter className="w-[18px] h-[18px]" />
+            </a>
+            <a href="#" aria-label="LinkedIn" className="text-white/60 hover:text-white transition-colors">
+              <Linkedin className="w-[18px] h-[18px]" />
+            </a>
+            <a href="#" aria-label="Website" className="text-white/60 hover:text-white transition-colors">
+              <Globe className="w-[18px] h-[18px]" />
+            </a>
+            <a href="#" aria-label="Instagram" className="text-white/60 hover:text-white transition-colors">
+              <Instagram className="w-[18px] h-[18px]" />
+            </a>
+          </div>
+
+          {/* Copyright Text */}
+          <div className="text-[12px] text-white/50 tracking-wide">
+            Copyright &copy; {new Date().getFullYear()} PScar | Powered By PScar
           </div>
         </div>
+
       </div>
     </footer>
   );

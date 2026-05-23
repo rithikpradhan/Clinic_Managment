@@ -1,156 +1,191 @@
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, ArrowRight, Shield } from "lucide-react";
-import { client } from "../lib/sanityClient";
-import { urlFor } from "../lib/imageBuilder";
 
 export default function Services() {
-  const [cmsServices, setCmsServices] = useState([]);
-
-  useEffect(() => {
-    client
-      .fetch(
-        `*[_type == "service"]{
-        label,
-        desc,
-        image,
-      }`,
-      )
-      .then((data) => setCmsServices(data));
-  }, []);
-
-  const DEFAULT_SERVICES = [
-    {
-      label: "Microneedling for Scars",
-      image:
-        "https://diaminyaesthetics.com/cdn/shop/articles/Microneedling_for_Acne_Scars4.jpg?v=1752568960",
-      desc: "Professionally administered to directly impact the scarred area, clearing tissue effectively.",
-    },
-    {
-      label: "TCA Cross",
-      image:
-        "https://northsidedermatology.com.au/wp-content/uploads/2020/07/Screen-Shot-2022-10-16-at-9.02.18-pm.png",
-      desc: "Chemical reconstruction of skin scars using targeted application to boost collagen growth.",
-    },
-    {
-      label: "Cut the Bottom Scar",
-      image:
-        "https://hbioclinic.com.vn/wp-content/uploads/2025/07/uu-va-nhuoc-diem-cua-cat-day-cac-vet-seo-ro.jpg.webp",
-      desc: "Subcision technique to release tethered acne scars, allowing natural skin elevation.",
-    },
+  const STATS = [
+    { num: "200+", label: "Lorem Ipsum Dolor" },
+    { num: "70K+", label: "Lorem Ipsum Dolor" },
+    { num: "44M", label: "Lorem Ipsum Dolor" },
   ];
 
-  const services =
-    cmsServices && cmsServices.length > 0
-      ? cmsServices.map((s) => ({
-          label: s.label,
-          desc: s.desc,
-          image: urlFor(s.image).width(800).url(),
-        }))
-      : DEFAULT_SERVICES;
-
   return (
-    <section className="bg-white py-20 md:py-28 px-6 md:px-12 relative overflow-hidden">
-      {/* Background shape */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-teal-50/30 rounded-full blur-[120px] pointer-events-none" />
+    <section
+      id="services"
+      className="bg-[#ebf9fa] py-12 md:py-20 px-6 md:px-12 relative overflow-hidden"
+    >
+      <div className="max-w-7xl mx-auto relative z-10">
+        
+        {/* Top Row: Heading & Stats */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 mb-16 text-left">
+          <div>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="text-[34px] sm:text-[44px] font-normal tracking-tight text-slate-900 leading-[1.15] max-w-xl"
+            >
+              Quality Healthcare, <br /> Closer to Home
+            </motion.h2>
 
-      {/* Heading */}
-      <div className="text-center max-w-2xl mx-auto mb-16">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-600 text-xs font-bold uppercase tracking-wider mb-4">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Services at PScar</span>
-        </div>
-
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
-          Proud to provide{" "}
-          <span className="bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
-            effective solutions
-          </span>
-        </h2>
-      </div>
-
-      {/* Cards */}
-      <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-20 relative z-10">
-        {services.map((s, i) => (
-          <motion.div
-            key={s.label}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="bg-slate-50 rounded-3xl overflow-hidden border border-slate-100 hover:border-teal-500/20 shadow-sm hover:shadow-xl hover:shadow-teal-500/5 transition-all duration-300 group cursor-pointer flex flex-col h-full"
-          >
-            {/* Image container */}
-            <div className="h-48 sm:h-52 overflow-hidden relative shrink-0">
-              <img
-                src={s.image}
-                alt={s.label}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/20 to-transparent pointer-events-none" />
-            </div>
-
-            {/* Content */}
-            <div className="p-6 flex flex-col flex-1">
-              <h3 className="text-base sm:text-lg font-bold text-slate-800 mb-3 group-hover:text-teal-600 transition-colors">
-                {s.label}
-              </h3>
-
-              <p className="text-xs sm:text-sm text-slate-450 leading-relaxed flex-1">
-                {s.desc}
-              </p>
-
-              <div className="mt-5 pt-4 border-t border-slate-100 flex items-center gap-1 text-sm font-bold text-teal-600 group-hover:text-teal-500 transition-colors">
-                <span>Explore Treatment</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            {/* Doctor Capsule Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.15 }}
+              className="flex items-center gap-3 mt-5"
+            >
+              <div className="flex -space-x-2">
+                {[1, 2, 3].map((n) => (
+                  <div key={n} className="w-8 h-8 rounded-full border-2 border-white bg-[#024244] overflow-hidden shadow-sm">
+                    <img
+                      src={`https://images.unsplash.com/photo-${
+                        n === 1
+                          ? "1559839734-2b71ea197ec2"
+                          : n === 2
+                          ? "1622253692010-333f2da6031d"
+                          : "1594824813573-246434de83fb"
+                      }?q=80&w=150&auto=format&fit=crop`}
+                      alt="Doctor Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
               </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Technology Banner */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-50px" }}
-        transition={{ duration: 0.6 }}
-        className="max-w-5xl mx-auto relative rounded-[32px] overflow-hidden shadow-xl"
-        style={{
-          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
-        }}
-      >
-        {/* Glow accent */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-teal-500/10 rounded-full blur-[100px] pointer-events-none" />
-
-        <div className="relative z-10 px-8 sm:px-12 py-10 md:py-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0 shadow-inner">
-              <Shield className="w-6 h-6" />
-            </div>
-
-            <div className="text-left">
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-teal-400">
-                PScar Core Technology
-              </span>
-              <h3 className="text-xl sm:text-2xl font-extrabold text-white leading-tight mt-1.5">
-                The journey to regain smooth skin starts here
-              </h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed max-w-lg">
-                Explore our state-of-the-art non-surgical scar removal techniques designed to trigger deep cell renewal.
-              </p>
-            </div>
+              <span className="text-[13px] text-[#024244] font-semibold">Meet Our Specialists</span>
+            </motion.div>
           </div>
 
-          <a
-            href="#contact"
-            className="inline-flex items-center gap-1.5 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white text-sm font-bold px-8 py-3.5 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/20 shrink-0 whitespace-nowrap self-stretch md:self-auto justify-center"
+          {/* Stats list */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="flex flex-wrap items-center gap-10 sm:gap-16 lg:self-center"
           >
-            <span>Book Consultation</span>
-            <ArrowRight className="w-4 h-4" />
-          </a>
+            {STATS.map((s, i) => (
+              <div key={i} className="flex flex-col items-start">
+                <span className="text-[32px] sm:text-[38px] font-normal text-slate-900 leading-none mb-2.5">
+                  {s.num}
+                </span>
+                <span className="text-[12px] text-slate-500 font-normal tracking-wide">
+                  {s.label}
+                </span>
+              </div>
+            ))}
+          </motion.div>
         </div>
-      </motion.div>
+
+        {/* Bottom Row: Asymmetrical Bento Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          
+          {/* Left Column (Main Feature): Large Vertical Card */}
+          <motion.div
+            initial={{ opacity: 0, x: -40, scale: 0.98 }}
+            whileInView={{ opacity: 1, x: 0, scale: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ type: "spring", stiffness: 45, damping: 14 }}
+            whileHover={{ y: -8 }}
+            className="lg:col-span-6 bg-white rounded-[32px] p-6 flex flex-col justify-between shadow-[0_10px_35px_rgba(2,66,68,0.015)] hover:shadow-[0_20px_50px_rgba(2,66,68,0.05)] border border-slate-100/50 transition-all duration-300 group cursor-pointer"
+          >
+            <div>
+              {/* Image Container (Tall Portrait) */}
+              <div className="w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[16/9] rounded-[24px] overflow-hidden bg-slate-50 relative">
+                <img
+                  src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=800&auto=format&fit=crop"
+                  alt="Professional Clinic Treatments"
+                  className="w-full h-full object-cover rounded-[24px] transition-transform duration-700 group-hover:scale-105"
+                />
+              </div>
+              
+              {/* Content */}
+              <div className="px-3 pt-6 pb-2 text-left">
+                <span className="text-xs bg-[#ebf9fa] text-[#024244] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                  Featured Treatment
+                </span>
+                <h3 className="text-[22px] sm:text-[24px] font-semibold text-slate-900 leading-snug mt-4 mb-3 group-hover:text-[#024244] transition-colors">
+                  Professional Clinic Treatments
+                </h3>
+                <p className="text-[13.5px] text-slate-500 leading-relaxed font-normal">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
+                </p>
+              </div>
+            </div>
+
+            {/* Action Button */}
+            <div className="px-3 pb-2 pt-4 text-left">
+              <a
+                href="#contact"
+                className="inline-flex items-center justify-center bg-[#024244] hover:bg-[#013537] text-white text-xs font-bold px-7 py-3.5 rounded-full shadow-md shadow-[#024244]/5 transition-all duration-300"
+              >
+                Learn More
+              </a>
+            </div>
+          </motion.div>
+
+          {/* Right Column: Stacked Horizontal Cards */}
+          <div className="lg:col-span-6 flex flex-col gap-6 justify-center">
+            {[
+              {
+                title: "Bridging Modern Medicine & Empathy",
+                desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+                image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=600&auto=format&fit=crop",
+                btnText: "Explore Services",
+                badge: "Care Model"
+              },
+              {
+                title: "Pharmaceutical Grade Cosmetics",
+                desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+                image: "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=400&auto=format&fit=crop",
+                btnText: "Book Consultation",
+                badge: "Clinical Products"
+              }
+            ].map((service, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: 40, scale: 0.98 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ type: "spring", stiffness: 45, damping: 14, delay: i * 0.15 }}
+                whileHover={{ y: -6 }}
+                className="bg-white rounded-[32px] p-6 flex flex-col sm:flex-row gap-6 shadow-[0_10px_35px_rgba(2,66,68,0.015)] hover:shadow-[0_20px_50px_rgba(2,66,68,0.05)] border border-slate-100/50 transition-all duration-300 group cursor-pointer items-center"
+              >
+                {/* Horizontal Image Container */}
+                <div className="w-full sm:w-[200px] lg:w-[220px] aspect-[4/3] rounded-[20px] overflow-hidden bg-slate-50 shrink-0 relative">
+                  <img
+                    src={service.image}
+                    alt={service.title}
+                    className="w-full h-full object-cover rounded-[20px] transition-transform duration-700 group-hover:scale-108"
+                  />
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 flex flex-col text-left py-1">
+                  <span className="text-[10px] bg-[#ebf9fa] text-[#024244] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider self-start">
+                    {service.badge}
+                  </span>
+                  <h3 className="text-[18px] sm:text-[19px] font-semibold text-slate-900 leading-snug mt-2.5 mb-2 group-hover:text-[#024244] transition-colors">
+                    {service.title}
+                  </h3>
+                  <p className="text-[13px] text-slate-500 leading-relaxed font-normal mb-4">
+                    {service.desc}
+                  </p>
+
+                  <a
+                    href="#contact"
+                    className="inline-flex items-center justify-center bg-[#024244] hover:bg-[#013537] text-white text-[11px] font-bold px-5 py-2.5 rounded-full shadow-sm transition-all duration-300 self-start"
+                  >
+                    {service.btnText}
+                  </a>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+        </div>
+
+      </div>
     </section>
   );
 }

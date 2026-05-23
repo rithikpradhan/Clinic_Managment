@@ -15,7 +15,13 @@
   }
 }
 
-* {
+body.website-theme,
+body.website-theme * {
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+body:not(.website-theme),
+body:not(.website-theme) * {
   font-family: "Outfit", sans-serif;
 }
 html {

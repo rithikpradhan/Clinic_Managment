@@ -1,118 +1,156 @@
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, Phone, ShieldCheck, Mail, CalendarDays } from "lucide-react";
-import { PopupModal } from "react-calendly";
-import { client } from "../lib/sanityClient";
-import { urlFor } from "../lib/imageBuilder";
-import { BookingCard } from "../components/BookingForm";
+import BookingButton from "./BookingForm";
 
 export default function Contact() {
-  const [open, setOpen] = useState(false);
-  const [cmsContact, setCmsContact] = useState(null);
-
-  useEffect(() => {
-    client
-      .fetch(`*[_type=="contactSection"][0]`)
-      .then((data) => setCmsContact(data));
-  }, []);
-
-  const title = cmsContact?.title || "Make an appointment";
-
-  const description =
-    cmsContact?.description ||
-    "Book a consultation with our specialists. We'll analyze your skin and craft a personalized treatment plan designed just for you.";
-
-  const doctorName = cmsContact?.doctorName || "Dr. Nisha Kapoor";
-
-  const doctorExperience =
-    cmsContact?.doctorExperience || "Chief Dermatologist · 15 yrs exp.";
-
-  const doctorPhone = cmsContact?.doctorPhone || "0912-345-601";
-
-  const doctorImage = cmsContact?.doctorImage
-    ? urlFor(cmsContact.doctorImage).width(400).url()
-    : "https://plus.unsplash.com/premium_photo-1681967035389-84aabd80cb1e?q=100&w=1200&auto=format&fit=crop";
+  const TESTIMONIALS = [
+    {
+      stars: 5,
+      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
+      name: "Your Name",
+      company: "Company Name",
+    },
+    {
+      stars: 5,
+      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
+      name: "Your Name",
+      company: "Company Name",
+    },
+    {
+      stars: 5,
+      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
+      name: "Your Name",
+      company: "Company Name",
+    },
+    {
+      stars: 5,
+      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
+      name: "Your Name",
+      company: "Company Name",
+    },
+  ];
 
   return (
     <section
       id="contact"
-      className="relative py-20 md:py-28 px-6 md:px-12 bg-slate-950 overflow-hidden"
+      className="bg-[#ebf9fa] py-16 md:py-24 px-6 md:px-12 relative overflow-hidden"
     >
-      {/* Decorative radial gradients */}
-      <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[120px] pointer-events-none -translate-y-1/2" />
-      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
-
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-center relative z-10">
-        {/* Left Side: Doctor Info & Intro */}
-        <div className="lg:col-span-6 flex flex-col items-start text-left">
-          {/* Badge tag */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-bold uppercase tracking-wider mb-5">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Consultation & Care</span>
+      <div className="max-w-7xl mx-auto relative z-10">
+        
+        {/* Banner Box */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="relative bg-[#024244] rounded-[32px] py-14 md:py-16 px-6 md:px-12 text-center overflow-hidden mb-24 shadow-[0_20px_50px_rgba(2,66,68,0.15)] flex flex-col items-center justify-center"
+        >
+          {/* Left Decorative Outlines */}
+          <div className="absolute bottom-0 left-0 w-32 h-32 pointer-events-none opacity-20 hidden sm:block">
+            <div className="absolute bottom-4 left-6 w-16 h-24 border border-white rounded-2xl" />
+            <div className="absolute bottom-10 left-12 w-16 h-24 border border-white rounded-2xl" />
           </div>
 
-          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-black tracking-tight text-white leading-tight mb-5">
-            {title}
-          </h2>
+          {/* Right Decorative Outlines */}
+          <div className="absolute top-0 right-0 w-40 h-40 pointer-events-none opacity-20 hidden sm:block">
+            <div className="absolute top-4 right-6 w-16 h-24 border border-white rounded-2xl" />
+            <div className="absolute top-12 right-12 w-16 h-24 border border-white rounded-2xl" />
+            <div className="absolute top-8 right-20 w-16 h-24 border border-white rounded-2xl" />
+          </div>
 
-          <p className="text-slate-400 text-sm sm:text-base leading-relaxed mb-10 max-w-lg">
-            {description}
-          </p>
+          <h3 className="text-[26px] sm:text-[34px] md:text-[38px] font-normal tracking-tight text-white leading-tight mb-8 relative z-10 max-w-2xl">
+            Walk In or Book <br className="sm:hidden" /> Online — We&apos;re Ready
+          </h3>
 
-          {/* Doctor Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
+          <div className="relative z-10">
+            <BookingButton
+              trigger={
+                <button className="bg-white hover:bg-slate-50 text-[#024244] font-bold text-sm px-8 py-3.5 rounded-full shadow-md transition-all duration-300 hover:scale-105 active:scale-95">
+                  Contact Now
+                </button>
+              }
+            />
+          </div>
+        </motion.div>
+
+        {/* Testimonials Title Row */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10 mb-16 text-left">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="w-full max-w-[480px] bg-slate-900/60 backdrop-blur-md border border-slate-800/80 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-5 shadow-2xl relative overflow-hidden group"
+            transition={{ duration: 0.6 }}
+            className="text-[34px] sm:text-[44px] font-normal tracking-tight text-slate-900 leading-[1.15] max-w-xl"
           >
-            {/* Ambient indicator */}
-            <div className="absolute top-0 right-0 w-24 h-24 bg-teal-500/5 rounded-full blur-2xl pointer-events-none" />
+            Compassion You Can <br /> Feel, Care You Can Trust
+          </motion.h2>
 
-            {/* Doctor Photo */}
-            <div className="w-24 h-24 rounded-full overflow-hidden shrink-0 border-2 border-teal-500/20 shadow-md">
-              <img
-                src={doctorImage}
-                alt={doctorName}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
+          {/* Doctor Capsule Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="inline-flex items-center bg-[#024244] p-1.5 pl-3 pr-1.5 rounded-full gap-2.5 shrink-0 self-start lg:self-auto"
+          >
+            <div className="flex -space-x-2">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="w-8 h-8 rounded-full border-2 border-[#024244] bg-slate-200 overflow-hidden">
+                  <img
+                    src={`https://images.unsplash.com/photo-${
+                      n === 1
+                        ? "1559839734-2b71ea197ec2"
+                        : n === 2
+                        ? "1622253692010-333f2da6031d"
+                        : "1594824813573-246434de83fb"
+                    }?q=80&w=150&auto=format&fit=crop`}
+                    alt="Doctor Profile"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
             </div>
-
-            {/* Doctor Credentials */}
-            <div className="text-center sm:text-left flex-1">
-              <div className="flex items-center justify-center sm:justify-start gap-1.5">
-                <p className="text-base font-bold text-white">{doctorName}</p>
-                <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
-              </div>
-              <p className="text-xs text-slate-400 mt-1">{doctorExperience}</p>
-              
-              {/* Call anchor */}
-              <a 
-                href={`tel:${doctorPhone}`}
-                className="inline-flex items-center gap-2 mt-4 bg-slate-950/60 border border-slate-800 hover:border-teal-500/30 px-4 py-2 rounded-xl text-xs font-bold text-teal-400 hover:text-teal-300 transition-all duration-300"
-              >
-                <Phone className="w-3.5 h-3.5" />
-                <span>Call: {doctorPhone}</span>
-              </a>
+            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#024244] font-bold text-xs shadow-sm">
+              ↗
             </div>
           </motion.div>
         </div>
 
-        {/* Right Side: Consultation Booking Engine Trigger */}
-        <div className="lg:col-span-6 flex justify-center lg:justify-end">
-          <BookingCard
-            title="Book Your Skin Consultation"
-            subtitle="Choose a convenient time with our dermatologist and get a personalized skin treatment plan."
-            features={[
-              "Personalized skin analysis",
-              "Expert dermatologist consultation",
-              "Treatment plan tailored for your skin",
-            ]}
-            buttonLabel="Book Appointment Now"
-            note="Takes less than 30 seconds"
-          />
+        {/* Horizontal Testimonials List */}
+        <div 
+          className="flex gap-8 overflow-x-auto pb-10 pt-4 scrollbar-none snap-x snap-mandatory"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {TESTIMONIALS.map((t, idx) => (
+            <div
+              key={idx}
+              className="min-w-[280px] sm:min-w-[340px] max-w-[360px] bg-transparent flex flex-col text-left relative snap-start pr-6"
+            >
+              {/* Stars */}
+              <div className="flex gap-1 mb-4 text-[#024244]">
+                {Array.from({ length: t.stars }).map((_, i) => (
+                  <span key={i} className="text-base select-none">★</span>
+                ))}
+              </div>
+
+              {/* Review Text */}
+              <p className="text-[13px] text-slate-500 leading-relaxed mb-6 font-normal">
+                {t.text}
+              </p>
+
+              {/* Author Info */}
+              <div className="mt-auto">
+                <h4 className="font-semibold text-slate-900 text-[15px]">{t.name}</h4>
+                <p className="text-xs text-slate-400 mt-0.5">{t.company}</p>
+              </div>
+
+              {/* Decorative quotation mark */}
+              <span className="absolute bottom-0 right-6 text-[80px] font-serif text-[#024244]/5 select-none pointer-events-none leading-none -mb-5">
+                ”
+              </span>
+            </div>
+          ))}
         </div>
+
       </div>
     </section>
   );
