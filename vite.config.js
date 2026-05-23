@@ -45,7 +45,6 @@ export default defineConfig({
         ],
       },
       workbox: {
-        importScripts: ["/sw-notifications.js"],
         // Cache all static assets
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"],
         // Runtime caching for Supabase API calls

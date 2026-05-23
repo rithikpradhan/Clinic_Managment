@@ -360,39 +360,6 @@ function ModalForm({ onClose, onSuccess, prefill }) {
         : `${form.name} booked ${form.treatment_names.join(", ")} for ${form.appointment_date} at ${formatTime(form.appointment_time)}`;
       createNotification("New Appointment Booking", bookingDesc, "booking");
 
-      // Trigger native-like PWA notification if permission is granted
-      if (window.Notification && Notification.permission === "granted") {
-        const title = "Booking Confirmed! 📅";
-        const bodyText = form.is_consultation
-          ? `General Consultation scheduled on ${form.appointment_date} at ${formatTime(form.appointment_time)}.`
-          : `${form.treatment_names.join(", ")} scheduled on ${form.appointment_date} at ${formatTime(form.appointment_time)}.`;
-
-        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-          navigator.serviceWorker.ready
-            .then((registration) => {
-              registration.showNotification(title, {
-                body: bodyText,
-                icon: "/pwa-192x192.png",
-                badge: "/pwa-192x192.png",
-                vibrate: [200, 100, 200],
-                tag: "booking-success",
-                renotify: true,
-                data: {
-                  url: "/",
-                },
-              });
-            })
-            .catch((err) => {
-              console.error("SW notification registration failed:", err);
-              // Fallback to basic window Notification
-              new Notification(title, { body: bodyText, icon: "/pwa-192x192.png" });
-            });
-        } else {
-          // Standard browser notification fallback
-          new Notification(title, { body: bodyText, icon: "/pwa-192x192.png" });
-        }
-      }
-
       if (onSuccess) onSuccess();
     } else {
       alert("Something went wrong. Please try again.");
