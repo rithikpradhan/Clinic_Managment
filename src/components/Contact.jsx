@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import Reveal from "../hooks/Reveal";
+import { motion } from "framer-motion";
+import { Sparkles, Phone, ShieldCheck, Mail, CalendarDays } from "lucide-react";
 import { PopupModal } from "react-calendly";
 import { client } from "../lib/sanityClient";
 import { urlFor } from "../lib/imageBuilder";
@@ -32,117 +33,86 @@ export default function Contact() {
     ? urlFor(cmsContact.doctorImage).width(400).url()
     : "https://plus.unsplash.com/premium_photo-1681967035389-84aabd80cb1e?q=100&w=1200&auto=format&fit=crop";
 
-  const features = cmsContact?.features || [
-    "Personalized skin analysis",
-    "Expert dermatologist consultation",
-    "Treatment plan tailored for your skin",
-  ];
-
-  const buttonText = cmsContact?.buttonText || "📅 Book Appointment Now";
-
-  const calendlyUrl =
-    cmsContact?.calendlyUrl || "https://calendly.com/pradhanrithik62/30min";
-
   return (
     <section
       id="contact"
-      className="relative py-20 px-6 md:px-12 overflow-hidden"
-      style={{
-        background:
-          "linear-gradient(120deg,#1a3a4a 0%,#1a8fab 55%,#2dd4bf 100%)",
-      }}
+      className="relative py-20 md:py-28 px-6 md:px-12 bg-slate-950 overflow-hidden"
     >
-      <div className="absolute -top-32 right-20 w-96 h-96 rounded-full bg-white/5 pointer-events-none" />
+      {/* Decorative radial gradients */}
+      <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[120px] pointer-events-none -translate-y-1/2" />
+      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-        {/* Left */}
-        <Reveal>
-          <p className="text-xs font-bold tracking-[3px] uppercase text-white/60 mb-3">
-            Contact
-          </p>
+      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-center relative z-10">
+        {/* Left Side: Doctor Info & Intro */}
+        <div className="lg:col-span-6 flex flex-col items-start text-left">
+          {/* Badge tag */}
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-bold uppercase tracking-wider mb-5">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Consultation & Care</span>
+          </div>
 
-          <h2 className="text-4xl font-extrabold text-white leading-tight mb-4">
+          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-black tracking-tight text-white leading-tight mb-5">
             {title}
           </h2>
 
-          <p className="text-sm text-white/70 leading-relaxed mb-9">
+          <p className="text-slate-400 text-sm sm:text-base leading-relaxed mb-10 max-w-lg">
             {description}
           </p>
 
-          {/* Doctor card */}
-          <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-5 flex flex-col sm:flex-row items-center gap-4">
-            <div className="w-48 h-48 sm:w-24 sm:h-24 rounded-full overflow-hidden shrink-0">
+          {/* Doctor Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="w-full max-w-[480px] bg-slate-900/60 backdrop-blur-md border border-slate-800/80 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-5 shadow-2xl relative overflow-hidden group"
+          >
+            {/* Ambient indicator */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-teal-500/5 rounded-full blur-2xl pointer-events-none" />
+
+            {/* Doctor Photo */}
+            <div className="w-24 h-24 rounded-full overflow-hidden shrink-0 border-2 border-teal-500/20 shadow-md">
               <img
                 src={doctorImage}
                 alt={doctorName}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
             </div>
 
-            <div className="text-center sm:text-left">
-              <p className="text-[15px] font-bold text-white">{doctorName}</p>
-
-              <p className="text-xs text-white/60 mt-0.5">{doctorExperience}</p>
-
-              <p className="text-lg font-extrabold text-white mt-1.5">
-                {doctorPhone}
-              </p>
+            {/* Doctor Credentials */}
+            <div className="text-center sm:text-left flex-1">
+              <div className="flex items-center justify-center sm:justify-start gap-1.5">
+                <p className="text-base font-bold text-white">{doctorName}</p>
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+              </div>
+              <p className="text-xs text-slate-400 mt-1">{doctorExperience}</p>
+              
+              {/* Call anchor */}
+              <a 
+                href={`tel:${doctorPhone}`}
+                className="inline-flex items-center gap-2 mt-4 bg-slate-950/60 border border-slate-800 hover:border-teal-500/30 px-4 py-2 rounded-xl text-xs font-bold text-teal-400 hover:text-teal-300 transition-all duration-300"
+              >
+                <Phone className="w-3.5 h-3.5" />
+                <span>Call: {doctorPhone}</span>
+              </a>
             </div>
-          </div>
-        </Reveal>
+          </motion.div>
+        </div>
 
-        {/* Right */}
-        {/* <Reveal delay={0.15}>
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 text-white">
-            <h3 className="text-xl font-bold mb-4">
-              Book Your Skin Consultation
-            </h3>
-
-            <p className="text-sm text-white/70 mb-6">
-              Choose a convenient time with our dermatologist and get a
-              personalized skin treatment plan.
-            </p>
-
-            <div className="space-y-3 mb-6">
-              {features.map((f, i) => (
-                <div key={i} className="flex items-center gap-3 text-sm">
-                  <span>✔</span>
-                  <p>{f}</p>
-                </div>
-              ))}
-            </div>
-
-            <button
-              onClick={() => setOpen(true)}
-              className="w-full bg-white hover:bg-cyan-50 text-cyan-600 font-bold text-sm py-3.5 rounded-xl transition-all duration-200 hover:shadow-lg"
-            >
-              {buttonText}
-            </button>
-
-            <p className="text-xs text-white/60 mt-4 text-center">
-              Takes less than 30 seconds
-            </p>
-
-            <PopupModal
-              url={calendlyUrl}
-              onModalClose={() => setOpen(false)}
-              open={open}
-              rootElement={document.getElementById("root")}
-            />
-          </div>
-        </Reveal> */}
-
-        <BookingCard
-          title="Book Your Skin Consultation"
-          subtitle="Choose a convenient time with our dermatologist..."
-          features={[
-            "Personalized skin analysis",
-            "Expert dermatologist consultation",
-            "Treatment plan tailored for your skin",
-          ]}
-          buttonLabel="Book Appointment Now"
-          note="Takes less than 30 seconds"
-        />
+        {/* Right Side: Consultation Booking Engine Trigger */}
+        <div className="lg:col-span-6 flex justify-center lg:justify-end">
+          <BookingCard
+            title="Book Your Skin Consultation"
+            subtitle="Choose a convenient time with our dermatologist and get a personalized skin treatment plan."
+            features={[
+              "Personalized skin analysis",
+              "Expert dermatologist consultation",
+              "Treatment plan tailored for your skin",
+            ]}
+            buttonLabel="Book Appointment Now"
+            note="Takes less than 30 seconds"
+          />
+        </div>
       </div>
     </section>
   );

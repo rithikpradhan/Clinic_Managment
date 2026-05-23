@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useAppointments } from "../hooks/useAppointments";
-import { Link, useNavigate } from "react-router-dom";
+import { fetchTreatments } from "../lib/Scheduling";
+import { Link } from "react-router-dom";
 import {
   Calendar as CalendarIcon,
   Clock,
@@ -15,16 +16,78 @@ import {
   Droplets,
   HeartPulse,
   User,
-  MoreHorizontal
+  MoreHorizontal,
+  Calendar
 } from "lucide-react";
 import { getInitials, formatDate, AVATAR_COLORS } from "../components/shared";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  BarChart, Bar, LineChart, Line, Cell
+  BarChart, Bar, LineChart, Line, Cell, PieChart, Pie, CartesianGrid
 } from "recharts";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+const PIE_COLORS = ["#8b5cf6", "#3b82f6", "#10b981", "#f59e0b", "#f43f5e", "#ec4899"];
+
+function MetricCard({ title, value, subtitle, icon: Icon, colorClass, bgClass }) {
+  return (
+    <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden relative group">
+      <div className={`absolute right-0 top-0 w-24 h-24 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110 ${bgClass}`} />
+      <CardContent className="p-6 relative z-10 flex flex-col justify-between h-full">
+        <div className="flex justify-between items-start mb-4">
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm ${bgClass} ${colorClass}`}>
+            <Icon className="w-6 h-6" />
+          </div>
+          <span className="text-sm font-500 text-slate-400">{title}</span>
+        </div>
+        <div>
+          <h3 className="text-4xl font-500 text-slate-800 tracking-tight">{value}</h3>
+          <p className="text-xs font-medium text-slate-400 mt-2 uppercase tracking-widest">{subtitle}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-slate-900 text-white p-3 rounded-2xl shadow-xl border-none text-xs">
+        <p className="font-bold text-slate-300 mb-2">{label}</p>
+        {payload.map((entry, index) => (
+          <div key={index} className="flex items-center gap-2 mb-1 last:mb-0">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
+            <span className="font-medium">{entry.name}:</span>
+            <span className="font-bold ml-auto">{entry.value}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
 
 export default function DashboardPage() {
-  const { appointments = [], loading } = useAppointments();
+  const { appointments = [], staffList = [], loading } = useAppointments();
+  const [treatmentsMap, setTreatmentsMap] = useState({
+    "chemical peel": 4500,
+    "laser hair removal": 8000,
+    "hydrafacial": 5500,
+    "acne treatment": 2500,
+    "botox consultation": 1500,
+    "dermal fillers": 12000,
+    "microneedling": 6500,
+  });
+
+  useEffect(() => {
+    fetchTreatments().then((data) => {
+      if (!data || data.length === 0) return;
+      const map = { ...treatmentsMap };
+      data.forEach(t => {
+        if (t.name) map[t.name.toLowerCase()] = t.price || 0;
+      });
+      setTreatmentsMap(map);
+    });
+  }, []);
 
   const todayStr = new Date().toLocaleDateString("en-CA");
 
@@ -43,53 +106,110 @@ export default function DashboardPage() {
   const todayStats = {
     total: todayAppointments.length,
     completed: todayAppointments.filter(a => a.status === 'completed').length,
-    revenue: todayAppointments.reduce((acc, a) => acc + (Number(a.price) || 0), 0)
+    revenue: todayAppointments.reduce((acc, a) => acc + (Number(a.price) || 0), 0),
+    completedRevenue: todayAppointments.filter(a => a.status === 'completed').reduce((acc, a) => acc + (Number(a.price) || 0), 0),
+    remaining: upcomingAppointments.length
   };
 
-  // 1. Weekly Bookings Trend (Heart Rate Style)
-  const weeklyData = useMemo(() => {
-    const data = [];
-    for (let i = 6; i >= 0; i--) {
+  const todayCompletionRate = todayStats.total > 0 
+    ? Math.round((todayStats.completed / todayStats.total) * 100)
+    : 0;
+
+  // ANALYTICS DATA
+  const analyticsData = useMemo(() => {
+    if (!appointments.length) return null;
+
+    const total = appointments.length;
+    const completed = appointments.filter(a => a.status === 'completed').length;
+    const cancelled = appointments.filter(a => a.status === 'cancelled').length;
+    const pending = appointments.filter(a => a.status === 'pending').length;
+    const upcoming = appointments.filter(a => a.status === 'confirmed').length;
+    
+    const completionRate = total ? Math.round((completed / total) * 100) : 0;
+
+    const monthlyMap = {};
+    for (let i = 5; i >= 0; i--) {
       const d = new Date();
-      d.setDate(d.getDate() - i);
-      const dateStr = d.toLocaleDateString("en-CA");
-      const count = appointments.filter(a => a.appointment_date === dateStr && a.status !== 'cancelled').length;
-      data.push({ day: d.toLocaleDateString("en-US", { weekday: 'short' }), count });
+      d.setMonth(d.getMonth() - i);
+      const label = d.toLocaleDateString("en-US", { month: "short" });
+      monthlyMap[label] = { label, total: 0, completed: 0 };
     }
-    return data;
-  }, [appointments]);
-  const currentWeekTotal = weeklyData.reduce((sum, d) => sum + d.count, 0);
-
-  // 2. Doctor Performance (Steps Style)
-  const doctorData = useMemo(() => {
-    const docs = {};
+    
     appointments.forEach(a => {
-      if (a.status === 'cancelled') return;
-      const docName = a.staff?.name || "Unassigned";
-      if (!docs[docName]) docs[docName] = { name: docName, patients: 0, revenue: 0 };
-      docs[docName].patients += 1;
-      docs[docName].revenue += (Number(a.price) || 0);
+      const d = new Date(a.appointment_date);
+      const label = d.toLocaleDateString("en-US", { month: "short" });
+      if (monthlyMap[label]) {
+        monthlyMap[label].total += 1;
+        if (a.status === 'completed') monthlyMap[label].completed += 1;
+      }
     });
-    return Object.values(docs).sort((a, b) => b.patients - a.patients).slice(0, 5);
-  }, [appointments]);
+    const monthlyTrend = Object.values(monthlyMap);
 
-  // 3. Treatment Performance (Oxygen Level Style)
-  const treatmentData = useMemo(() => {
-    const treatments = {};
+    const statusData = [
+      { name: 'Completed', value: completed, color: '#10b981' },
+      { name: 'Upcoming', value: upcoming, color: '#3b82f6' },
+      { name: 'Pending', value: pending, color: '#f59e0b' },
+      { name: 'Cancelled', value: cancelled, color: '#f43f5e' }
+    ].filter(d => d.value > 0);
+
+    const docMap = {};
+    staffList.forEach(s => docMap[s.id] = { name: s.name, appointments: 0 });
     appointments.forEach(a => {
-      if (a.status === 'cancelled') return;
-      const tName = a.treatment || "Consultation";
-      if (!treatments[tName]) treatments[tName] = { name: tName, revenue: 0, count: 0 };
-      treatments[tName].revenue += (Number(a.price) || 0);
-      treatments[tName].count += 1;
+      if (a.staff_id && docMap[a.staff_id]) {
+        docMap[a.staff_id].appointments += 1;
+      }
     });
-    return Object.values(treatments).sort((a, b) => b.count - a.count).slice(0, 7);
-  }, [appointments]);
+    const doctorWorkload = Object.values(docMap)
+      .filter(d => d.appointments > 0)
+      .sort((a, b) => b.appointments - a.appointments)
+      .slice(0, 5);
 
-  // 4. Utilization Rate (Health Score Style)
-  const utilizationRate = todayStats.total > 0
-    ? Math.round((todayAppointments.filter(a => a.status !== 'cancelled').length / todayStats.total) * 100)
-    : (appointments.length > 0 ? 100 : 0);
+    const treatmentMap = {};
+    appointments.forEach(a => {
+      const tList = (a.treatment || "Consultation").split(",").map(t => t.replace(/\s*\(.*?\)/g, "").trim());
+      tList.forEach(t => {
+        if (!t) return;
+        treatmentMap[t] = (treatmentMap[t] || 0) + 1;
+      });
+    });
+    const topTreatments = Object.entries(treatmentMap)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    let totalRevenue = 0;
+    let paidRevenue = 0;
+    let outstandingRevenue = 0;
+
+    appointments.forEach(a => {
+      if (a.status !== 'completed' && a.status !== 'Completed') return;
+      
+      const treatmentTotal = (a.treatment || "").split(",").map(t => t.replace(/\s*\(.*?\)/g, "").trim().toLowerCase()).reduce((sum, t) => sum + (treatmentsMap[t] || 0), 0);
+      const consultFee = a.is_consultation ? (a.consultation_fee || 0) : 0;
+      const amount = treatmentTotal + consultFee;
+
+      totalRevenue += amount;
+      if (a.payment_status === 'Paid') {
+        paidRevenue += amount;
+      } else {
+        outstandingRevenue += amount;
+      }
+    });
+
+    const revenueData = [
+      { name: 'Paid', value: paidRevenue, color: '#10b981' },
+      { name: 'Outstanding', value: outstandingRevenue, color: '#f59e0b' }
+    ].filter(d => d.value > 0);
+
+    return {
+      metrics: { total, completed, completionRate, upcoming, pending },
+      monthlyTrend,
+      statusData,
+      doctorWorkload,
+      topTreatments,
+      finances: { totalRevenue, paidRevenue, outstandingRevenue, revenueData }
+    };
+  }, [appointments, staffList, treatmentsMap]);
 
   const recentAll = appointments.slice(0, 6);
 
@@ -101,261 +221,288 @@ export default function DashboardPage() {
     <div className="min-h-dvh bg-[#eef5fa] p-4 sm:p-6 lg:p-8 font-sans -m-4 sm:-m-6 lg:-m-8">
       <div className="max-w-[1600px] mx-auto space-y-6">
 
-        {/* PREMIUM HERO SECTION */}
-        <div className="relative rounded-[2rem] bg-gradient-to-br from-blue-300 via-blue-600 to-indigo-500 overflow-hidden shadow-xl shadow-blue-900/10">
-          <div className="absolute top-0 right-0 p-12 opacity-20 pointer-events-none">
-            <Activity className="w-64 h-64 text-white" />
-          </div>
-          <div className="relative p-8 md:p-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 border border-white/20 text-white text-xs font-500 mb-2 uppercase tracking-widest shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse shadow-[0_0_8px_rgba(110,231,183,0.8)]" /> Live Operational Status
-              </div>
-              <h1 className="text-3xl md:text-4xl font-500 text-white tracking-tight">
-                Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}
-              </h1>
-              <p className="text-blue-100 font-500 text-lg">
-                You have <strong className="text-white">{todayStats.total} appointments</strong> scheduled for today.
-              </p>
+
+
+        {/* ANALYTICS SECTION */}
+        {analyticsData && (
+          <div className="space-y-6 pt-6">
+            <h2 className="text-xl font-500 text-slate-800 px-2">Clinic Analytics Overview</h2>
+            
+            {/* METRICS ROW */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <MetricCard 
+                title="Total Appointments" 
+                value={analyticsData.metrics.total} 
+                subtitle="All time bookings"
+                icon={CalendarIcon} 
+                colorClass="text-violet-600" 
+                bgClass="bg-violet-50" 
+              />
+              <MetricCard 
+                title="Completion Rate" 
+                value={`${analyticsData.metrics.completionRate}%`} 
+                subtitle="Successful treatments"
+                icon={TrendingUp} 
+                colorClass="text-emerald-600" 
+                bgClass="bg-emerald-50" 
+              />
+              <MetricCard 
+                title="Upcoming" 
+                value={analyticsData.metrics.upcoming} 
+                subtitle="Confirmed future visits"
+                icon={Clock} 
+                colorClass="text-blue-600" 
+                bgClass="bg-blue-50" 
+              />
+              <MetricCard 
+                title="Active Patients" 
+                value={analyticsData.metrics.completed + analyticsData.metrics.upcoming} 
+                subtitle="Engaged clientele"
+                icon={Users} 
+                colorClass="text-pink-600" 
+                bgClass="bg-pink-50" 
+              />
             </div>
 
-            {nextAppt ? (
-              <div className="bg-white/20 backdrop-blur-md border border-white/30 shadow-lg rounded-2xl p-5 min-w-[280px]">
-                <p className="text-[10px] font-500 text-blue-100 uppercase tracking-widest mb-3">Up Next</p>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-white/30 flex items-center justify-center shrink-0 shadow-sm border border-white/20">
-                    <Clock className="w-6 h-6 text-white" />
+            {/* CHARTS ROW 1 */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* MONTHLY TREND (AREA CHART) */}
+              <Card className="lg:col-span-2 rounded-[2rem] border-none shadow-sm overflow-hidden bg-white">
+                <CardHeader className="border-b border-slate-50 bg-white/50 px-6 py-5">
+                  <CardTitle className="text-sm font-500 text-slate-800 flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-blue-500" /> Appointment Trends (6 Months)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={analyticsData.monthlyTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                          </linearGradient>
+                          <linearGradient id="colorCompleted" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#94a3b8" }} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#94a3b8" }} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Area type="monotone" dataKey="total" name="Total Booked" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorTotal)" />
+                        <Area type="monotone" dataKey="completed" name="Completed" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorCompleted)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
                   </div>
-                  <div>
-                    <p className="text-lg font-500 text-white leading-tight truncate max-w-[180px]">{nextAppt.name}</p>
-                    <p className="text-xs font-500 text-blue-100 mt-1">{nextAppt.treatment} at {formatTime(nextAppt.appointment_time)}</p>
-                  </div>
-                </div>
-              </div>
-            ) : todayStats.total > 0 ? (
-              <div className="bg-white/20 backdrop-blur-md border border-white/30 shadow-lg rounded-2xl p-5 min-w-[280px] flex items-center justify-center text-center">
-                <p className="text-sm font-500 text-white">All appointments for today are done!</p>
-              </div>
-            ) : (
-              <div className="bg-white/20 backdrop-blur-md border border-white/30 shadow-lg rounded-2xl p-5 min-w-[280px] flex items-center justify-center text-center">
-                <p className="text-sm font-500 text-white">No appointments scheduled for today.</p>
-              </div>
-            )}
-          </div>
-        </div>
+                </CardContent>
+              </Card>
 
-        {/* METRICS GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-          {/* Weekly Bookings (Heart Rate Style) */}
-          <div className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-slate-100/50 flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-500 text-slate-800">Weekly Bookings</span>
-              <MoreHorizontal size={16} className="text-slate-400" />
-            </div>
-            <div className="h-[80px] w-full -ml-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={weeklyData}>
-                  <defs>
-                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ff4d4f" stopOpacity={0.2} />
-                      <stop offset="95%" stopColor="#ff4d4f" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <Tooltip cursor={false} contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                  <Area type="monotone" dataKey="count" stroke="#ff4d4f" strokeWidth={3} fillOpacity={1} fill="url(#colorCount)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-2 flex items-baseline gap-1">
-              <span className="text-4xl font-500 text-slate-800">{currentWeekTotal}</span>
-              <span className="text-xs font-500 text-slate-400 uppercase tracking-widest">/Week</span>
-            </div>
-          </div>
-
-          {/* Daily Patients Target (Water Intake Style) */}
-          <div className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-slate-100/50 flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-500 text-slate-800">Patients Today</span>
-              <MoreHorizontal size={16} className="text-slate-400" />
-            </div>
-            <div className="flex items-center justify-between h-[80px]">
-              {/* Custom Water Drop Visualization */}
-              <div className="flex items-end gap-2">
-                {[1, 2, 3, 4].map((i) => {
-                  const dropsFilled = Math.min(4, Math.floor(todayStats.total / 5));
-                  const isFilled = i <= dropsFilled;
-                  return (
-                    <div key={i} className="flex flex-col items-center gap-1">
-                      <div className={`w-8 h-12 rounded-t-full rounded-b-xl flex items-center justify-center transition-colors ${isFilled ? 'bg-blue-500' : 'bg-blue-50 text-blue-300 border-2 border-dashed border-blue-200'}`}>
-                        {isFilled ? <Droplets size={16} className="text-white" /> : <Plus size={14} />}
-                      </div>
+              {/* STATUS DISTRIBUTION (DONUT CHART) */}
+              <Card className="rounded-[2rem] border-none shadow-sm overflow-hidden bg-white">
+                <CardHeader className="border-b border-slate-50 bg-white/50 px-6 py-5">
+                  <CardTitle className="text-sm font-500 text-slate-800 flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-blue-500" /> Status Distribution
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 flex flex-col items-center justify-center">
+                  <div className="h-[240px] w-full relative">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={analyticsData.statusData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={70}
+                          outerRadius={90}
+                          paddingAngle={5}
+                          dataKey="value"
+                          stroke="none"
+                        >
+                          {analyticsData.statusData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip content={<CustomTooltip />} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                      <span className="text-3xl font-500 text-slate-800">{analyticsData.metrics.total}</span>
+                      <span className="text-[10px] font-500 text-slate-400 uppercase tracking-widest">Total</span>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-            <div className="mt-2 flex items-baseline gap-1">
-              <span className="text-4xl font-500 text-slate-800">{todayStats.total}</span>
-              <span className="text-xs font-500 text-slate-400 uppercase tracking-widest">/20 Goal</span>
-            </div>
-          </div>
-
-          {/* Treatment Revenue (Oxygen Level Style) */}
-          <div className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-slate-100/50 flex flex-col justify-between hover:shadow-md transition-shadow lg:col-span-2">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-500 text-slate-800">Top Treatments</span>
-              <MoreHorizontal size={16} className="text-slate-400" />
-            </div>
-            <div className="h-[80px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={treatmentData}>
-                  <Tooltip cursor={{ fill: '#f8fafc', rx: 8 }} contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                  <Bar dataKey="count" radius={[6, 6, 6, 6]}>
-                    {treatmentData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#38bdf8' : '#bae6fd'} />
+                  </div>
+                  
+                  <div className="flex flex-wrap justify-center gap-3 mt-4 w-full">
+                    {analyticsData.statusData.map((entry, i) => (
+                      <div key={i} className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl">
+                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
+                        <span className="text-xs font-semibold text-slate-700">{entry.name}</span>
+                      </div>
                     ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-4xl font-500 text-slate-800">{treatmentData[0]?.count || 0}</span>
-              <span className="text-xs font-500 text-slate-400 uppercase tracking-widest truncate">{treatmentData[0]?.name || "N/A"}</span>
+
+            {/* CHARTS ROW 2 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* DOCTOR WORKLOAD (BAR CHART) */}
+              <Card className="rounded-[2rem] border-none shadow-sm overflow-hidden bg-white">
+                <CardHeader className="border-b border-slate-50 bg-white/50 px-6 py-5">
+                  <CardTitle className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <Users className="w-5 h-5 text-indigo-500" /> Top Performing Staff
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="h-[280px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={analyticsData.doctorWorkload} layout="vertical" margin={{ top: 0, right: 20, left: 20, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                        <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#94a3b8" }} />
+                        <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#64748b", fontWeight: 600 }} width={80} />
+                        <Tooltip cursor={{ fill: "#f8fafc" }} content={<CustomTooltip />} />
+                        <Bar dataKey="appointments" name="Appointments" fill="#6366f1" radius={[0, 6, 6, 0]} barSize={24}>
+                          {analyticsData.doctorWorkload.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* TOP TREATMENTS (BAR CHART) */}
+              <Card className="rounded-[2rem] border-none shadow-sm overflow-hidden bg-white">
+                <CardHeader className="border-b border-slate-50 bg-white/50 px-6 py-5">
+                  <CardTitle className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-rose-500" /> Most Popular Treatments
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="h-[280px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={analyticsData.topTreatments} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#64748b" }} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#94a3b8" }} />
+                        <Tooltip cursor={{ fill: "#f8fafc" }} content={<CustomTooltip />} />
+                        <Bar dataKey="count" name="Times Booked" fill="#ec4899" radius={[6, 6, 0, 0]} barSize={32}>
+                          {analyticsData.topTreatments.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={PIE_COLORS[(index + 2) % PIE_COLORS.length]} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <h2 className="text-xl font-500 text-slate-800 px-2 mt-10">Financial Overview</h2>
+
+            {/* FINANCIAL METRICS ROW */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <MetricCard 
+                title="Total Revenue" 
+                value={`₹${analyticsData.finances.totalRevenue.toLocaleString()}`} 
+                subtitle="All time generated"
+                icon={CreditCard} 
+                colorClass="text-blue-600" 
+                bgClass="bg-blue-50" 
+              />
+              <MetricCard 
+                title="Revenue Collected" 
+                value={`₹${analyticsData.finances.paidRevenue.toLocaleString()}`} 
+                subtitle="Successfully paid"
+                icon={CheckCircle} 
+                colorClass="text-emerald-600" 
+                bgClass="bg-emerald-50" 
+              />
+              <MetricCard 
+                title="Outstanding Revenue" 
+                value={`₹${analyticsData.finances.outstandingRevenue.toLocaleString()}`} 
+                subtitle="Pending collection"
+                icon={Clock} 
+                colorClass="text-amber-600" 
+                bgClass="bg-amber-50" 
+              />
+            </div>
+
+            {/* FINANCIAL CHARTS */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card className="rounded-[2rem] border-none shadow-sm overflow-hidden bg-white lg:col-span-1">
+                <CardHeader className="border-b border-slate-50 bg-white/50 px-6 py-5">
+                  <CardTitle className="text-sm font-500 text-slate-800 flex items-center gap-2">
+                    <CreditCard className="w-5 h-5 text-amber-500" /> Revenue Distribution
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 flex flex-col items-center justify-center">
+                  <div className="h-[240px] w-full relative">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={analyticsData.finances.revenueData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={70}
+                          outerRadius={90}
+                          paddingAngle={5}
+                          dataKey="value"
+                          stroke="none"
+                        >
+                          {analyticsData.finances.revenueData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip content={<CustomTooltip />} formatter={(value) => `₹${value.toLocaleString()}`} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                      <span className="text-xl font-500 text-slate-800">₹{analyticsData.finances.totalRevenue.toLocaleString()}</span>
+                      <span className="text-[10px] font-500 text-slate-400 uppercase tracking-widest">Total</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap justify-center gap-3 mt-4 w-full">
+                    {analyticsData.finances.revenueData.map((entry, i) => (
+                      <div key={i} className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl">
+                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
+                        <span className="text-xs font-semibold text-slate-700">{entry.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* BAR CHART FOR REVENUE */}
+              <Card className="rounded-[2rem] border-none shadow-sm overflow-hidden bg-white lg:col-span-2">
+                <CardHeader className="border-b border-slate-50 bg-white/50 px-6 py-5">
+                  <CardTitle className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-blue-500" /> Revenue Breakdown
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="h-[280px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={analyticsData.finances.revenueData} margin={{ top: 0, right: 0, left: -10, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#64748b" }} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#94a3b8" }} tickFormatter={(val) => `₹${val}`} />
+                        <Tooltip cursor={{ fill: "#f8fafc" }} content={<CustomTooltip />} formatter={(value) => `₹${value.toLocaleString()}`} />
+                        <Bar dataKey="value" name="Amount" radius={[6, 6, 0, 0]} barSize={40}>
+                          {analyticsData.finances.revenueData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
-
-          {/* Utilization Rate (Health Score Style) */}
-          <div className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-slate-100/50 md:col-span-2 flex items-center justify-between hover:shadow-md transition-shadow">
-            <span className="text-sm font-500 text-slate-800">Utilization Score</span>
-            <div className="flex items-center gap-4 w-1/2">
-              <div className="flex-1 h-3 flex gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className={`h-full flex-1 rounded-full ${i < Math.round(utilizationRate / 20) ? 'bg-emerald-400' : 'bg-slate-100'}`} />
-                ))}
-              </div>
-            </div>
-            <span className="text-4xl font-500 text-slate-800">{utilizationRate}%</span>
-          </div>
-
-          {/* Doctor Performance (Steps Style) */}
-          <div className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-slate-100/50 md:col-span-2 flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-500 text-slate-800">Doctor Performance (Patients)</span>
-              <MoreHorizontal size={16} className="text-slate-400" />
-            </div>
-            <div className="h-[80px] w-full -ml-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={doctorData}>
-                  <Tooltip cursor={false} contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                  <Line type="monotone" dataKey="patients" stroke="#fbbf24" strokeWidth={3} dot={{ r: 4, fill: '#fbbf24', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-4xl font-500 text-slate-800">{doctorData[0]?.patients || 0}</span>
-              <span className="text-xs font-500 text-slate-400 uppercase tracking-widest truncate">Most by {doctorData[0]?.name || "N/A"}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* BOTTOM LISTS: Today's Summary & Quick Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-          {/* Today's Blob List */}
-          <div className="lg:col-span-1 space-y-4">
-            <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100/50 flex items-center justify-between hover:shadow-md transition-shadow">
-              <div className="flex flex-col">
-                <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center mb-4">
-                  <Users size={24} />
-                </div>
-                <span className="text-3xl font-500 text-slate-800">{todayStats.total}</span>
-                <span className="text-xs font-500 text-slate-400 uppercase tracking-widest mt-1">Patients Today</span>
-              </div>
-              <div className="w-32 h-32 rounded-full bg-blue-50/50 -mr-16 -my-10" />
-            </div>
-
-            <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100/50 flex items-center justify-between hover:shadow-md transition-shadow">
-              <div className="flex flex-col">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4">
-                  <CheckCircle size={24} />
-                </div>
-                <span className="text-3xl font-500 text-slate-800">{todayStats.completed}</span>
-                <span className="text-xs font-500 text-slate-400 uppercase tracking-widest mt-1">Checked Out</span>
-              </div>
-              <div className="w-32 h-32 rounded-full bg-emerald-50/50 -mr-16 -my-10" />
-            </div>
-          </div>
-
-          {/* Recent Appointments Queue */}
-          <div className="lg:col-span-2 bg-white rounded-[2.5rem] p-6 shadow-sm border border-slate-100/50 overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-500 text-slate-800">Live Appointment Queue</h2>
-              <Link to="/admin/appointments" className="text-sm font-500 text-blue-600 hover:text-blue-800 transition-colors">
-                View all
-              </Link>
-            </div>
-
-            <div className="overflow-x-auto flex-1">
-              <table className="w-full text-left border-collapse min-w-[600px]">
-                <thead>
-                  <tr>
-                    <th className="pb-4 text-[10px] font-500 text-slate-400 uppercase tracking-widest border-b border-slate-50">Patient</th>
-                    <th className="pb-4 text-[10px] font-500 text-slate-400 uppercase tracking-widest border-b border-slate-50">Treatment</th>
-                    <th className="pb-4 text-[10px] font-500 text-slate-400 uppercase tracking-widest border-b border-slate-50">Time & Date</th>
-                    <th className="pb-4 text-[10px] font-500 text-slate-400 uppercase tracking-widest border-b border-slate-50 text-right">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50/50">
-                  {recentAll.map((appt, i) => {
-                    const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
-                    const statusStyles = {
-                      pending: "bg-amber-50 text-amber-600",
-                      confirmed: "bg-blue-50 text-blue-600",
-                      completed: "bg-emerald-50 text-emerald-600",
-                      cancelled: "bg-rose-50 text-rose-600"
-                    }[appt.status] || "bg-slate-50 text-slate-600";
-
-                    return (
-                      <tr key={appt.id} className="hover:bg-slate-50/30 transition-colors">
-                        <td className="py-4">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xs font-500 shrink-0 ${color}`}>
-                              {getInitials(appt.name)}
-                            </div>
-                            <span className="text-sm font-500 text-slate-800">{appt.name}</span>
-                          </div>
-                        </td>
-                        <td className="py-4">
-                          <span className="text-sm font-medium text-slate-600">{appt.treatment || "Consultation"}</span>
-                        </td>
-                        <td className="py-4">
-                          <div className="flex flex-col">
-                            <span className="text-sm font-500 text-slate-800">{formatTime(appt.appointment_time)}</span>
-                            <span className="text-[10px] font-500 text-slate-400 uppercase tracking-wider mt-0.5">{formatDate(appt.appointment_date)}</span>
-                          </div>
-                        </td>
-                        <td className="py-4 text-right">
-                          <span className={`inline-flex items-center justify-center px-3 py-1.5 text-[10px] font-500 uppercase tracking-wider rounded-xl ${statusStyles}`}>
-                            {appt.status}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {recentAll.length === 0 && (
-                    <tr>
-                      <td colSpan={4} className="py-12 text-center">
-                        <p className="text-sm font-500 text-slate-400">No appointments found.</p>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-        </div>
+        )}
 
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import Reveal from "../hooks/Reveal";
+import { motion } from "framer-motion";
+import { Sparkles, ArrowRight, Shield } from "lucide-react";
 import { client } from "../lib/sanityClient";
 import { urlFor } from "../lib/imageBuilder";
 
@@ -13,7 +14,6 @@ export default function Services() {
         label,
         desc,
         image,
-        
       }`,
       )
       .then((data) => setCmsServices(data));
@@ -24,21 +24,18 @@ export default function Services() {
       label: "Microneedling for Scars",
       image:
         "https://diaminyaesthetics.com/cdn/shop/articles/Microneedling_for_Acne_Scars4.jpg?v=1752568960",
-      bg: "bg-cyan-100",
       desc: "Professionally administered to directly impact the scarred area, clearing tissue effectively.",
     },
     {
       label: "TCA Cross",
       image:
         "https://northsidedermatology.com.au/wp-content/uploads/2020/07/Screen-Shot-2022-10-16-at-9.02.18-pm.png",
-      bg: "bg-emerald-100",
       desc: "Chemical reconstruction of skin scars using targeted application to boost collagen growth.",
     },
     {
       label: "Cut the Bottom Scar",
       image:
         "https://hbioclinic.com.vn/wp-content/uploads/2025/07/uu-va-nhuoc-diem-cua-cat-day-cac-vet-seo-ro.jpg.webp",
-      bg: "bg-orange-100",
       desc: "Subcision technique to release tethered acne scars, allowing natural skin elevation.",
     },
   ];
@@ -53,73 +50,107 @@ export default function Services() {
       : DEFAULT_SERVICES;
 
   return (
-    <section className="bg-cyan-50/60 py-16 md:py-20 px-4 sm:px-6 md:px-12">
-      {/* Heading */}
-      <Reveal>
-        <div className="text-center mb-12 md:mb-14">
-          <p className="text-xs font-bold tracking-[2.5px] uppercase text-cyan-500 mb-3">
-            Services at PScar
-          </p>
+    <section className="bg-white py-20 md:py-28 px-6 md:px-12 relative overflow-hidden">
+      {/* Background shape */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-teal-50/30 rounded-full blur-[120px] pointer-events-none" />
 
-          <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 leading-tight">
-            Proud to provide{" "}
-            <span className="text-cyan-500">effective solutions</span>
-          </h2>
+      {/* Heading */}
+      <div className="text-center max-w-2xl mx-auto mb-16">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-600 text-xs font-bold uppercase tracking-wider mb-4">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Services at PScar</span>
         </div>
-      </Reveal>
+
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
+          Proud to provide{" "}
+          <span className="bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+            effective solutions
+          </span>
+        </h2>
+      </div>
 
       {/* Cards */}
-      <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-20 relative z-10">
         {services.map((s, i) => (
-          <Reveal key={s.label} delay={i * 0.1}>
-            <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:shadow-cyan-100 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer">
-              <div className={`h-40 sm:h-44 flex items-center justify-center`}>
-                <img src={s.image} className="w-full h-full object-cover" />
-              </div>
+          <motion.div
+            key={s.label}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5, delay: i * 0.1 }}
+            className="bg-slate-50 rounded-3xl overflow-hidden border border-slate-100 hover:border-teal-500/20 shadow-sm hover:shadow-xl hover:shadow-teal-500/5 transition-all duration-300 group cursor-pointer flex flex-col h-full"
+          >
+            {/* Image container */}
+            <div className="h-48 sm:h-52 overflow-hidden relative shrink-0">
+              <img
+                src={s.image}
+                alt={s.label}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/20 to-transparent pointer-events-none" />
+            </div>
 
-              <div className="p-4 sm:p-5">
-                <h3 className="text-[15px] font-bold text-slate-800 mb-2">
-                  {s.label}
-                </h3>
+            {/* Content */}
+            <div className="p-6 flex flex-col flex-1">
+              <h3 className="text-base sm:text-lg font-bold text-slate-800 mb-3 group-hover:text-teal-600 transition-colors">
+                {s.label}
+              </h3>
 
-                <p className="text-[13px] text-slate-400 leading-relaxed">
-                  {s.desc}
-                </p>
+              <p className="text-xs sm:text-sm text-slate-450 leading-relaxed flex-1">
+                {s.desc}
+              </p>
 
-                <p className="mt-3 text-sm font-bold text-cyan-500 flex items-center gap-1">
-                  Read more <span>→</span>
-                </p>
+              <div className="mt-5 pt-4 border-t border-slate-100 flex items-center gap-1 text-sm font-bold text-teal-600 group-hover:text-teal-500 transition-colors">
+                <span>Explore Treatment</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
-          </Reveal>
+          </motion.div>
         ))}
       </div>
 
       {/* Technology Banner */}
-      <Reveal delay={0.2}>
-        <div className="max-w-5xl mx-auto mt-10 bg-white rounded-2xl px-5 sm:px-8 md:px-11 py-6 md:py-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div>
-            <p className="text-xs font-bold tracking-[2.5px] uppercase text-cyan-500 mb-2">
-              Technology
-            </p>
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.6 }}
+        className="max-w-5xl mx-auto relative rounded-[32px] overflow-hidden shadow-xl"
+        style={{
+          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+        }}
+      >
+        {/* Glow accent */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-teal-500/10 rounded-full blur-[100px] pointer-events-none" />
 
-            <h3 className="text-lg md:text-xl font-extrabold text-slate-800 leading-snug">
-              Exploring the potential of{" "}
-              <span className="text-cyan-500">PScar</span> scar removal
-              technology
-              <br className="hidden md:block" />— The journey to regain smooth
-              skin
-            </h3>
+        <div className="relative z-10 px-8 sm:px-12 py-10 md:py-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0 shadow-inner">
+              <Shield className="w-6 h-6" />
+            </div>
+
+            <div className="text-left">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-teal-400">
+                PScar Core Technology
+              </span>
+              <h3 className="text-xl sm:text-2xl font-extrabold text-white leading-tight mt-1.5">
+                The journey to regain smooth skin starts here
+              </h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed max-w-lg">
+                Explore our state-of-the-art non-surgical scar removal techniques designed to trigger deep cell renewal.
+              </p>
+            </div>
           </div>
 
           <a
             href="#contact"
-            className="bg-cyan-500 hover:bg-cyan-600 text-white text-sm font-bold px-6 py-3 rounded-full transition-all duration-200 hover:shadow-lg hover:shadow-cyan-200 whitespace-nowrap"
+            className="inline-flex items-center gap-1.5 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white text-sm font-bold px-8 py-3.5 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/20 shrink-0 whitespace-nowrap self-stretch md:self-auto justify-center"
           >
-            Our Treatment Plans →
+            <span>Book Consultation</span>
+            <ArrowRight className="w-4 h-4" />
           </a>
         </div>
-      </Reveal>
+      </motion.div>
     </section>
   );
 }

@@ -91,6 +91,7 @@ export default function AppointmentsTable({
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
+  const [desktopDateFilter, setDesktopDateFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -256,8 +257,13 @@ export default function AppointmentsTable({
       a.id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       a.phone?.includes(searchQuery);
     const matchesStatus = statusFilter === "All Status" || getStatusLabel(a.status) === statusFilter;
-    return matchesSearch && matchesStatus;
-  }).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    const matchesDate = !desktopDateFilter || a.appointment_date === desktopDateFilter;
+    return matchesSearch && matchesStatus && matchesDate;
+  }).sort((a, b) => {
+    const dateA = new Date(`${a.appointment_date || '1970-01-01'}T${a.appointment_time || '00:00:00'}`);
+    const dateB = new Date(`${b.appointment_date || '1970-01-01'}T${b.appointment_time || '00:00:00'}`);
+    return dateA - dateB;
+  });
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -332,6 +338,21 @@ export default function AppointmentsTable({
                 <Button onClick={() => exportToCSV(paginated)} variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-white rounded-lg transition-all" title="Export CSV">
                   <Download size={16} />
                 </Button>
+                <div className="w-[1px] h-4 bg-gray-200 hidden md:block" />
+                
+                {/* Desktop Date Filter */}
+                <div className="relative items-center hidden md:flex">
+                  <Input 
+                    type="date"
+                    value={desktopDateFilter}
+                    onChange={(e) => {
+                      setDesktopDateFilter(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="h-8 text-xs font-medium text-gray-500 bg-transparent border-none shadow-none focus-visible:ring-0 px-2 cursor-pointer w-[125px]"
+                  />
+                </div>
+
                 <div className="w-[1px] h-4 bg-gray-200" />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

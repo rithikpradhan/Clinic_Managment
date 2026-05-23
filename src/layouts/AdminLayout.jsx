@@ -43,7 +43,6 @@ const NAVITEMS = [
   { to: "/admin/schedule", label: "Schedule", icon: CalendarClock },
   { to: "/admin/billing", label: "Billing", icon: CreditCard },
   { to: "/admin/services", label: "Service Menu", icon: Tag },
-  { to: "/admin/analytics", label: "Analytics", icon: BarChart2 },
 ];
 
 function Sidebar({ onClose }) {

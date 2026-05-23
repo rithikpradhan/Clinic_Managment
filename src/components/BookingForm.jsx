@@ -174,14 +174,14 @@ function TimeSlots({ slots, selected, onSelect, loading }) {
     );
   return (
     <div
-      className="space-y-2 overflow-y-auto max-h-80 pr-1"
+      className="flex flex-wrap gap-2 md:flex-col md:gap-0 md:space-y-2 overflow-y-auto max-h-80 pr-1 pb-4 md:pb-0"
       style={{ scrollbarWidth: "thin", scrollbarColor: "#cbd5e1 transparent" }}
     >
       {slots.map((slot) => (
         <button
           key={slot}
           onClick={() => onSelect(slot)}
-          className={`w-full py-3 rounded-xl text-sm font-semibold border-2 transition-all ${
+          className={`flex-auto min-w-[90px] md:w-full py-2.5 md:py-3 px-3 rounded-xl text-sm font-semibold border-2 transition-all ${
             selected === slot
               ? "bg-blue-600 border-blue-600 text-white shadow-md"
               : "border-blue-200 text-blue-700 hover:border-blue-500 hover:bg-blue-50 bg-white"
@@ -359,6 +359,40 @@ function ModalForm({ onClose, onSuccess, prefill }) {
         ? `${form.name} booked a General Consultation for ${form.appointment_date} at ${formatTime(form.appointment_time)}`
         : `${form.name} booked ${form.treatment_names.join(", ")} for ${form.appointment_date} at ${formatTime(form.appointment_time)}`;
       createNotification("New Appointment Booking", bookingDesc, "booking");
+
+      // Trigger native-like PWA notification if permission is granted
+      if (window.Notification && Notification.permission === "granted") {
+        const title = "Booking Confirmed! 📅";
+        const bodyText = form.is_consultation
+          ? `General Consultation scheduled on ${form.appointment_date} at ${formatTime(form.appointment_time)}.`
+          : `${form.treatment_names.join(", ")} scheduled on ${form.appointment_date} at ${formatTime(form.appointment_time)}.`;
+
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.ready
+            .then((registration) => {
+              registration.showNotification(title, {
+                body: bodyText,
+                icon: "/pwa-192x192.png",
+                badge: "/pwa-192x192.png",
+                vibrate: [200, 100, 200],
+                tag: "booking-success",
+                renotify: true,
+                data: {
+                  url: "/",
+                },
+              });
+            })
+            .catch((err) => {
+              console.error("SW notification registration failed:", err);
+              // Fallback to basic window Notification
+              new Notification(title, { body: bodyText, icon: "/pwa-192x192.png" });
+            });
+        } else {
+          // Standard browser notification fallback
+          new Notification(title, { body: bodyText, icon: "/pwa-192x192.png" });
+        }
+      }
+
       if (onSuccess) onSuccess();
     } else {
       alert("Something went wrong. Please try again.");
@@ -632,25 +666,68 @@ function ModalForm({ onClose, onSuccess, prefill }) {
     );
 
   // ── Step 2: Calendar + Time slots ─────────────────────────
-  if (step === 2)
+  if (step === 2) {
+    const rollingDates = [];
+    const anchorDate = new Date();
+    for (let i = 0; i <= 14; i++) {
+      const d = new Date(anchorDate);
+      d.setDate(anchorDate.getDate() + i);
+      rollingDates.push(d);
+    }
+
     return (
-      <div className="flex h-full">
+      <div className="flex flex-col md:flex-row h-full">
         {/* Calendar */}
-        <div className="flex-1 flex flex-col border-r border-gray-100 min-w-0">
+        <div className="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-gray-100 min-w-0 shrink-0">
           <div className="px-5 pt-5 pb-4 border-b border-gray-100 flex items-center gap-3 shrink-0">
             <BackBtn to={1} />
             <p className="font-bold text-gray-900 text-sm">
               Select a Date & Time
             </p>
           </div>
-          <div className="flex-1 overflow-y-auto px-5 py-5">
-            <MiniCalendar
-              selectedDate={form.appointment_date}
-              onSelect={(date) =>
-                setForm((f) => ({ ...f, appointment_date: date }))
-              }
-            />
-            <div className="mt-5 pt-4 border-t border-gray-100 flex items-center gap-2 text-xs text-gray-400">
+          <div className="md:flex-1 overflow-x-auto md:overflow-y-auto px-5 py-5 scrollbar-none">
+            {/* Desktop Calendar */}
+            <div className="hidden md:block">
+              <MiniCalendar
+                selectedDate={form.appointment_date}
+                onSelect={(date) =>
+                  setForm((f) => ({ ...f, appointment_date: date }))
+                }
+              />
+            </div>
+            
+            {/* Mobile Month Header */}
+            <div className="md:hidden mb-3 px-1">
+              <span className="text-sm font-bold text-gray-900">
+                {new Date(form.appointment_date ? form.appointment_date : new Date()).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+              </span>
+            </div>
+
+            {/* Mobile Date Slider */}
+            <div className="md:hidden flex overflow-x-auto gap-3 pb-2 -mx-2 px-2 scrollbar-none snap-x w-full">
+              {rollingDates.map((date) => {
+                const ds = date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
+                const isSelected = form.appointment_date === ds;
+                const weekday = date.toLocaleDateString("en-US", { weekday: 'short' });
+                const dayNum = date.getDate();
+                return (
+                  <button
+                    key={ds}
+                    onClick={() => setForm((f) => ({ ...f, appointment_date: ds }))}
+                    className={`flex flex-col items-center justify-center min-w-[64px] h-[76px] rounded-2xl transition-all snap-start shadow-sm border ${
+                      isSelected
+                        ? "bg-blue-600 text-white border-blue-600 scale-105 font-bold"
+                        : "bg-white text-gray-400 border-gray-100 hover:border-gray-300"
+                    }`}
+                  >
+                    <span className="text-[11px] uppercase font-bold opacity-80">{weekday}</span>
+                    <span className="text-xl font-bold mt-0.5">{dayNum}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="hidden md:flex mt-5 pt-4 border-t border-gray-100 items-center gap-2 text-xs text-gray-400">
               <Globe className="w-3.5 h-3.5" />
               <span>India Standard Time (IST)</span>
             </div>
@@ -659,7 +736,7 @@ function ModalForm({ onClose, onSuccess, prefill }) {
 
         {/* Time slots — appear after date picked */}
         {form.appointment_date ? (
-          <div className="w-44 flex flex-col shrink-0">
+          <div className="w-full md:w-44 flex flex-col shrink-0 flex-1 md:flex-none bg-slate-50/50 md:bg-transparent">
             <div className="px-4 pt-5 pb-4 border-b border-gray-100 shrink-0">
               <p className="text-sm font-bold text-gray-900">
                 {new Date(
@@ -684,12 +761,19 @@ function ModalForm({ onClose, onSuccess, prefill }) {
             </div>
           </div>
         ) : (
-          <div className="w-40 flex items-center justify-center text-xs text-gray-400 text-center px-4 shrink-0">
-            ← Select a date to see available times
+          <div className="w-full md:w-40 flex flex-col flex-1 items-center justify-center text-center px-6 py-12 md:py-0 shrink-0 bg-slate-50/50 border-t md:border-t-0 border-gray-100">
+            <div className="w-16 h-16 bg-blue-100/50 rounded-full flex items-center justify-center mb-4">
+              <Calendar className="w-8 h-8 text-blue-500" />
+            </div>
+            <h4 className="text-sm font-bold text-gray-900 mb-1">When are you free?</h4>
+            <p className="text-xs text-gray-500 leading-relaxed max-w-[200px]">
+              Tap on any date above to see available time slots for your visit.
+            </p>
           </div>
         )}
       </div>
     );
+  }
 
   // ── Step 3: Details ────────────────────────────────────────
   if (step === 3)
@@ -759,7 +843,12 @@ function ModalForm({ onClose, onSuccess, prefill }) {
         </div>
         <div className="px-6 py-4 border-t border-gray-100 shrink-0">
           <button
-            onClick={() => setStep(4)}
+            onClick={() => {
+              if (window.Notification && Notification.permission === "default") {
+                Notification.requestPermission().catch(console.error);
+              }
+              setStep(4);
+            }}
             disabled={!form.name || !form.email || !form.phone}
             className="w-full h-11 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold rounded-xl transition-all"
           >
@@ -957,101 +1046,32 @@ export function BookingCard({
 
   return (
     <>
-      <div
-        style={{
-          background: "rgba(255,255,255,0.1)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          border: "1px solid rgba(255,255,255,0.2)",
-          borderRadius: 20,
-          padding: "36px 32px",
-          maxWidth: 460,
-          width: "100%",
-          boxShadow:
-            "0 8px 40px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {/* Top shimmer line */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 1,
-            background:
-              "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
-          }}
-        />
-
+      <div className="w-full max-w-[460px] bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden group">
+        {/* Decorative shimmer */}
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-teal-500/30 to-transparent" />
+        <div className="absolute -top-12 -right-12 w-32 h-32 bg-teal-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-teal-500/15 transition-all duration-500" />
+        
         {/* Title */}
-        <h3
-          style={{
-            fontSize: 22,
-            fontWeight: 800,
-            color: "white",
-            margin: "0 0 10px",
-            lineHeight: 1.25,
-            letterSpacing: "-0.3px",
-          }}
-        >
+        <h3 className="text-xl sm:text-2xl font-black text-white leading-snug mb-3 tracking-tight">
           {title}
         </h3>
 
         {/* Subtitle */}
-        <p
-          style={{
-            fontSize: 14,
-            color: "rgba(255,255,255,0.68)",
-            margin: "0 0 22px",
-            lineHeight: 1.65,
-          }}
-        >
+        <p className="text-slate-400 text-sm leading-relaxed mb-6">
           {subtitle}
         </p>
 
         {/* Feature list */}
-        <ul
-          style={{
-            listStyle: "none",
-            margin: "0 0 28px",
-            padding: 0,
-            display: "flex",
-            flexDirection: "column",
-            gap: 10,
-          }}
-        >
+        <ul className="space-y-3.5 mb-8">
           {features.map((f, i) => (
             <li
               key={i}
-              style={{ display: "flex", alignItems: "center", gap: 10 }}
+              className="flex items-center gap-3 text-left"
             >
-              <span
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: "50%",
-                  background: "rgba(255,255,255,0.18)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                  fontSize: 11,
-                  color: "white",
-                  fontWeight: 800,
-                }}
-              >
+              <span className="w-5 h-5 rounded-full bg-teal-500/15 border border-teal-500/25 flex items-center justify-center shrink-0 text-[10px] text-teal-400 font-bold">
                 ✓
               </span>
-              <span
-                style={{
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: "rgba(255,255,255,0.88)",
-                }}
-              >
+              <span className="text-sm font-semibold text-slate-200">
                 {f}
               </span>
             </li>
@@ -1061,63 +1081,16 @@ export function BookingCard({
         {/* CTA Button */}
         <button
           onClick={() => setOpen(true)}
-          style={{
-            width: "100%",
-            height: 54,
-            background: "white",
-            border: "none",
-            borderRadius: 12,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 10,
-            fontSize: 15,
-            fontWeight: 700,
-            color: "#0f766e",
-            cursor: "pointer",
-            letterSpacing: "-0.1px",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-            transition: "all 0.2s ease",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "translateY(-2px)";
-            e.currentTarget.style.boxShadow = "0 8px 28px rgba(0,0,0,0.2)";
-            e.currentTarget.style.background = "#f0fdf9";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "translateY(0)";
-            e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.15)";
-            e.currentTarget.style.background = "white";
-          }}
+          className="w-full h-13 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-lg shadow-teal-500/10 hover:shadow-teal-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 border border-teal-400/20"
         >
-          <span
-            style={{
-              width: 26,
-              height: 26,
-              borderRadius: 7,
-              background: "linear-gradient(135deg,#14b8a6,#0d9488)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              boxShadow: "0 2px 8px rgba(13,148,136,0.4)",
-            }}
-          >
-            <Calendar style={{ width: 14, height: 14, color: "white" }} />
+          <span className="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+            <Calendar className="w-3.5 h-3.5 text-white" />
           </span>
-          {buttonLabel}
+          <span>{buttonLabel}</span>
         </button>
 
         {/* Note */}
-        <p
-          style={{
-            textAlign: "center",
-            fontSize: 12,
-            color: "rgba(255,255,255,0.4)",
-            margin: "10px 0 0",
-            letterSpacing: "0.1px",
-          }}
-        >
+        <p className="text-center text-xs text-slate-500 mt-4 tracking-wide">
           {note}
         </p>
       </div>
@@ -1140,30 +1113,10 @@ export default function BookingButton({
   const btn = (
     <button
       onClick={() => setOpen(true)}
-      className={className || ""}
-      style={
-        cs || {
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 8,
-          background: "linear-gradient(135deg,#e11d48,#be185d)",
-          color: "white",
-          fontWeight: 600,
-          fontSize: 14,
-          padding: "12px 24px",
-          borderRadius: 50,
-          border: "none",
-          cursor: "pointer",
-          boxShadow: "0 4px 20px rgba(225,29,72,0.4)",
-          transition: "all 0.2s",
-        }
-      }
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.transform = "translateY(-1px)")
-      }
-      onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
+      className={className || "inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white font-bold text-sm rounded-xl shadow-md hover:shadow-lg shadow-teal-500/10 hover:shadow-teal-500/20 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] border border-teal-400/20"}
+      style={cs}
     >
-      <Calendar style={{ width: 16, height: 16 }} /> {label}
+      <Calendar className="w-4 h-4" /> <span>{label}</span>
     </button>
   );
   return (

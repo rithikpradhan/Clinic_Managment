@@ -22,6 +22,7 @@ export async function fetchClinicSettings() {
     .eq("id", 1)
     .single();
 
+
   if (error) {
     console.error("fetchClinicSettings:", error.message);
     return null;
@@ -290,8 +291,8 @@ export async function fetchAvailableSlots(staff_id, date, durationMinutes = 30) 
     // - Use doctor's custom schedule if is_working = true and times set
     // - Otherwise fall back to clinic hours
     const startTime = (sched && sched.is_working && sched.start_time) ? sched.start_time : clinicOpen;
-    const endTime   = (sched && sched.is_working && sched.end_time)   ? sched.end_time   : clinicClose;
-    const slotDur   = (sched && sched.slot_duration) ? sched.slot_duration : 30;
+    const endTime = (sched && sched.is_working && sched.end_time) ? sched.end_time : clinicClose;
+    const slotDur = (sched && sched.slot_duration) ? sched.slot_duration : 30;
 
     // Find appointments for this doctor
     const doctorBooked = (booked || []).filter(b => b.staff_id === staff.id);

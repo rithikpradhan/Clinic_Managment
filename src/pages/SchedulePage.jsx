@@ -242,7 +242,7 @@ function ClinicHoursTab() {
   const windowMins = ch * 60 + cm - (oh * 60 + om);
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-6 max-w-8xl">
       {/* Stat strip */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <StatCard
@@ -268,17 +268,17 @@ function ClinicHoursTab() {
       <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col md:flex-row">
         {/* Left Side: Working Days */}
         <div className="flex-[1.2] p-8 md:border-r border-slate-100 bg-slate-50/30">
-           <div className="flex items-center gap-3 mb-6">
-              <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm border border-blue-100/50">
-                 <CalendarDays size={18} />
-              </div>
-              <div>
-                 <h3 className="text-lg font-bold text-slate-900">Working Days</h3>
-                 <p className="text-xs font-medium text-slate-500 mt-0.5">Select active clinic days</p>
-              </div>
-           </div>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm border border-blue-100/50">
+              <CalendarDays size={18} />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-900">Working Days</h3>
+              <p className="text-xs font-medium text-slate-500 mt-0.5">Select active clinic days</p>
+            </div>
+          </div>
 
-           <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2">
             {DAY_LABELS.map((day, i) => {
               const active = settings.open_days.includes(i);
               return (
@@ -290,11 +290,10 @@ function ClinicHoursTab() {
                       : [...settings.open_days, i].sort();
                     setSettings((s) => ({ ...s, open_days: days }));
                   }}
-                  className={`relative px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95 ${
-                    active
+                  className={`relative px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95 ${active
                       ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
                       : "bg-white text-slate-400 border border-slate-200 hover:border-blue-300 hover:text-blue-500 hover:bg-blue-50/50"
-                  }`}
+                    }`}
                 >
                   {day}
                   {active && <span className="absolute -top-1 -right-1 flex h-3 w-3">
@@ -304,9 +303,9 @@ function ClinicHoursTab() {
                 </button>
               );
             })}
-           </div>
+          </div>
 
-           <Alert className="mt-8 border-none bg-blue-50/50 text-blue-700 rounded-2xl shadow-inner">
+          <Alert className="mt-8 border-none bg-blue-50/50 text-blue-700 rounded-2xl shadow-inner">
             <Info className="h-4 w-4 text-blue-500" />
             <AlertDescription className="text-xs font-medium leading-relaxed">
               Individual doctor schedules can override these clinic hours.
@@ -318,72 +317,71 @@ function ClinicHoursTab() {
 
         {/* Right Side: Timings */}
         <div className="flex-[1.5] p-8 flex flex-col">
-           <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                 <div className="h-10 w-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-100/50">
-                    <Clock size={18} />
-                 </div>
-                 <div>
-                    <h3 className="text-lg font-bold text-slate-900">Operating Hours</h3>
-                    <p className="text-xs font-medium text-slate-500 mt-0.5">Clinic-wide open and close times</p>
-                 </div>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-100/50">
+                <Clock size={18} />
               </div>
-              <SaveIndicator loading={saving} saved={saved} onClick={handleSave} />
-           </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">Operating Hours</h3>
+                <p className="text-xs font-medium text-slate-500 mt-0.5">Clinic-wide open and close times</p>
+              </div>
+            </div>
+            <SaveIndicator loading={saving} saved={saved} onClick={handleSave} />
+          </div>
 
-           <div className="flex items-center gap-4 mb-8 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-             <div className="flex-1 space-y-1.5 relative">
-               <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Opens at</Label>
-               <div className="relative">
-                 <Input
-                   type="time"
-                   value={settings.open_time}
-                   onChange={(e) => setSettings((s) => ({ ...s, open_time: e.target.value }))}
-                   className="w-full font-mono text-sm font-bold text-slate-700 h-12 rounded-xl bg-white border-slate-200 shadow-sm pl-4 pr-2 transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                 />
-               </div>
-             </div>
+          <div className="flex items-center gap-4 mb-8 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+            <div className="flex-1 space-y-1.5 relative">
+              <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Opens at</Label>
+              <div className="relative">
+                <Input
+                  type="time"
+                  value={settings.open_time}
+                  onChange={(e) => setSettings((s) => ({ ...s, open_time: e.target.value }))}
+                  className="w-full font-mono text-sm font-bold text-slate-700 h-12 rounded-xl bg-white border-slate-200 shadow-sm pl-4 pr-2 transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                />
+              </div>
+            </div>
 
-             <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-white shadow-sm border border-slate-100 text-slate-300 mt-5">
-                →
-             </div>
+            <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-white shadow-sm border border-slate-100 text-slate-300 mt-5">
+              →
+            </div>
 
-             <div className="flex-1 space-y-1.5 relative">
-               <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Closes at</Label>
-               <div className="relative">
-                 <Input
-                   type="time"
-                   value={settings.close_time}
-                   onChange={(e) => setSettings((s) => ({ ...s, close_time: e.target.value }))}
-                   className="w-full font-mono text-sm font-bold text-slate-700 h-12 rounded-xl bg-white border-slate-200 shadow-sm pl-4 pr-2 transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                 />
-               </div>
-             </div>
-           </div>
+            <div className="flex-1 space-y-1.5 relative">
+              <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Closes at</Label>
+              <div className="relative">
+                <Input
+                  type="time"
+                  value={settings.close_time}
+                  onChange={(e) => setSettings((s) => ({ ...s, close_time: e.target.value }))}
+                  className="w-full font-mono text-sm font-bold text-slate-700 h-12 rounded-xl bg-white border-slate-200 shadow-sm pl-4 pr-2 transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                />
+              </div>
+            </div>
+          </div>
 
-           <div className="mt-auto">
-             <div className="flex items-center justify-between mb-3">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">
-                  Slot Heatmap
-                </p>
-                <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">{slotCount} Slots generated</span>
-             </div>
-             
-             <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
-               {allSlots.map((slot, i) => (
-                 <div
-                   key={slot}
-                   className={`text-[10px] font-mono font-semibold px-2 py-1 rounded-md transition-colors ${
-                     i < 4
-                       ? "bg-blue-600 text-white shadow-sm"
-                       : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                   }`}
-                 >
-                   {slot}
-                 </div>
-               ))}
-             </div>
-           </div>
+          <div className="mt-auto">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">
+                Slot Heatmap
+              </p>
+              <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">{slotCount} Slots generated</span>
+            </div>
+
+            <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
+              {allSlots.map((slot, i) => (
+                <div
+                  key={slot}
+                  className={`text-[10px] font-mono font-semibold px-2 py-1 rounded-md transition-colors ${i < 4
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                    }`}
+                >
+                  {slot}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -437,13 +435,13 @@ function DayRow({ dayIndex, schedule, isClinicOpen, onChange }) {
   const end = schedule?.end_time ?? "17:00";
   const dur = schedule?.slot_duration ?? 30;
   const slotCount = isWorking ? generateSlots(start, end, dur).length : 0;
-  
+
   // Calculate capacity percentage for the progress bar (max ~30 slots in a day)
   const capacityPercent = Math.min(100, Math.max(0, (slotCount / 30) * 100));
 
   return (
     <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 mb-2 rounded-2xl transition-all ${isWorking ? "bg-white border border-slate-200 shadow-sm" : "bg-slate-50/50 border border-slate-100"}`}>
-      
+
       {/* Left: Day & Toggle */}
       <div className="flex items-center gap-4 w-full sm:w-auto mb-3 sm:mb-0">
         <Switch
@@ -499,7 +497,7 @@ function DayRow({ dayIndex, schedule, isClinicOpen, onChange }) {
                 className="bg-transparent border-none text-xs font-mono font-bold text-slate-700 focus:ring-0 w-24 p-0 text-center"
               />
             </div>
-            
+
             <Select
               value={String(dur)}
               onValueChange={(v) =>
@@ -524,20 +522,20 @@ function DayRow({ dayIndex, schedule, isClinicOpen, onChange }) {
             </Select>
 
             <div className="flex flex-col gap-1 w-24 ml-2 shrink-0">
-               <div className="flex items-center justify-between">
-                  <span className="text-[9px] font-bold text-slate-400 uppercase">Capacity</span>
-                  <span className="text-[10px] font-bold text-blue-600">{slotCount}</span>
-               </div>
-               <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-blue-500 rounded-full transition-all duration-500" style={{ width: `${capacityPercent}%` }} />
-               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-bold text-slate-400 uppercase">Capacity</span>
+                <span className="text-[10px] font-bold text-blue-600">{slotCount}</span>
+              </div>
+              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-full bg-blue-500 rounded-full transition-all duration-500" style={{ width: `${capacityPercent}%` }} />
+              </div>
             </div>
           </>
         ) : (
           <div className="flex-1 flex justify-end">
-             <span className={`text-xs font-medium px-3 py-1.5 rounded-lg ${!isClinicOpen ? "bg-red-50 text-red-500 border border-red-100" : "italic bg-slate-100 text-slate-400"}`}>
-               {!isClinicOpen ? "Clinic Closed" : "Unavailable"}
-             </span>
+            <span className={`text-xs font-medium px-3 py-1.5 rounded-lg ${!isClinicOpen ? "bg-red-50 text-red-500 border border-red-100" : "italic bg-slate-100 text-slate-400"}`}>
+              {!isClinicOpen ? "Clinic Closed" : "Unavailable"}
+            </span>
           </div>
         )}
       </div>
@@ -588,41 +586,41 @@ function DoctorScheduleCard({ doctor, clinicOpenDays }) {
       <Collapsible open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger asChild>
           <button className={`w-full flex items-center justify-between p-5 transition-colors ${open ? "bg-slate-50/50" : "hover:bg-slate-50/80"}`}>
-            
-            <div className="flex items-center gap-4">
-               <div className="relative">
-                 <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
-                   {initials}
-                 </div>
-                 {isActive && (
-                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
-                 )}
-               </div>
 
-               <div className="text-left">
-                 <h4 className="text-sm font-bold text-slate-900">{doctor.name}</h4>
-                 <p className="text-xs font-medium text-slate-500 mt-0.5">{doctor.specialty || doctor.role}</p>
-               </div>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                  {initials}
+                </div>
+                {isActive && (
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
+                )}
+              </div>
+
+              <div className="text-left">
+                <h4 className="text-sm font-bold text-slate-900">{doctor.name}</h4>
+                <p className="text-xs font-medium text-slate-500 mt-0.5">{doctor.specialty || doctor.role}</p>
+              </div>
             </div>
 
             <div className="flex items-center gap-6">
-               <div className="hidden md:flex flex-col items-end">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Active Days</span>
-                  <div className="flex gap-1">
-                     {DAY_LABELS.map((d, i) => {
-                        const isDocWorking = clinicOpenDays.includes(i) && schedule[i]?.is_working;
-                        return (
-                          <div key={i} className={`w-6 h-6 rounded flex items-center justify-center text-[9px] font-bold ${isDocWorking ? "bg-blue-600 text-white shadow-sm" : "bg-slate-100 text-slate-300"}`}>
-                             {d[0]}
-                          </div>
-                        );
-                     })}
-                  </div>
-               </div>
-               
-               <div className={`h-8 w-8 rounded-xl flex items-center justify-center transition-all ${open ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-400"}`}>
-                  <ChevronDown size={16} className={`transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
-               </div>
+              <div className="hidden md:flex flex-col items-end">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Active Days</span>
+                <div className="flex gap-1">
+                  {DAY_LABELS.map((d, i) => {
+                    const isDocWorking = clinicOpenDays.includes(i) && schedule[i]?.is_working;
+                    return (
+                      <div key={i} className={`w-6 h-6 rounded flex items-center justify-center text-[9px] font-bold ${isDocWorking ? "bg-blue-600 text-white shadow-sm" : "bg-slate-100 text-slate-300"}`}>
+                        {d[0]}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className={`h-8 w-8 rounded-xl flex items-center justify-center transition-all ${open ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-400"}`}>
+                <ChevronDown size={16} className={`transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+              </div>
             </div>
           </button>
         </CollapsibleTrigger>
@@ -630,11 +628,11 @@ function DoctorScheduleCard({ doctor, clinicOpenDays }) {
         <CollapsibleContent>
           <div className="p-6 bg-slate-50/30 border-t border-slate-100">
             <div className="flex items-center justify-between mb-4">
-               <div>
-                  <h5 className="text-sm font-bold text-slate-900">Weekly Schedule</h5>
-                  <p className="text-xs font-medium text-slate-500">Configure availability for this specific doctor.</p>
-               </div>
-               <SaveIndicator loading={saving} saved={saved} onClick={handleSave} />
+              <div>
+                <h5 className="text-sm font-bold text-slate-900">Weekly Schedule</h5>
+                <p className="text-xs font-medium text-slate-500">Configure availability for this specific doctor.</p>
+              </div>
+              <SaveIndicator loading={saving} saved={saved} onClick={handleSave} />
             </div>
 
             <div className="mt-4">
