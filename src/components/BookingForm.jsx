@@ -134,7 +134,7 @@ function MiniCalendar({ selectedDate, onSelect }) {
               <button
                 onClick={() => avail && onSelect(ds)}
                 disabled={!avail}
-                className={`w-9 h-9 rounded-full text-sm font-semibold transition-all relative ${
+                className={`w-9 h-9 md:w-10 md:h-10 rounded-full text-sm font-semibold transition-all relative ${
                   isSel
                     ? "bg-blue-600 text-white shadow-md"
                     : isToday && avail
@@ -173,10 +173,7 @@ function TimeSlots({ slots, selected, onSelect, loading }) {
       </div>
     );
   return (
-    <div
-      className="flex flex-wrap gap-2 md:flex-col md:gap-0 md:space-y-2 overflow-y-auto max-h-80 pr-1 pb-4 md:pb-0"
-      style={{ scrollbarWidth: "thin", scrollbarColor: "#cbd5e1 transparent" }}
-    >
+    <div className="flex flex-wrap md:flex-col gap-2 w-full">
       {slots.map((slot) => (
         <button
           key={slot}
@@ -194,52 +191,93 @@ function TimeSlots({ slots, selected, onSelect, loading }) {
   );
 }
 
-function ModalLeftPanel({ doctorName, specialty }) {
+function ModalLeftPanel({ doctorName, specialty, selectedTreatments = [] }) {
   return (
-    <div className="flex flex-col gap-5 h-full" style={{ background: "white" }}>
-      {/* Icon */}
-      <div
-        className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm"
-        style={{ background: "linear-gradient(135deg,#0ea5e9,#14b8a6)" }}
-      >
-        <Calendar className="w-6 h-6 text-white" />
+    <div className="flex flex-col gap-6 h-full justify-between pb-2 bg-white">
+      <div className="space-y-5">
+        {/* Branding header */}
+        <div className="flex items-center gap-2">
+          <div
+            className="w-7 h-7 rounded-lg flex items-center justify-center shadow-sm"
+            style={{ background: "linear-gradient(135deg,#0ea5e9,#14b8a6)" }}
+          >
+            <Calendar className="w-4 h-4 text-white" />
+          </div>
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">SkinClinic</span>
+        </div>
+
+        {/* Selected Doctor (if any) */}
+        {doctorName ? (
+          <div className="bg-slate-50/80 rounded-2xl p-4 border border-slate-100 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center shrink-0">
+              {doctorName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Your Doctor</p>
+              <p className="text-xs font-bold text-gray-800 truncate">{doctorName}</p>
+              {specialty && <p className="text-[10px] text-gray-500 truncate">{specialty}</p>}
+            </div>
+          </div>
+        ) : (
+          <div className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100/60 border-dashed">
+            <p className="text-[10px] font-medium text-gray-400 text-center">No doctor selected yet</p>
+          </div>
+        )}
+
+        {/* Selected Treatments or general info */}
+        {selectedTreatments && selectedTreatments.length > 0 ? (
+          <div className="space-y-2">
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+              Selected Service
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {selectedTreatments.map((t) => (
+                <span key={t} className="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-[10px] font-bold border border-blue-100/50">
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+              Service
+            </p>
+            <h2 className="text-lg font-black text-gray-900 leading-tight">
+              Appointment Schedule
+            </h2>
+            <p className="text-xs text-gray-500 leading-relaxed mt-2">
+              Book a premium skin consultation or customized treatment with our expert dermatologists.
+            </p>
+          </div>
+        )}
+
+        <div className="space-y-2.5 pt-2">
+          <div className="flex items-center gap-2.5 text-xs text-gray-600 font-semibold">
+            <Clock className="w-4 h-4 text-blue-500 shrink-0" />
+            <span>30–60 min</span>
+          </div>
+          <div className="flex items-center gap-2.5 text-xs text-gray-600 font-semibold">
+            <Globe className="w-4 h-4 text-blue-500 shrink-0" />
+            <span>India Standard Time (IST)</span>
+          </div>
+        </div>
       </div>
 
-      {doctorName && (
-        <div>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">
-            Doctor
-          </p>
-          <p className="text-sm font-bold text-gray-800">{doctorName}</p>
-          {specialty && <p className="text-xs text-gray-400">{specialty}</p>}
-        </div>
-      )}
-
-      <div>
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">
-          Booking
+      {/* Support details at the bottom */}
+      <div className="border-t border-gray-100 pt-4 mt-auto">
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Need Help?</p>
+        <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+          Contact support at:<br/>
+          <strong className="text-gray-700 font-semibold">+91 98765 43210</strong>
         </p>
-        <h2 className="text-xl font-bold text-gray-900 leading-tight">
-          Appointment Schedule
-        </h2>
-      </div>
-
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Clock className="w-4 h-4 shrink-0" />
-          <span>30–60 min</span>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Globe className="w-4 h-4 shrink-0" />
-          <span>India Standard Time</span>
-        </div>
       </div>
     </div>
   );
 }
 
 // ── The inner form with all steps ──────────────────────────────
-function ModalForm({ onClose, onSuccess, prefill }) {
+function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSelect }) {
   const [step, setStep] = useState(0);
   const [doctors, setDoctors] = useState([]);
   const [treatments, setTreatments] = useState([]);
@@ -266,6 +304,25 @@ function ModalForm({ onClose, onSuccess, prefill }) {
   const [clinicConsultFee, setClinicConsultFee] = useState(500);
 
   const today = new Date().toISOString().split("T")[0];
+
+  // Sync selected doctor up to parent modal
+  useEffect(() => {
+    if (onDoctorSelect) {
+      const sel = doctors.find((d) => d.id === form.staff_id);
+      onDoctorSelect(sel ? { name: sel.name, specialty: sel.specialty } : null);
+    }
+  }, [form.staff_id, doctors, onDoctorSelect]);
+
+  // Sync selected treatments up to parent modal
+  useEffect(() => {
+    if (onTreatmentsSelect) {
+      if (form.is_consultation && form.treatment_names.length === 0) {
+        onTreatmentsSelect(["General Consultation"]);
+      } else {
+        onTreatmentsSelect(form.treatment_names);
+      }
+    }
+  }, [form.is_consultation, form.treatment_names, onTreatmentsSelect]);
 
   useEffect(() => {
     Promise.all([fetchStaff(), fetchTreatments(true), fetchConsultationFee()]).then(([d, t, fee]) => {
@@ -904,6 +961,8 @@ function ModalForm({ onClose, onSuccess, prefill }) {
 // ── Modal shell ────────────────────────────────────────────────
 function BookingModal({ onClose, onSuccess, prefill }) {
   const [visible, setVisible] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [selectedTreatments, setSelectedTreatments] = useState([]);
 
   useEffect(() => {
     requestAnimationFrame(() => setTimeout(() => setVisible(true), 10));
@@ -957,7 +1016,7 @@ function BookingModal({ onClose, onSuccess, prefill }) {
 
       {/* Panel */}
       <div
-        className="relative z-10 w-full max-w-[740px] h-[90dvh] md:h-[580px] flex flex-col md:flex-row rounded-2xl overflow-hidden bg-white shadow-2xl"
+        className="relative z-10 w-full max-w-[740px] h-[90dvh] md:h-[510px] flex flex-col md:flex-row rounded-2xl overflow-hidden bg-white shadow-2xl"
         style={{
           opacity: visible ? 1 : 0,
           transform: visible
@@ -969,11 +1028,21 @@ function BookingModal({ onClose, onSuccess, prefill }) {
       >
         {/* Left info panel */}
         <div className="hidden md:block w-[210px] shrink-0 p-7 border-r border-slate-100 bg-white overflow-y-auto">
-          <ModalLeftPanel />
+          <ModalLeftPanel
+            doctorName={selectedDoctor?.name}
+            specialty={selectedDoctor?.specialty}
+            selectedTreatments={selectedTreatments}
+          />
         </div>
 
         <div className="flex-1 flex flex-col overflow-hidden relative">
-          <ModalForm onClose={handleClose} onSuccess={onSuccess} prefill={prefill} />
+          <ModalForm
+            onClose={handleClose}
+            onSuccess={onSuccess}
+            prefill={prefill}
+            onDoctorSelect={setSelectedDoctor}
+            onTreatmentsSelect={setSelectedTreatments}
+          />
         </div>
 
         {/* Close button */}
