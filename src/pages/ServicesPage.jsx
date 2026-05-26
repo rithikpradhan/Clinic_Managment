@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Plus, 
   Search, 
@@ -270,78 +271,97 @@ export default function ServicesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedServices.map((s, i) => (
-                <TableRow key={s.id} className={`group hover:bg-gray-50/50 border-gray-50 transition-colors h-20 ${!s.active ? "opacity-60" : ""}`}>
-                  <TableCell className="pl-10 font-medium text-slate-400 text-sm">
-                    {(currentPage - 1) * itemsPerPage + i + 1}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className={`h-10 w-10 rounded-xl flex items-center justify-center shadow-sm ${s.active ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-400"}`}>
-                        <Stethoscope size={18} />
+              <AnimatePresence initial={false}>
+                {paginatedServices.map((s, i) => (
+                  <motion.tr 
+                    key={s.id} 
+                    layout
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.97, filter: "blur(4px)" }}
+                    transition={{ duration: 0.22, ease: "easeOut" }}
+                    className={`group hover:bg-gray-50/50 border-b border-gray-150/40 transition-colors h-20 ${!s.active ? "opacity-60" : ""}`}
+                  >
+                    <TableCell className="pl-10 font-medium text-slate-400 text-sm">
+                      {(currentPage - 1) * itemsPerPage + i + 1}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className={`h-10 w-10 rounded-xl flex items-center justify-center shadow-sm ${s.active ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-400"}`}>
+                          <Stethoscope size={18} />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-semibold text-gray-900">{s.name}</span>
+                          <span className="text-[11px] text-gray-400 font-medium truncate max-w-[200px]">{s.description}</span>
+                        </div>
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-gray-900">{s.name}</span>
-                        <span className="text-[11px] text-gray-400 font-medium truncate max-w-[200px]">{s.description}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className="bg-slate-100 text-slate-500 font-semibold px-2.5 py-0.5 rounded-lg text-[10px] uppercase tracking-wide border-none shadow-none">
+                        {s.category}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
+                        <Clock size={14} className="text-slate-300" /> {s.duration || 0} min
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary" className="bg-slate-100 text-slate-500 font-semibold px-2.5 py-0.5 rounded-lg text-[10px] uppercase tracking-wide border-none shadow-none">
-                      {s.category}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
-                      <Clock size={14} className="text-slate-300" /> {s.duration || 0} min
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-bold text-gray-900 text-sm">
-                    ₹{(s.price || 0).toLocaleString()}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex flex-col items-center gap-1.5">
-                       <Switch checked={s.active} onCheckedChange={() => toggleStatus(s.id)} className="scale-75 data-[state=checked]:bg-emerald-500" />
-                       <span className={`text-[9px] font-bold uppercase tracking-wider ${s.active ? "text-emerald-600" : "text-slate-400"}`}>
-                          {s.active ? "Active" : "Hidden"}
-                       </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="pr-10 text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-all">
-                          <MoreHorizontal size={20} />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-52 rounded-2xl p-1.5 shadow-xl border-gray-100">
-                        <DropdownMenuItem onClick={() => openEdit(s)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
-                          <Pencil size={16} className="text-gray-400" /> Edit Service
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => toggleStatus(s.id)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
-                          {s.active ? <EyeOff size={16} className="text-gray-400" /> : <Eye size={16} className="text-gray-400" />} 
-                          {s.active ? "Hide from Form" : "Show on Form"}
-                        </DropdownMenuItem>
-                        
-                        <DropdownMenuSeparator className="bg-gray-50" />
-                        
-                        <DropdownMenuItem onClick={() => handleDelete(s.id)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3 text-rose-600 focus:text-rose-600 focus:bg-rose-50">
-                          <Trash2 size={16} /> Delete Service
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-                </TableBody>
+                    </TableCell>
+                    <TableCell className="font-bold text-gray-900 text-sm">
+                      ₹{(s.price || 0).toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex flex-col items-center gap-1.5">
+                         <Switch checked={s.active} onCheckedChange={() => toggleStatus(s.id)} className="scale-75 data-[state=checked]:bg-emerald-500" />
+                         <span className={`text-[9px] font-bold uppercase tracking-wider ${s.active ? "text-emerald-600" : "text-slate-400"}`}>
+                            {s.active ? "Active" : "Hidden"}
+                         </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="pr-10 text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-all">
+                            <MoreHorizontal size={20} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-52 rounded-2xl p-1.5 shadow-xl border-gray-100">
+                          <DropdownMenuItem onClick={() => openEdit(s)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
+                            <Pencil size={16} className="text-gray-400" /> Edit Service
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => toggleStatus(s.id)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
+                            {s.active ? <EyeOff size={16} className="text-gray-400" /> : <Eye size={16} className="text-gray-400" />} 
+                            {s.active ? "Hide from Form" : "Show on Form"}
+                          </DropdownMenuItem>
+                          
+                          <DropdownMenuSeparator className="bg-gray-50" />
+                          
+                          <DropdownMenuItem onClick={() => handleDelete(s.id)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3 text-rose-600 focus:text-rose-600 focus:bg-rose-50">
+                            <Trash2 size={16} /> Delete Service
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </motion.tr>
+                ))}
+              </AnimatePresence>
+            </TableBody>
               </Table>
             </div>
           </div>
 
           {/* Mobile Cards View */}
           <div className="md:hidden flex flex-col divide-y divide-gray-50">
-            {paginatedServices.map((s, i) => (
-              <div key={s.id} className={`p-4 space-y-4 ${!s.active ? "opacity-60" : ""}`}>
+            <AnimatePresence initial={false}>
+              {paginatedServices.map((s, i) => (
+                <motion.div
+                  key={s.id}
+                  layout
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.22, ease: "easeOut" }}
+                  className={`p-4 space-y-4 ${!s.active ? "opacity-60" : ""}`}
+                >
                 {/* Header: Name, Category, More */}
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
@@ -395,13 +415,20 @@ export default function ServicesPage() {
                     <Switch checked={s.active} onCheckedChange={() => toggleStatus(s.id)} className="scale-75 origin-right data-[state=checked]:bg-emerald-500" />
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
             {paginatedServices.length === 0 && (
-              <div className="p-8 text-center text-slate-500 text-sm">
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="p-8 text-center text-slate-500 text-sm"
+              >
                 No services found.
-              </div>
+              </motion.div>
             )}
+            </AnimatePresence>
           </div>
         </CardContent>
 

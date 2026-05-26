@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppointments } from "../hooks/useAppointments";
+import ClinicLoader from "../components/ClinicLoader";
 import { Users, ChevronRight, Search, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AVATAR_COLORS, getInitials, formatDate } from "../components/shared";
@@ -9,6 +10,14 @@ export default function PatientsPage() {
   const navigate = useNavigate();
   const { appointments, loading } = useAppointments();
   const [search, setSearch] = useState("");
+
+  if (loading) {
+    return (
+      <div className="flex h-[60dvh] items-center justify-center bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
+        <ClinicLoader label="Fetching patient records..." />
+      </div>
+    );
+  }
 
   // Deduplicate by email
   const patientMap = new Map();

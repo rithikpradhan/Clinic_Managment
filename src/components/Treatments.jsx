@@ -70,7 +70,7 @@ export default function Treatments() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.35 }}
             className="text-[34px] sm:text-[42px] font-normal tracking-tight text-slate-900 leading-[1.15] mb-6 max-w-xl"
           >
-            More Than a Clinic <br /> — We&apos;re Your Health Partner
+            More Than a Treatment Clinic <br /> — We Map Dermal Restoration
           </motion.h2>
 
           {/* Paragraph */}
@@ -81,7 +81,7 @@ export default function Treatments() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.45 }}
             className="text-[14px] sm:text-[15px] text-slate-500 leading-relaxed font-normal max-w-xl"
           >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+            Every procedure at PScar is a calculated clinical intervention. We combine advanced board-certified dermatology expertise with FDA-cleared fractional laser systems and custom active formulation maps to safely reconstruct acne scars, remove melasma deposits, and repair dermal tissues.
           </motion.p>
         </div>
       </div>

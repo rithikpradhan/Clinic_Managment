@@ -5,27 +5,27 @@ export default function Contact() {
   const TESTIMONIALS = [
     {
       stars: 5,
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
-      name: "Your Name",
-      company: "Company Name",
+      text: "The scar remodeling treatment literally changed my life. After 4 sessions of fractional CO2 laser sweeps and subcision, the deep rolling acne scars on my cheeks are almost completely smooth.",
+      name: "Marcus Vance",
+      company: "Acne Scar Patient",
     },
     {
       stars: 5,
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
-      name: "Your Name",
-      company: "Company Name",
+      text: "I was extremely nervous about getting lasers done on my darker skin profile. The team calibrated their dual-wavelength laser perfectly for my Fitzpatrick Type V skin. My melasma is completely gone!",
+      name: "Aaliyah Carter",
+      company: "Melasma Treatment Patient",
     },
     {
       stars: 5,
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
-      name: "Your Name",
-      company: "Company Name",
+      text: "Their sub-surface dermal scanning is incredible. Instead of recommending generic services, they mapped my collagen density and designed a personalized recovery serum plan that worked wonders.",
+      name: "Sophia Martinez",
+      company: "Dermal Diagnostics Patient",
     },
     {
       stars: 5,
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
-      name: "Your Name",
-      company: "Company Name",
+      text: "The combination of customized trichloroacetic acid chemical peels and micro-infusions restored the natural elasticity of my skin. The results look unbelievably natural and premium.",
+      name: "David Chen",
+      company: "Skin Resurfacing Patient",
     },
   ];
 
@@ -57,6 +57,7 @@ export default function Contact() {
             <div className="absolute top-8 right-20 w-16 h-24 border border-white rounded-2xl" />
           </div>
 
+          {/* Text content */}
           <h3 className="text-[26px] sm:text-[34px] md:text-[38px] font-normal tracking-tight text-white leading-tight mb-8 relative z-10 max-w-2xl">
             Walk In or Book <br className="sm:hidden" /> Online — We&apos;re Ready
           </h3>
@@ -81,7 +82,7 @@ export default function Contact() {
             transition={{ duration: 0.6 }}
             className="text-[34px] sm:text-[44px] font-normal tracking-tight text-slate-900 leading-[1.15] max-w-xl"
           >
-            Compassion You Can <br /> Feel, Care You Can Trust
+            Dermal Outcomes You Can See, <br /> Science You Can Trust
           </motion.h2>
 
           {/* Doctor Capsule Badge */}

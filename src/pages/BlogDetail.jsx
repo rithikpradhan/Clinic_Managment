@@ -127,9 +127,6 @@ export default function BlogDetail() {
       });
   }, [slug]);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [slug]);
 
   if (loading) {
     return (

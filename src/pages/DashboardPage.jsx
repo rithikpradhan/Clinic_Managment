@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useAppointments } from "../hooks/useAppointments";
 import { fetchTreatments } from "../lib/Scheduling";
+import ClinicLoader from "../components/ClinicLoader";
 import { Link } from "react-router-dom";
 import {
   Calendar as CalendarIcon,
@@ -214,7 +215,11 @@ export default function DashboardPage() {
   const recentAll = appointments.slice(0, 6);
 
   if (loading) {
-    return <div className="flex h-[80dvh] items-center justify-center text-slate-400">Loading Dashboard...</div>;
+    return (
+      <div className="flex h-[80dvh] items-center justify-center bg-transparent">
+        <ClinicLoader label="Fetching treatment menus & billing metrics..." />
+      </div>
+    );
   }
 
   return (

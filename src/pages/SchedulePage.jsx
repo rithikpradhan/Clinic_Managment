@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import ClinicLoader from "../components/ClinicLoader";
 import {
   fetchClinicSettings,
   updateClinicSettings,
@@ -159,7 +161,6 @@ function SaveIndicator({ loading, saved, onClick }) {
 //   );
 // }
 
-import { motion } from "framer-motion";
 import { TrendingUp } from "lucide-react";
 
 function StatCard({
@@ -224,8 +225,8 @@ function ClinicHoursTab() {
 
   if (!settings)
     return (
-      <div className="relative overflow-hidden bg-slate-50/50 rounded-2xl h-64 flex items-center justify-center border border-slate-100">
-        <Loader2 className="w-6 h-6 text-slate-300 animate-spin" />
+      <div className="relative overflow-hidden bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+        <ClinicLoader label="Fetching clinic hours..." />
       </div>
     );
 
@@ -669,10 +670,8 @@ function DoctorSchedulesTab() {
 
   if (loading)
     return (
-      <div className="space-y-4 max-w-4xl">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-24 rounded-3xl bg-white border border-slate-100 shadow-sm animate-pulse" />
-        ))}
+      <div className="space-y-4 max-w-4xl bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+        <ClinicLoader label="Calibrating doctor schedules..." />
       </div>
     );
 
@@ -874,67 +873,80 @@ function BlockedDatesTab() {
         </CardHeader>
         <Separator />
         <CardContent className="pt-4">
-          {upcoming.length === 0 ? (
-            <div className="flex items-center gap-3 py-4 text-muted-foreground">
-              <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                <Check className="w-4 h-4 text-emerald-600" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-foreground">
-                  All clear!
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  No upcoming blocked dates
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {upcoming.map((b) => (
-                <div
-                  key={b.id}
-                  className="flex items-center gap-4 p-4 rounded-xl border border-amber-100 bg-amber-50/40 group hover:bg-amber-50 transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
-                    <AlertTriangle className="w-4 h-4 text-amber-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground">
-                      {fmtDate(b.date)}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      <span className="font-medium text-foreground/70">
-                        {staffLabel(b.staff_id)}
-                      </span>
-                      {b.reason && (
-                        <>
-                          <span className="mx-1.5">·</span>
-                          {b.reason}
-                        </>
-                      )}
-                    </p>
-                  </div>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeBlockedDate(b.id).then(load)}
-                          className="w-8 h-8 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-blue-500 hover:bg-blue-50 transition-all rounded-lg"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="left" className="text-xs">
-                        Remove block
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+          <AnimatePresence initial={false}>
+            {upcoming.length === 0 ? (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex items-center gap-3 py-4 text-muted-foreground"
+              >
+                <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                  <Check className="w-4 h-4 text-emerald-600" />
                 </div>
-              ))}
-            </div>
-          )}
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    All clear!
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    No upcoming blocked dates
+                  </p>
+                </div>
+              </motion.div>
+            ) : (
+              <div className="space-y-2">
+                {upcoming.map((b) => (
+                  <motion.div
+                    key={b.id}
+                    layout
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.22, ease: "easeOut" }}
+                    className="flex items-center gap-4 p-4 rounded-xl border border-amber-100 bg-amber-50/40 group hover:bg-amber-50 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+                      <AlertTriangle className="w-4 h-4 text-amber-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground">
+                        {fmtDate(b.date)}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        <span className="font-medium text-foreground/70">
+                          {staffLabel(b.staff_id)}
+                        </span>
+                        {b.reason && (
+                          <>
+                            <span className="mx-1.5">·</span>
+                            {b.reason}
+                          </>
+                        )}
+                      </p>
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeBlockedDate(b.id).then(load)}
+                            className="w-8 h-8 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-blue-500 hover:bg-blue-50 transition-all rounded-lg"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="left" className="text-xs">
+                          Remove block
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </AnimatePresence>
         </CardContent>
       </Card>
 

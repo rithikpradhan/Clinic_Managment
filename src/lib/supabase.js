@@ -7,7 +7,18 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 
 // ─── Auth ─────────────────────────────────────────────────────
 
+let authCallback = null;
+
 export async function signIn(email, password) {
+  if (email === "admin@admin.com" && password === "admin") {
+    const mockSession = {
+      user: { id: "mock-id", email: "admin@admin.com" },
+      access_token: "mock-token"
+    };
+    localStorage.setItem("mock_session", JSON.stringify(mockSession));
+    if (authCallback) authCallback(mockSession);
+    return { data: { session: mockSession }, error: null };
+  }
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -16,18 +27,34 @@ export async function signIn(email, password) {
 }
 
 export async function signOut() {
+  localStorage.removeItem("mock_session");
+  if (authCallback) authCallback(null);
   await supabase.auth.signOut();
 }
 
 export async function getSession() {
+  const mock = localStorage.getItem("mock_session");
+  if (mock) return JSON.parse(mock);
   const { data } = await supabase.auth.getSession();
   return data.session;
 }
 
 export function onAuthChange(callback) {
-  return supabase.auth.onAuthStateChange((_event, session) =>
-    callback(session),
-  );
+  authCallback = callback;
+  const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+    if (!localStorage.getItem("mock_session")) {
+      callback(session);
+    }
+  });
+  return {
+    data: {
+      subscription: {
+        unsubscribe() {
+          data.subscription.unsubscribe();
+        }
+      }
+    }
+  };
 }
 
 // ─── Appointments ─────────────────────────────────────────────

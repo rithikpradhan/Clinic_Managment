@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
+import { AnimatePresence } from "framer-motion";
 
 // Website
 import Navbar from "./components/Navbar";
@@ -11,6 +12,9 @@ import EffectivenessPage from "./pages/EffectivenessPage";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
 import ContactPage from "./pages/ContactPage";
+
+// Page transition wrapper
+import PageTransition from "./components/PageTransition";
 
 // Admin auth
 import { AuthProvider } from "./lib/AuthContext";
@@ -30,6 +34,8 @@ import BillingPage from "./pages/BillingPage";
 import ServicesPage from "./pages/ServicesPage";
 
 function WebsiteLayout() {
+  const location = useLocation();
+
   useEffect(() => {
     document.body.classList.add("website-theme");
     return () => {
@@ -40,15 +46,17 @@ function WebsiteLayout() {
   return (
     <div>
       <Navbar />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/treatments" element={<TreatmentsPage />} />
-        <Route path="/effectiveness" element={<EffectivenessPage />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/:slug" element={<BlogDetail />} />
-        <Route path="/contact" element={<ContactPage />} />
-      </Routes>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<PageTransition><HomePage /></PageTransition>} />
+          <Route path="/about" element={<PageTransition><AboutPage /></PageTransition>} />
+          <Route path="/treatments" element={<PageTransition><TreatmentsPage /></PageTransition>} />
+          <Route path="/effectiveness" element={<PageTransition><EffectivenessPage /></PageTransition>} />
+          <Route path="/blog" element={<PageTransition><Blog /></PageTransition>} />
+          <Route path="/blog/:slug" element={<PageTransition><BlogDetail /></PageTransition>} />
+          <Route path="/contact" element={<PageTransition><ContactPage /></PageTransition>} />
+        </Routes>
+      </AnimatePresence>
     </div>
   );
 }

@@ -2,7 +2,10 @@ import { useInView } from "react-intersection-observer";
 // import useInView from "./UseInView";
 
 export default function Reveal({ children, delay = 0, className = "" }) {
-  const [ref, inView] = useInView();
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.05,
+  });
   return (
     <div
       ref={ref}

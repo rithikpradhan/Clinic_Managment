@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
-import {
-  fetchStaff,
-  createStaff,
-  updateStaff,
-  deleteStaff,
-} from "../lib/supabase";
+import { fetchStaff, createStaff, updateStaff, deleteStaff } from "../lib/supabase";
+import ClinicLoader from "../components/ClinicLoader";
 
 import {
   Plus,
@@ -195,7 +191,6 @@ export default function StaffPage() {
   const [hasPhotoColumn, setHasPhotoColumn] = useState(true);
 
   const { appointments } = useAppointments();
-
   const getTodayStr = () => {
     const d = new Date();
     const year = d.getFullYear();
@@ -240,6 +235,14 @@ export default function StaffPage() {
   useEffect(() => {
     load();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex h-[60dvh] items-center justify-center bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
+        <ClinicLoader label="Calibrating medical team directories..." />
+      </div>
+    );
+  }
 
   async function handleSave(form) {
     let result;

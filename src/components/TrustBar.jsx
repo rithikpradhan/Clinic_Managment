@@ -33,21 +33,21 @@ export default function TrustBar() {
   const TRUST_ITEMS = [
     {
       val: 98,
-      label: "General Consultation",
-      desc: "Lorem ipsum dolor sit amet, consur adipiscing elit, sed do eiusmod tempor incididunt ut",
+      label: "Skin Diagnostics Efficacy",
+      desc: "High-resolution digital sub-surface scanning accurately maps pigment, vascularity, and dermal health targets.",
+      icon: Activity,
+    },
+    {
+      val: 99,
+      label: "Laser Safety Rating",
+      desc: "FDA-cleared multi-spectral laser applications calibrated precisely across Fitzpatrick skin types I through VI.",
       icon: UserCheck,
     },
     {
-      val: 96,
-      label: "Pediatric Care",
-      desc: "Lorem ipsum dolor sit amet, consur adipiscing elit, sed do eiusmod tempor incididunt ut",
+      val: 94,
+      label: "Dermal Recovery Success",
+      desc: "Custom topical formulation map protocols and recovery treatments ensure safe post-procedure cell healing.",
       icon: HeartPulse,
-    },
-    {
-      val: 91,
-      label: "Laboratory & Diagnostics",
-      desc: "Lorem ipsum dolor sit amet, consur adipiscing elit, sed do eiusmod tempor incididunt ut",
-      icon: Activity,
     },
   ];
 

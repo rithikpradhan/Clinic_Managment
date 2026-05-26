@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../lib/AuthContext";
 import { useNotifications } from "../hooks/useNotifications";
 import { formatDate } from "../components/shared";
@@ -159,6 +160,7 @@ export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { session } = useAuth();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const location = useLocation();
 
   return (
     <div className="flex h-dvh bg-[#F7F8FA] overflow-hidden font-sans">
@@ -276,7 +278,15 @@ export default function AdminLayout() {
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-5 lg:p-7">
-          <Outlet />
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="w-full min-h-full flex flex-col"
+          >
+            <Outlet />
+          </motion.div>
         </main>
       </div>
     </div>

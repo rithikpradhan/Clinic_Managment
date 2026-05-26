@@ -34,7 +34,6 @@ export default function Footer() {
               <li>
                 <Link
                   to="/about"
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                   className="hover:text-white transition-colors duration-200 cursor-pointer block"
                 >
                   About Us
@@ -43,7 +42,6 @@ export default function Footer() {
               <li>
                 <Link
                   to="/treatments"
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                   className="hover:text-white transition-colors duration-200 cursor-pointer block"
                 >
                   Treatments
@@ -52,7 +50,6 @@ export default function Footer() {
               <li>
                 <Link
                   to="/effectiveness"
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                   className="hover:text-white transition-colors duration-200 cursor-pointer block"
                 >
                   Why Choose
@@ -61,7 +58,6 @@ export default function Footer() {
               <li>
                 <Link
                   to="/treatments"
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                   className="hover:text-white transition-colors duration-200 cursor-pointer block"
                 >
                   Portfolio
@@ -70,7 +66,6 @@ export default function Footer() {
               <li>
                 <Link
                   to="/blog"
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                   className="hover:text-white transition-colors duration-200 cursor-pointer block"
                 >
                   Blog
@@ -88,7 +83,6 @@ export default function Footer() {
               <li>
                 <Link
                   to="/contact"
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                   className="hover:text-white transition-colors duration-200 cursor-pointer block"
                 >
                   Contact Us
@@ -97,7 +91,6 @@ export default function Footer() {
               <li>
                 <Link
                   to="/effectiveness"
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                   className="hover:text-white transition-colors duration-200 cursor-pointer block"
                 >
                   Safety Calibrations
@@ -106,7 +99,6 @@ export default function Footer() {
               <li>
                 <Link
                   to="/about"
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                   className="hover:text-white transition-colors duration-200 cursor-pointer block"
                 >
                   Clinic Locations
@@ -122,16 +114,16 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3.5 text-[14px] break-words">
               <li>
-                <span>Jl. Lorem Ipsum, City, Location</span>
+                <span>100 Dermal Plaza, Suite 300, Beverly Hills, CA</span>
               </li>
               <li>
-                <a href="tel:+1234567890" className="hover:text-white transition-colors duration-200">
-                  +123 456 7890
+                <a href="tel:+13105550190" className="hover:text-white transition-colors duration-200">
+                  +1 (310) 555-0190
                 </a>
               </li>
               <li>
-                <a href="mailto:Support@Cretacy.Com" className="hover:text-white transition-colors duration-200">
-                  Support@Cretacy.Com
+                <a href="mailto:support@pscarclinic.com" className="hover:text-white transition-colors duration-200">
+                  support@pscarclinic.com
                 </a>
               </li>
             </ul>

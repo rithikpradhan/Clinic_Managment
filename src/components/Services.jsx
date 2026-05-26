@@ -2,9 +2,9 @@ import { motion } from "framer-motion";
 
 export default function Services() {
   const STATS = [
-    { num: "200+", label: "Lorem Ipsum Dolor" },
-    { num: "70K+", label: "Lorem Ipsum Dolor" },
-    { num: "44M", label: "Lorem Ipsum Dolor" },
+    { num: "99.4%", label: "Scar Remodeling Rate" },
+    { num: "40K+", label: "Clinical Skin Scans" },
+    { num: "15+", label: "FDA-Cleared Laser Systems" },
   ];
 
   return (
@@ -24,7 +24,7 @@ export default function Services() {
               transition={{ duration: 0.6 }}
               className="text-[34px] sm:text-[44px] font-normal tracking-tight text-slate-900 leading-[1.15] max-w-xl"
             >
-              Quality Healthcare, <br /> Closer to Home
+              Advanced Skin Science, <br /> Calibrated For You
             </motion.h2>
 
             {/* Doctor Capsule Badge */}
@@ -102,13 +102,13 @@ export default function Services() {
               {/* Content */}
               <div className="px-3 pt-6 pb-2 text-left">
                 <span className="text-xs bg-[#ebf9fa] text-[#024244] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                  Featured Treatment
+                  Featured Diagnostics
                 </span>
                 <h3 className="text-[22px] sm:text-[24px] font-semibold text-slate-900 leading-snug mt-4 mb-3 group-hover:text-[#024244] transition-colors">
-                  Professional Clinic Treatments
+                  Sub-Surface Dermal Diagnostic Scanning
                 </h3>
                 <p className="text-[13.5px] text-slate-500 leading-relaxed font-normal">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
+                  We deploy advanced multi-spectral sub-surface imaging to accurately map pigment depth, active capillary patterns, and measure collagen fiber density, tailoring every laser sweep to your specific profile.
                 </p>
               </div>
             </div>
@@ -119,7 +119,7 @@ export default function Services() {
                 href="#contact"
                 className="inline-flex items-center justify-center bg-[#024244] hover:bg-[#013537] text-white text-xs font-bold px-7 py-3.5 rounded-full shadow-md shadow-[#024244]/5 transition-all duration-300"
               >
-                Learn More
+                Explore Diagnostics
               </a>
             </div>
           </motion.div>
@@ -128,18 +128,18 @@ export default function Services() {
           <div className="lg:col-span-6 flex flex-col gap-6 justify-center">
             {[
               {
-                title: "Bridging Modern Medicine & Empathy",
-                desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
-                image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=600&auto=format&fit=crop",
-                btnText: "Explore Services",
-                badge: "Care Model"
+                title: "Fractional CO2 & Picosecond Laser Sweeps",
+                desc: "Targeting deep structural acne scarring, stretch marks, and melasma deposits. Precise configurations break down rigid scar fibers while preserving surrounding cells.",
+                image: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&w=600&q=80",
+                btnText: "Explore Lasers",
+                badge: "Laser Science"
               },
               {
-                title: "Pharmaceutical Grade Cosmetics",
-                desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+                title: "Medical-Grade Peels & Cell Infusions",
+                desc: "Antioxidant complex infusions combined with medical-grade salicylic, glycolic, and trichloroacetic acid chemical peels mapped by board-certified dermatologists.",
                 image: "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=400&auto=format&fit=crop",
-                btnText: "Book Consultation",
-                badge: "Clinical Products"
+                btnText: "Book Formulation",
+                badge: "Active Peels"
               }
             ].map((service, i) => (
               <motion.div

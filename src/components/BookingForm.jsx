@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { fetchStaff, supabase, createNotification, fetchConsultationFee } from "../lib/supabase";
 import {
   fetchTreatments,
@@ -474,8 +475,7 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
     );
   }
 
-  // ── Success ────────────────────────────────────────────────
-  if (step === 5)
+  function Step5() {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center px-8 py-12">
         <div className="w-16 h-16 rounded-full bg-[#024244]/10 flex items-center justify-center mb-5 shadow-sm">
@@ -503,9 +503,9 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
         </button>
       </div>
     );
+  }
 
-  // ── Step 0: Doctor ─────────────────────────────────────────
-  if (step === 0)
+  function Step0() {
     return (
       <div className="flex flex-col h-full">
         <div className="px-6 pt-5 pb-4 border-b border-gray-100 shrink-0">
@@ -599,9 +599,9 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
         </div>
       </div>
     );
+  }
 
-  // ── Step 1: Treatment ──────────────────────────────────────
-  if (step === 1)
+  function Step1() {
     return (
       <div className="flex flex-col h-full">
         <div className="px-6 pt-5 pb-4 border-b border-gray-100 flex items-center gap-3 shrink-0">
@@ -723,9 +723,10 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
         </div>
       </div>
     );
+  }
 
   // ── Step 2: Calendar + Time slots ─────────────────────────
-  if (step === 2) {
+  function Step2() {
     const rollingDates = [];
     const anchorDate = new Date();
     for (let i = 0; i <= 14; i++) {
@@ -834,8 +835,7 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
     );
   }
 
-  // ── Step 3: Details ────────────────────────────────────────
-  if (step === 3)
+  function Step3() {
     return (
       <div className="flex flex-col h-full">
         <div className="px-6 pt-5 pb-4 border-b border-gray-100 flex items-center gap-3 shrink-0">
@@ -916,9 +916,9 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
         </div>
       </div>
     );
+  }
 
-  // ── Step 4: Confirm ────────────────────────────────────────
-  if (step === 4)
+  function Step4() {
     return (
       <div className="flex flex-col h-full">
         <div className="px-6 pt-5 pb-4 border-b border-gray-100 flex items-center gap-3 shrink-0">
@@ -991,6 +991,27 @@ function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSe
         </div>
       </div>
     );
+  }
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={step}
+        initial={{ opacity: 0, x: 12 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -12 }}
+        transition={{ duration: 0.18, ease: "easeInOut" }}
+        className="h-full flex flex-col"
+      >
+        {step === 5 && <Step5 />}
+        {step === 0 && <Step0 />}
+        {step === 1 && <Step1 />}
+        {step === 2 && <Step2 />}
+        {step === 3 && <Step3 />}
+        {step === 4 && <Step4 />}
+      </motion.div>
+    </AnimatePresence>
+  );
 }
 
 // ── Modal shell ────────────────────────────────────────────────

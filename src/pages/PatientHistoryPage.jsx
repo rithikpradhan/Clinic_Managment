@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppointments } from "../hooks/useAppointments";
+import ClinicLoader from "../components/ClinicLoader";
 import BookingButton from "../components/BookingForm";
 import { toast } from "sonner";
 
@@ -232,14 +233,8 @@ export default function PatientHistoryPage() {
   // ── Loading skeleton ─────────────────────────────────────────
   if (loading)
     return (
-      <div className="space-y-4 animate-pulse">
-        <div className="h-7 w-52 bg-muted rounded-lg" />
-        <div className="h-36 bg-muted rounded-2xl" />
-        <div className="grid grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-52 bg-muted rounded-2xl" />
-          ))}
-        </div>
+      <div className="flex h-[60dvh] items-center justify-center bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
+        <ClinicLoader label="Analyzing patient history records..." />
       </div>
     );
 

@@ -1,31 +1,31 @@
 import { motion } from "framer-motion";
-import { Syringe, ClipboardList, Stethoscope, Activity } from "lucide-react";
+import { Sparkles, Layers, Droplet, Activity } from "lucide-react";
 
 export default function BeforeAfter() {
   const CARDS = [
     {
-      title: "Vaccination & Immunization",
-      desc: "Lorem ipsum dolor sit amet, consur adipiscing elit, sed do eiusmod tempor incididunt ut",
-      icon: Syringe,
-      image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop",
+      title: "Acne & Scar Remodeling",
+      desc: "Combining subcision, fractional CO2 laser sweeps, and localized dermal peeling to break down rigid scar fibers and restore surface smoothness.",
+      icon: Sparkles,
+      image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=80&w=600&auto=format&fit=crop",
     },
     {
-      title: "Health Screening Packages",
-      desc: "Lorem ipsum dolor sit amet, consur adipiscing elit, sed do eiusmod tempor incididunt ut",
-      icon: ClipboardList,
-      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=600&auto=format&fit=crop",
+      title: "Clinical Laser Resurfacing",
+      desc: "Utilizing dual-wavelength laser protocols to sweep epidermal hyperpigmentation, melasma patches, and stimulate cellular turnover.",
+      icon: Layers,
+      image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=600&auto=format&fit=crop",
     },
     {
-      title: "Chronic Disease Management",
-      desc: "Lorem ipsum dolor sit amet, consur adipiscing elit, sed do eiusmod tempor incididunt ut",
-      icon: Stethoscope,
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=600&auto=format&fit=crop",
+      title: "Medical-Grade Skin Hydration",
+      desc: "High-pressure vacuum exfoliation and pneumatic micro-infusions of vital hyaluronic acid and concentrated antioxidant complexes.",
+      icon: Droplet,
+      image: "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=600&auto=format&fit=crop",
     },
     {
-      title: "Emergency First Aid & Urgent Care",
-      desc: "Lorem ipsum dolor sit amet, consur adipiscing elit, sed do eiusmod tempor incididunt ut",
+      title: "Sub-Surface Dermal Diagnostics",
+      desc: "Deep clinical scanning to map pigment depth, active capillary matrices, and measure skin elasticity prior to advanced treatments.",
       icon: Activity,
-      image: "https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?q=80&w=600&auto=format&fit=crop",
+      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=600&auto=format&fit=crop",
     },
   ];
 
@@ -45,10 +45,10 @@ export default function BeforeAfter() {
             transition={{ duration: 0.6 }}
             className="text-[34px] sm:text-[44px] font-normal tracking-tight text-slate-900 leading-[1.15] max-w-xl"
           >
-            Quality Healthcare, <br /> Closer to Home
+            Clinical Skin Science, <br /> Tailored to You
           </motion.h2>
 
-          {/* Top Fails of Drugs badge card */}
+          {/* Dermal Safety Index badge card */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -58,17 +58,17 @@ export default function BeforeAfter() {
           >
             <div className="w-14 h-14 rounded-xl bg-slate-200 overflow-hidden shrink-0">
               <img
-                src="https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=200&auto=format&fit=crop"
-                alt="Drug fail details"
+                src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=80&w=200&auto=format&fit=crop"
+                alt="Dermal Safety Index"
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="flex flex-col text-left">
-              <h4 className="text-[14px] font-semibold text-slate-900 leading-tight">Top Fails of Drugs</h4>
-              <p className="text-[10px] text-slate-500 mt-1 mb-2">Lorem ipsum dolor sit amet, consectetur</p>
+              <h4 className="text-[14px] font-semibold text-slate-900 leading-tight">Dermal Safety Index</h4>
+              <p className="text-[10px] text-slate-500 mt-1 mb-2">Rigorous calibration protocols for skin health.</p>
               <div className="flex gap-2">
-                <span className="text-[9px] font-medium text-slate-650 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-full">Heart Attacks</span>
-                <span className="text-[9px] font-medium text-slate-650 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-full">Brain Damage</span>
+                <span className="text-[9px] font-medium text-[#024244] bg-[#ebf9fa] border border-[#024244]/10 px-2 py-0.5 rounded-full">FDA-Cleared</span>
+                <span className="text-[9px] font-medium text-[#024244] bg-[#ebf9fa] border border-[#024244]/10 px-2 py-0.5 rounded-full">Fitzpatrick I - VI</span>
               </div>
             </div>
           </motion.div>

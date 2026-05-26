@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { client } from "../lib/sanityClient";
 import { urlFor } from "../lib/imageBuilder";
 import Reveal from "../hooks/Reveal";
@@ -80,9 +81,12 @@ export default function Blog() {
             <p className="text-xs font-mono tracking-widest uppercase">Syncing Medical Archives...</p>
           </div>
         ) : (
-          
-          /* ASYMMETRIC EDITORIAL LAYOUT (60/40 SPLIT) */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55 }}
+            className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start w-full"
+          >
             
             {/* LEFT COLUMN: Spotlight Featured Article (7 Columns) */}
             <div className="lg:col-span-7">
@@ -297,7 +301,7 @@ export default function Blog() {
 
             </div>
 
-          </div>
+          </motion.div>
         )}
 
       </div>

@@ -97,7 +97,7 @@ export default function AboutTeam() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-[14px] sm:text-[15px] text-slate-500 leading-relaxed font-normal mb-8"
           >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis ipsum suspendisse ultrices gravida tempor incididunt ut labore et dolore magna aliqua.
+            At PScar, our mission is to deliver evidence-based clinical dermatology and cellular healing. Led by board-certified specialists, we utilize FDA-cleared technology to design highly customized recovery paths that restore skin health and structural confidence.
           </motion.p>
 
           {/* Checkbox Grid (2-column layout) */}

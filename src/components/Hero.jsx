@@ -90,7 +90,7 @@ export default function Hero() {
             variants={itemVariants}
             className="text-4xl sm:text-5xl lg:text-[58px] font-500 tracking-tight text-[#024244] leading-[1.1] mb-6 font-sans"
           >
-            Trusted Care{" "}
+            Trusted Dermal{" "}
             <span className="inline-flex items-center gap-1 bg-[#024244] px-2 py-0.5 sm:px-3 sm:py-1 rounded-full align-middle mx-1 sm:mx-2 border border-[#024244] shrink-0">
               <img
                 src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=80&h=80&q=80"
@@ -111,7 +111,7 @@ export default function Hero() {
                 <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 -rotate-45" />
               </span>
             </span>{" "}
-            for Every Stage of Life
+            Science & Skin Restoration
           </motion.h1>
 
           {/* Mobile Image Showcase (Visible only on mobile/tablet) */}
@@ -144,26 +144,26 @@ export default function Hero() {
               </div>
             </div>
 
-            {/* Drug Info Overlay Card (Scaled for Mobile) */}
+            {/* Dermal Safety Index Overlay Card (Scaled for Mobile) */}
             <div className="flex absolute -bottom-4 -left-4 -right-4 bg-white rounded-xl p-2.5 shadow-lg border border-slate-100/80 items-center justify-between gap-3 z-20 scale-95">
               <div className="flex-grow text-left">
-                <p className="text-[11px] font-bold text-[#024244]">Top Fails of Drugs</p>
+                <p className="text-[11px] font-bold text-[#024244]">Dermal Safety Index</p>
                 <p className="text-[8px] text-slate-400 mt-0.5 leading-snug">
-                  Lorem ipsum dolor sit amet, consectetur
+                  Rigorous calibration protocols for skin health.
                 </p>
                 <div className="flex gap-1.5 mt-2">
-                  <span className="text-[7px] bg-slate-50 border border-slate-100 text-slate-500 font-bold px-1.5 py-0.5 rounded-full">
-                    Heart Attacks
+                  <span className="text-[7px] bg-[#ebf9fa] border border-[#024244]/10 text-[#024244] font-bold px-1.5 py-0.5 rounded-full">
+                    FDA-Cleared
                   </span>
-                  <span className="text-[7px] bg-slate-50 border border-slate-100 text-slate-500 font-bold px-1.5 py-0.5 rounded-full">
-                    Brain Damage
+                  <span className="text-[7px] bg-[#ebf9fa] border border-[#024244]/10 text-[#024244] font-bold px-1.5 py-0.5 rounded-full">
+                    Fitzpatrick I - VI
                   </span>
                 </div>
               </div>
               <div className="w-12 h-12 rounded-lg bg-slate-100 shrink-0 overflow-hidden border border-slate-50">
                 <img
-                  src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=100&h=100&q=80"
-                  alt="Drug info illustration"
+                  src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=100&h=100&q=80"
+                  alt="Dermal safety index illustration"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -204,12 +204,12 @@ export default function Hero() {
             className="flex items-center gap-12 mt-12 pt-8 border-t border-[#024244]/10 w-full justify-center sm:justify-start"
           >
             <div>
-              <p className="text-3xl sm:text-4xl font-extrabold text-[#024244]">200+</p>
-              <p className="text-xs text-slate-500 font-semibold mt-1">Lorem Ipsum Dolor</p>
+              <p className="text-3xl sm:text-4xl font-extrabold text-[#024244]">99.4%</p>
+              <p className="text-xs text-slate-500 font-semibold mt-1">Scar Remodeling Rate</p>
             </div>
             <div>
-              <p className="text-3xl sm:text-4xl font-extrabold text-[#024244]">70K+</p>
-              <p className="text-xs text-slate-500 font-semibold mt-1">Lorem Ipsum Dolor</p>
+              <p className="text-3xl sm:text-4xl font-extrabold text-[#024244]">40K+</p>
+              <p className="text-xs text-slate-500 font-semibold mt-1">Completed Skin Scans</p>
             </div>
           </motion.div>
         </motion.div>
@@ -256,7 +256,7 @@ export default function Hero() {
               </div>
             </motion.div>
 
-            {/* Drug Info Overlay Card */}
+            {/* Dermal Safety Index Overlay Card */}
             <motion.div
               initial={{ opacity: 0, y: 45, scale: 0.92 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -268,23 +268,23 @@ export default function Hero() {
               className="hidden lg:flex absolute -bottom-6 md:-left-8 md:-right-8 bg-white rounded-2xl p-4 shadow-xl border border-slate-100/80 items-center justify-between gap-4 z-20"
             >
               <div className="flex-grow text-left">
-                <p className="text-[13px] font-bold text-[#024244]">Top Fails of Drugs</p>
+                <p className="text-[13px] font-bold text-[#024244]">Dermal Safety Index</p>
                 <p className="text-[10px] text-slate-400 mt-1 leading-snug">
-                  Lorem ipsum dolor sit amet, consectetur
+                  Rigorous calibration protocols for skin health.
                 </p>
                 <div className="flex gap-2 mt-3">
-                  <span className="text-[9px] bg-slate-50 border border-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded-full">
-                    Heart Attacks
+                  <span className="text-[9px] bg-[#ebf9fa] border border-[#024244]/10 text-[#024244] font-bold px-2 py-0.5 rounded-full">
+                    FDA-Cleared
                   </span>
-                  <span className="text-[9px] bg-slate-50 border border-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded-full">
-                    Brain Damage
+                  <span className="text-[9px] bg-[#ebf9fa] border border-[#024244]/10 text-[#024244] font-bold px-2 py-0.5 rounded-full">
+                    Fitzpatrick I - VI
                   </span>
                 </div>
               </div>
               <div className="w-16 h-16 rounded-xl bg-slate-100 shrink-0 overflow-hidden border border-slate-50">
                 <img
-                  src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=120&h=120&q=80"
-                  alt="Drug info illustration"
+                  src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=120&h=120&q=80"
+                  alt="Dermal safety index illustration"
                   className="w-full h-full object-cover"
                 />
               </div>

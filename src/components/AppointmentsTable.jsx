@@ -2,6 +2,8 @@
 
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import ClinicLoader from "./ClinicLoader";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   MoreHorizontal,
   Search,
@@ -292,7 +294,7 @@ export default function AppointmentsTable({
     }
   };
 
-  if (loading) return <LoadingSkeleton />;
+  if (loading) return <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 flex items-center justify-center min-h-[400px]"><ClinicLoader label="Retrieving patient files securely..." /></div>;
 
   return (
     <div className="space-y-4">
@@ -406,235 +408,253 @@ export default function AppointmentsTable({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginated.map((appt, i) => (
-                  <TableRow key={appt.id} className="group hover:bg-gray-50/50 border-gray-50 transition-colors h-20">
-                    <TableCell className="pl-10 font-medium text-slate-400 text-sm">
-                      {(currentPage - 1) * itemsPerPage + i + 1}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9 rounded-xl ring-1 ring-gray-100 shadow-sm">
-                          <AvatarFallback className={`text-[11px] font-semibold rounded-xl ${AVATAR_COLORS[appt.name?.[0]?.toLowerCase() || "default"]}`}>
-                            {getInitials(appt.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium text-gray-900">{appt.name}</span>
-                          <span className="text-[11px] text-gray-400 font-medium">{appt.email || "No email"}</span>
+                <AnimatePresence initial={false}>
+                  {paginated.map((appt, i) => (
+                    <motion.tr
+                      key={appt.id}
+                      layout
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.97, filter: "blur(4px)" }}
+                      transition={{ duration: 0.22, ease: "easeOut" }}
+                      className="group hover:bg-gray-50/50 border-b border-gray-150/40 transition-colors h-20"
+                    >
+                      <TableCell className="pl-10 font-medium text-slate-400 text-sm">
+                        {(currentPage - 1) * itemsPerPage + i + 1}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-9 w-9 rounded-xl ring-1 ring-gray-100 shadow-sm">
+                            <AvatarFallback className={`text-[11px] font-semibold rounded-xl ${AVATAR_COLORS[appt.name?.[0]?.toLowerCase() || "default"]}`}>
+                              {getInitials(appt.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium text-gray-900">{appt.name}</span>
+                            <span className="text-[11px] text-gray-400 font-medium">{appt.email || "No email"}</span>
+                          </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-0.5">
-                        {(() => {
-                          const list = (appt.treatment || "General Checkup").split(",").map(t => t.trim());
-                          if (list.length <= 1) {
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col gap-0.5">
+                          {(() => {
+                            const list = (appt.treatment || "General Checkup").split(",").map(t => t.trim());
+                            if (list.length <= 1) {
+                              return (
+                                <span className="text-sm font-medium text-slate-900 line-clamp-1">
+                                  {appt.treatment || "General Checkup"}
+                                </span>
+                              );
+                            }
                             return (
-                              <span className="text-sm font-medium text-slate-900 line-clamp-1">
-                                {appt.treatment || "General Checkup"}
-                              </span>
+                              <div className="flex items-center gap-1.5" title={appt.treatment}>
+                                <span className="text-sm font-medium text-slate-900 max-w-[140px] truncate">
+                                  {list[0]}
+                                </span>
+                                <span className="text-[10px] font-500 px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100 whitespace-nowrap cursor-help">
+                                  +{list.length - 1} more
+                                </span>
+                              </div>
                             );
-                          }
-                          return (
-                            <div className="flex items-center gap-1.5" title={appt.treatment}>
-                              <span className="text-sm font-medium text-slate-900 max-w-[140px] truncate">
-                                {list[0]}
-                              </span>
-                              <span className="text-[10px] font-500 px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100 whitespace-nowrap cursor-help">
-                                +{list.length - 1} more
-                              </span>
-                            </div>
-                          );
-                        })()}
-                        <span className="text-[11px] text-slate-400 font-medium">{appt.category || "Consultation"}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium text-slate-900">{appt.appointment_time ? formatTime(appt.appointment_time) : "09:00 AM"}</span>
-                        <span className="text-[11px] text-slate-400 font-medium">{formatDate(appt.appointment_date)}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className={`w-1.5 h-1.5 rounded-full ${getAssignedDoctors(appt) === "Unassigned" ? "bg-slate-300" : "bg-blue-500"}`} />
-                        <span className="text-sm font-medium text-gray-900">
-                          {getAssignedDoctors(appt)}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium text-gray-500 text-sm">
-                      {appt.phone || "—"}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={`rounded-full px-3 py-0.5 text-[10px] font-semibold border shadow-none uppercase tracking-wide ${getStatusStyle(appt.status)}`}>
-                        {getStatusLabel(appt.status)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="pr-10 text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-all">
-                            <MoreHorizontal size={20} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-52 rounded-2xl p-1.5 shadow-xl border-gray-100">
-                          <DropdownMenuItem onClick={() => setNotesAppt(appt)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
-                            <Pencil size={16} className="text-gray-400" /> Edit Notes
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setEmailAppt(appt)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
-                            <Mail size={16} className="text-gray-400" /> Send Email
-                          </DropdownMenuItem>
+                          })()}
+                          <span className="text-[11px] text-slate-400 font-medium">{appt.category || "Consultation"}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-slate-900">{appt.appointment_time ? formatTime(appt.appointment_time) : "09:00 AM"}</span>
+                          <span className="text-[11px] text-slate-400 font-medium">{formatDate(appt.appointment_date)}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <div className={`w-1.5 h-1.5 rounded-full ${getAssignedDoctors(appt) === "Unassigned" ? "bg-slate-300" : "bg-blue-500"}`} />
+                          <span className="text-sm font-medium text-gray-900">
+                            {getAssignedDoctors(appt)}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium text-gray-500 text-sm">
+                        {appt.phone || "—"}
+                      </TableCell>
+                      <TableCell>
+                        <motion.div
+                          key={appt.status}
+                          initial={{ scale: 0.8, opacity: 0.7 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                          className="inline-flex"
+                        >
+                          <Badge variant="outline" className={`rounded-full px-3 py-0.5 text-[10px] font-semibold border shadow-none uppercase tracking-wide ${getStatusStyle(appt.status)}`}>
+                            {getStatusLabel(appt.status)}
+                          </Badge>
+                        </motion.div>
+                      </TableCell>
+                      <TableCell className="pr-10 text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-all">
+                              <MoreHorizontal size={20} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-52 rounded-2xl p-1.5 shadow-xl border-gray-100">
+                            <DropdownMenuItem onClick={() => setNotesAppt(appt)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
+                              <Pencil size={16} className="text-gray-400" /> Edit Notes
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setEmailAppt(appt)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
+                              <Mail size={16} className="text-gray-400" /> Send Email
+                            </DropdownMenuItem>
 
-                          <DropdownMenuItem
-                            onClick={() => handleWhatsApp(appt)}
-                            className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3 text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50"
-                          >
-                            <MessageCircle size={16} /> Message on WhatsApp
-                          </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleWhatsApp(appt)}
+                              className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3 text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50"
+                            >
+                              <MessageCircle size={16} /> Message on WhatsApp
+                            </DropdownMenuItem>
 
-                          <DropdownMenuSeparator className="bg-gray-50" />
+                            <DropdownMenuSeparator className="bg-gray-50" />
 
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
-                              <Clock3 size={16} className="text-gray-400" /> Change Status
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuSubContent className="rounded-2xl p-1.5 shadow-xl border-gray-100 ml-1">
-                              {["pending", "confirmed", "completed", "cancelled"].map((s) => (
-                                <DropdownMenuItem
-                                  key={s}
-                                  onClick={() => handleStatusUpdate(appt.id, s)}
-                                  className={`rounded-xl px-3 py-2 font-medium text-sm mb-0.5 last:mb-0 ${appt.status === s ? "bg-blue-50 text-blue-600" : "text-gray-500"}`}
-                                >
-                                  {getStatusLabel(s)}
-                                </DropdownMenuItem>
-                              ))}
-                            </DropdownMenuSubContent>
-                          </DropdownMenuSub>
+                            <DropdownMenuSub>
+                              <DropdownMenuSubTrigger className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
+                                <Clock3 size={16} className="text-gray-400" /> Change Status
+                              </DropdownMenuSubTrigger>
+                              <DropdownMenuSubContent className="rounded-2xl p-1.5 shadow-xl border-gray-100 ml-1">
+                                {["pending", "confirmed", "completed", "cancelled"].map((s) => (
+                                  <DropdownMenuItem
+                                    key={s}
+                                    onClick={() => handleStatusUpdate(appt.id, s)}
+                                    className={`rounded-xl px-3 py-2 font-medium text-sm mb-0.5 last:mb-0 ${appt.status === s ? "bg-blue-50 text-blue-600" : "text-gray-500"}`}
+                                  >
+                                    {getStatusLabel(s)}
+                                  </DropdownMenuItem>
+                                ))}
+                              </DropdownMenuSubContent>
+                            </DropdownMenuSub>
 
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
-                              <Users className="w-4 h-4 text-gray-400" /> Assign Doctor
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuSubContent className="rounded-2xl p-1.5 shadow-xl border-gray-100 ml-1 min-w-[200px]">
-                              {(() => {
-                                const treatmentsList = (appt.treatment || "").split(",").map(t => t.trim().replace(/\s*\(.*?\)/g, ""));
+                            <DropdownMenuSub>
+                              <DropdownMenuSubTrigger className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
+                                <Users className="w-4 h-4 text-gray-400" /> Assign Doctor
+                              </DropdownMenuSubTrigger>
+                              <DropdownMenuSubContent className="rounded-2xl p-1.5 shadow-xl border-gray-100 ml-1 min-w-[200px]">
+                                {(() => {
+                                  const treatmentsList = (appt.treatment || "").split(",").map(t => t.trim().replace(/\s*\(.*?\)/g, ""));
 
-                                const dayOfWeek = new Date(appt.appointment_date + "T00:00:00").getDay();
-                                const availableDoctors = staffList.filter(doc => {
-                                  if (doc.available === false) return false;
-                                  const sched = schedules.find(s => s.staff_id === doc.id && s.day_of_week === dayOfWeek);
-                                  return sched?.is_working;
-                                });
+                                  const dayOfWeek = new Date(appt.appointment_date + "T00:00:00").getDay();
+                                  const availableDoctors = staffList.filter(doc => {
+                                    if (doc.available === false) return false;
+                                    const sched = schedules.find(s => s.staff_id === doc.id && s.day_of_week === dayOfWeek);
+                                    return sched?.is_working;
+                                  });
 
-                                if (availableDoctors.length === 0) {
-                                  return <div className="px-3 py-2 text-xs text-gray-400">No doctors available</div>;
-                                }
+                                  if (availableDoctors.length === 0) {
+                                    return <div className="px-3 py-2 text-xs text-gray-400">No doctors available</div>;
+                                  }
 
-                                if (treatmentsList.length <= 1) {
-                                  return availableDoctors.map((doc) => (
-                                    <DropdownMenuItem
-                                      key={doc.id}
-                                      onClick={() => {
-                                        const updatedTx = assignDoctorToAllTreatmentsInString(appt.treatment, doc.name);
-                                        onAssignStaff(appt.id, doc.id, updatedTx);
-                                      }}
-                                      className={`rounded-xl px-3 py-2 font-medium text-sm mb-0.5 last:mb-0 ${appt.staff_id === doc.id ? "bg-blue-50 text-blue-600" : "text-gray-500"}`}
-                                    >
-                                      {doc.name}
-                                    </DropdownMenuItem>
-                                  ));
-                                }
+                                  if (treatmentsList.length <= 1) {
+                                    return availableDoctors.map((doc) => (
+                                      <DropdownMenuItem
+                                        key={doc.id}
+                                        onClick={() => {
+                                          const updatedTx = assignDoctorToAllTreatmentsInString(appt.treatment, doc.name);
+                                          onAssignStaff(appt.id, doc.id, updatedTx);
+                                        }}
+                                        className={`rounded-xl px-3 py-2 font-medium text-sm mb-0.5 last:mb-0 ${appt.staff_id === doc.id ? "bg-blue-50 text-blue-600" : "text-gray-500"}`}
+                                      >
+                                        {doc.name}
+                                      </DropdownMenuItem>
+                                    ));
+                                  }
 
-                                return (
-                                  <>
-                                    {treatmentsList.map((tName) => {
-                                      const currentDocName = (() => {
-                                        const match = (appt.treatment || "").split(",").map(x => x.trim()).find(x => x.replace(/\s*\(.*?\)/g, "").trim().toLowerCase() === tName.toLowerCase());
-                                        const m = match ? match.match(/\(([^)]+)\)/) : null;
-                                        return m ? m[1].trim() : null;
-                                      })();
+                                  return (
+                                    <>
+                                      {treatmentsList.map((tName) => {
+                                        const currentDocName = (() => {
+                                          const match = (appt.treatment || "").split(",").map(x => x.trim()).find(x => x.replace(/\s*\(.*?\)/g, "").trim().toLowerCase() === tName.toLowerCase());
+                                          const m = match ? match.match(/\(([^)]+)\)/) : null;
+                                          return m ? m[1].trim() : null;
+                                        })();
 
-                                      return (
-                                        <DropdownMenuSub key={tName}>
-                                          <DropdownMenuSubTrigger className="rounded-xl px-3 py-2 font-medium text-sm mb-0.5 last:mb-0 text-slate-700">
-                                            {tName} {currentDocName ? `(${currentDocName.split(" ")[0]})` : ""}
-                                          </DropdownMenuSubTrigger>
-                                          <DropdownMenuSubContent className="rounded-xl p-1.5 shadow-lg border-gray-100 ml-1 min-w-[160px]">
-                                            {availableDoctors.map((doc) => (
-                                              <DropdownMenuItem
-                                                key={doc.id}
-                                                onClick={() => {
-                                                  const updatedTx = assignDoctorToTreatmentInString(appt.treatment, tName, doc.name);
-                                                  onAssignStaff(appt.id, doc.id, updatedTx);
-                                                }}
-                                                className={`rounded-lg px-3 py-2 font-medium text-sm ${currentDocName === doc.name ? "bg-blue-50 text-blue-600" : "text-gray-500"}`}
-                                              >
-                                                {doc.name}
-                                              </DropdownMenuItem>
-                                            ))}
-                                          </DropdownMenuSubContent>
-                                        </DropdownMenuSub>
-                                      );
-                                    })}
+                                        return (
+                                          <DropdownMenuSub key={tName}>
+                                            <DropdownMenuSubTrigger className="rounded-xl px-3 py-2 font-medium text-sm mb-0.5 last:mb-0 text-slate-700">
+                                              {tName} {currentDocName ? `(${currentDocName.split(" ")[0]})` : ""}
+                                            </DropdownMenuSubTrigger>
+                                            <DropdownMenuSubContent className="rounded-xl p-1.5 shadow-lg border-gray-100 ml-1 min-w-[160px]">
+                                              {availableDoctors.map((doc) => (
+                                                <DropdownMenuItem
+                                                  key={doc.id}
+                                                  onClick={() => {
+                                                    const updatedTx = assignDoctorToTreatmentInString(appt.treatment, tName, doc.name);
+                                                    onAssignStaff(appt.id, doc.id, updatedTx);
+                                                  }}
+                                                  className={`rounded-lg px-3 py-2 font-medium text-sm ${currentDocName === doc.name ? "bg-blue-50 text-blue-600" : "text-gray-500"}`}
+                                                >
+                                                  {doc.name}
+                                                </DropdownMenuItem>
+                                              ))}
+                                            </DropdownMenuSubContent>
+                                          </DropdownMenuSub>
+                                        );
+                                      })}
 
-                                    <DropdownMenuSeparator className="bg-gray-50" />
+                                      <DropdownMenuSeparator className="bg-gray-50" />
 
-                                    <DropdownMenuSub>
-                                      <DropdownMenuSubTrigger className="rounded-xl px-3 py-2 font-500 text-sm text-blue-600">
-                                        All Treatments
-                                      </DropdownMenuSubTrigger>
-                                      <DropdownMenuSubContent className="rounded-xl p-1.5 shadow-lg border-gray-100 ml-1 min-w-[160px]">
-                                        {availableDoctors.map((doc) => (
-                                          <DropdownMenuItem
-                                            key={doc.id}
-                                            onClick={() => {
-                                              const updatedTx = assignDoctorToAllTreatmentsInString(appt.treatment, doc.name);
-                                              onAssignStaff(appt.id, doc.id, updatedTx);
-                                            }}
-                                            className="rounded-lg px-3 py-2 font-medium text-sm text-gray-500 hover:bg-gray-50"
-                                          >
-                                            {doc.name}
-                                          </DropdownMenuItem>
-                                        ))}
-                                      </DropdownMenuSubContent>
-                                    </DropdownMenuSub>
-                                  </>
-                                );
-                              })()}
-                            </DropdownMenuSubContent>
-                          </DropdownMenuSub>
+                                      <DropdownMenuSub>
+                                        <DropdownMenuSubTrigger className="rounded-xl px-3 py-2 font-500 text-sm text-blue-600">
+                                          All Treatments
+                                        </DropdownMenuSubTrigger>
+                                        <DropdownMenuSubContent className="rounded-xl p-1.5 shadow-lg border-gray-100 ml-1 min-w-[160px]">
+                                          {availableDoctors.map((doc) => (
+                                            <DropdownMenuItem
+                                              key={doc.id}
+                                              onClick={() => {
+                                                const updatedTx = assignDoctorToAllTreatmentsInString(appt.treatment, doc.name);
+                                                onAssignStaff(appt.id, doc.id, updatedTx);
+                                              }}
+                                              className="rounded-lg px-3 py-2 font-medium text-sm text-gray-500 hover:bg-gray-50"
+                                            >
+                                              {doc.name}
+                                            </DropdownMenuItem>
+                                          ))}
+                                        </DropdownMenuSubContent>
+                                      </DropdownMenuSub>
+                                    </>
+                                  );
+                                })()}
+                              </DropdownMenuSubContent>
+                            </DropdownMenuSub>
 
-                          <DropdownMenuSeparator className="bg-gray-50" />
+                            <DropdownMenuSeparator className="bg-gray-50" />
 
-                          <DropdownMenuItem
-                            onClick={() => {
-                              // Pre-select existing treatments
-                              const existingNames = (appt.treatment || "")
-                                .split(",")
-                                .map(t => t.replace(/\s*\(.*?\)/g, "").trim())
-                                .filter(Boolean);
-                              const preSelected = allTreatments
-                                .filter(t => existingNames.some(n => n.toLowerCase() === t.name.toLowerCase()))
-                                .map(t => t.id);
-                              setSelectedAddTreatments(preSelected);
-                              setAddTreatmentAppt(appt);
-                            }}
-                            className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3 text-blue-600 focus:text-blue-600 focus:bg-blue-50"
-                          >
-                            <Plus size={16} /> Add / Edit Treatments
-                          </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                // Pre-select existing treatments
+                                const existingNames = (appt.treatment || "")
+                                  .split(",")
+                                  .map(t => t.replace(/\s*\(.*?\)/g, "").trim())
+                                  .filter(Boolean);
+                                const preSelected = allTreatments
+                                  .filter(t => existingNames.some(n => n.toLowerCase() === t.name.toLowerCase()))
+                                  .map(t => t.id);
+                                setSelectedAddTreatments(preSelected);
+                                setAddTreatmentAppt(appt);
+                              }}
+                              className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3 text-blue-600 focus:text-blue-600 focus:bg-blue-50"
+                            >
+                              <Plus size={16} /> Add / Edit Treatments
+                            </DropdownMenuItem>
 
-                          <DropdownMenuSeparator className="bg-gray-50" />
+                            <DropdownMenuSeparator className="bg-gray-50" />
 
-                          <DropdownMenuItem onClick={() => onDelete?.(appt.id)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3 text-rose-600 focus:text-rose-600 focus:bg-rose-50">
-                            <Trash2 size={16} /> Delete Appointment
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                            <DropdownMenuItem onClick={() => onDelete?.(appt.id)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3 text-rose-600 focus:text-rose-600 focus:bg-rose-50">
+                              <Trash2 size={16} /> Delete Appointment
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
               </TableBody>
             </Table>
           </div>
@@ -714,81 +734,91 @@ export default function AppointmentsTable({
 
             {/* Timeline List */}
             <div className="space-y-6 relative pl-6 before:absolute before:left-[10px] before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100">
-              {mobileFiltered.map((appt, i) => {
-                const cardColor = getMobileCardColor(i, appt.status);
-                const initials = getInitials(appt.name);
-                const avatarColor = AVATAR_COLORS[appt.name?.[0]?.toLowerCase() || "default"];
+              <AnimatePresence initial={false}>
+                {mobileFiltered.map((appt, i) => {
+                  const cardColor = getMobileCardColor(i, appt.status);
+                  const initials = getInitials(appt.name);
+                  const avatarColor = AVATAR_COLORS[appt.name?.[0]?.toLowerCase() || "default"];
 
-                return (
-                  <div key={appt.id} className="relative min-h-[80px]">
-                    {/* Dot indicator */}
-                    <div className="absolute left-[-18px] top-3.5 w-2.5 h-2.5 rounded-full bg-white border-[2.5px] border-slate-900 z-10" />
+                  return (
+                    <motion.div
+                      key={appt.id}
+                      layout
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, filter: "blur(4px)" }}
+                      transition={{ duration: 0.22, ease: "easeOut" }}
+                      className="relative min-h-[80px]"
+                    >
+                      {/* Dot indicator */}
+                      <div className="absolute left-[-18px] top-3.5 w-2.5 h-2.5 rounded-full bg-white border-[2.5px] border-slate-900 z-10" />
 
-                    {/* Soft colored Card */}
-                    <div className={`rounded-[2rem] p-5 border flex flex-col gap-4 relative overflow-hidden shadow-sm hover:shadow-md transition-shadow ${cardColor}`}>
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-500 opacity-60 tracking-wider">
-                          {appt.appointment_time ? formatTime(appt.appointment_time) : "9:00 AM"}
-                        </span>
-                        <h3 className="text-base font-500 leading-tight line-clamp-2">
-                          {appt.treatment || "General Consultation"}
-                        </h3>
-                      </div>
-
-                      <div className="flex justify-between items-center mt-2">
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-8 w-8 rounded-full border border-white shadow-sm shrink-0">
-                            <AvatarFallback className={`text-[10px] font-semibold ${avatarColor}`}>
-                              {initials}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-xs font-500 truncate max-w-[120px]">{appt.name}</span>
-                            <span className="text-[9px] font-medium opacity-65 truncate max-w-[120px]">
-                              {getAssignedDoctors(appt)}
-                            </span>
-                          </div>
+                      {/* Soft colored Card */}
+                      <div className={`rounded-[2rem] p-5 border flex flex-col gap-4 relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 ${cardColor}`}>
+                        <div className="space-y-1">
+                          <span className="text-[10px] font-500 opacity-60 tracking-wider">
+                            {appt.appointment_time ? formatTime(appt.appointment_time) : "9:00 AM"}
+                          </span>
+                          <h3 className="text-base font-500 leading-tight line-clamp-2">
+                            {appt.treatment || "General Consultation"}
+                          </h3>
                         </div>
 
-                        {/* Detail action */}
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button className="w-8 h-8 rounded-full bg-white text-slate-800 flex items-center justify-center shadow-sm hover:scale-105 active:scale-95 transition-transform shrink-0 border border-slate-100">
-                              <ChevronRight size={14} className="-mr-0.5" />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48 rounded-2xl p-1.5 shadow-xl border-slate-100">
-                            <DropdownMenuItem onClick={() => setNotesAppt(appt)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
-                              <Pencil size={16} className="text-gray-400" /> Edit Notes
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleWhatsApp(appt)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3 text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50">
-                              <MessageCircle size={16} /> WhatsApp
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator className="bg-slate-50" />
-                            <DropdownMenuSub>
-                              <DropdownMenuSubTrigger className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
-                                <Clock3 size={16} className="text-gray-400" /> Change Status
-                              </DropdownMenuSubTrigger>
-                              <DropdownMenuSubContent className="rounded-2xl p-1.5 shadow-xl border-slate-100 ml-1">
-                                {["pending", "confirmed", "completed", "cancelled"].map((s) => (
-                                  <DropdownMenuItem key={s} onClick={() => handleStatusUpdate(appt.id, s)} className={`rounded-xl px-3 py-2 font-medium text-sm mb-0.5 last:mb-0 ${appt.status === s ? "bg-blue-50 text-blue-600" : "text-gray-500"}`}>
-                                    {getStatusLabel(s)}
-                                  </DropdownMenuItem>
-                                ))}
-                              </DropdownMenuSubContent>
-                            </DropdownMenuSub>
-                            <DropdownMenuSeparator className="bg-slate-50" />
-                            <DropdownMenuItem onClick={() => onDelete?.(appt.id)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3 text-rose-600 focus:text-rose-600 focus:bg-rose-50">
-                              <Trash2 size={16} /> Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="flex justify-between items-center mt-2">
+                          <div className="flex items-center gap-2">
+                            <Avatar className="h-8 w-8 rounded-full border border-white shadow-sm shrink-0">
+                              <AvatarFallback className={`text-[10px] font-semibold ${avatarColor}`}>
+                                {initials}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-xs font-500 truncate max-w-[120px]">{appt.name}</span>
+                              <span className="text-[9px] font-medium opacity-65 truncate max-w-[120px]">
+                                {getAssignedDoctors(appt)}
+                              </span>
+                            </div>
+                          </div>
 
+                          {/* Detail action */}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button className="w-8 h-8 rounded-full bg-white text-slate-800 flex items-center justify-center shadow-sm hover:scale-105 active:scale-95 transition-transform shrink-0 border border-slate-100">
+                                <ChevronRight size={14} className="-mr-0.5" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48 rounded-2xl p-1.5 shadow-xl border-slate-100">
+                              <DropdownMenuItem onClick={() => setNotesAppt(appt)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
+                                <Pencil size={16} className="text-gray-400" /> Edit Notes
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleWhatsApp(appt)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3 text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50">
+                                <MessageCircle size={16} /> WhatsApp
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator className="bg-slate-50" />
+                              <DropdownMenuSub>
+                                <DropdownMenuSubTrigger className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3">
+                                  <Clock3 size={16} className="text-gray-400" /> Change Status
+                                </DropdownMenuSubTrigger>
+                                <DropdownMenuSubContent className="rounded-2xl p-1.5 shadow-xl border-slate-100 ml-1">
+                                  {["pending", "confirmed", "completed", "cancelled"].map((s) => (
+                                    <DropdownMenuItem key={s} onClick={() => handleStatusUpdate(appt.id, s)} className={`rounded-xl px-3 py-2 font-medium text-sm mb-0.5 last:mb-0 ${appt.status === s ? "bg-blue-50 text-blue-600" : "text-gray-500"}`}>
+                                      {getStatusLabel(s)}
+                                    </DropdownMenuItem>
+                                  ))}
+                                </DropdownMenuSubContent>
+                              </DropdownMenuSub>
+                              <DropdownMenuSeparator className="bg-slate-50" />
+                              <DropdownMenuItem onClick={() => onDelete?.(appt.id)} className="gap-3 font-medium text-sm rounded-xl py-2.5 px-3 text-rose-600 focus:text-rose-600 focus:bg-rose-50">
+                                <Trash2 size={16} /> Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                );
-              })}
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
 
               {mobileFiltered.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-16 text-center select-none pl-2">

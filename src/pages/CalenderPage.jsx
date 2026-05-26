@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useAppointments } from "../hooks/useAppointments";
+import ClinicLoader from "../components/ClinicLoader";
 import {
   Plus,
   Calendar as CalendarIcon,
@@ -43,12 +44,19 @@ export default function CalendarPage() {
   const { appointments = [], staffList = [], loading } = useAppointments();
   const [date, setDate] = useState(new Date());
   const [selectedDoctorId, setSelectedDoctorId] = useState("all");
-
   const selectedStr = date.toLocaleDateString("en-CA");
 
   const dailyAppointments = useMemo(() => {
     return appointments.filter((a) => a.appointment_date === selectedStr && a.status !== 'cancelled');
   }, [appointments, selectedStr]);
+
+  if (loading) {
+    return (
+      <div className="flex h-[60dvh] items-center justify-center bg-white rounded-3xl border border-slate-100 shadow-sm p-8 m-3">
+        <ClinicLoader label="Aligning physician schedules..." />
+      </div>
+    );
+  }
 
   const isDoctorAssigned = (docName, docId, appt) => {
     const tList = (appt.treatment || "").split(",").map(t => t.trim());

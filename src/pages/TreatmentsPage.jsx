@@ -46,10 +46,26 @@ export default function TreatmentsPage() {
   ];
 
   const TECH_STATS = [
-    { num: "98%", label: "Patient Satisfaction" },
-    { num: "FDA", label: "Approved Laser Tech" },
-    { num: "25+", label: "Clinical Parameters" },
-    { num: "0%", label: "Downtime Options" },
+    {
+      num: "98%",
+      label: "Patient Satisfaction",
+      desc: "Every diagnostic session and scar remodeling plan targets patient comfort and custom efficacy.",
+    },
+    {
+      num: "FDA",
+      label: "Approved Laser Tech",
+      desc: "FDA-cleared multi-spectral parameters configured precisely for Fitzpatrick skin types I through VI.",
+    },
+    {
+      num: "25+",
+      label: "Clinical Parameters",
+      desc: "Tailored micro-calibrations designed specifically to match individual cellular structures.",
+    },
+    {
+      num: "0%",
+      label: "Downtime Options",
+      desc: "Advanced fractional wavelengths preserve tissue integrity, minimizing post-treatment recovery.",
+    },
   ];
 
   return (
@@ -335,8 +351,8 @@ export default function TreatmentsPage() {
                 </span>
                 <div className="mt-auto">
                   <h4 className="text-xs font-bold text-slate-800 leading-tight uppercase tracking-wider">{stat.label}</h4>
-                  <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.
+                  <p className="text-[11px] text-slate-500 mt-2 leading-relaxed font-normal">
+                    {stat.desc}
                   </p>
                 </div>
               </motion.div>

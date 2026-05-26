@@ -472,10 +472,6 @@ export default function EffectivenessPage() {
     }
   ];
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   return (
     <div className="bg-[#f8fafb] min-h-screen text-slate-800 font-sans overflow-x-hidden">
       

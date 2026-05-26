@@ -46,7 +46,6 @@ export default function Navbar() {
       e.preventDefault();
       setOpen(false);
       navigate(link.path);
-      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 

@@ -65,9 +65,6 @@ export default function ContactPage() {
   const [bookingRef, setBookingRef] = useState("");
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -406,19 +403,19 @@ export default function ContactPage() {
               
               <CopyContactCard 
                 label="Direct Support Telephone" 
-                value="+123 456 7890" 
+                value="+1 (310) 555-0190" 
                 icon={Phone} 
               />
               
               <CopyContactCard 
                 label="Intake Office Email" 
-                value="support@cretacy.com" 
+                value="support@pscarclinic.com" 
                 icon={Mail} 
               />
 
               <CopyContactCard 
                 label="Clinic Address Location" 
-                value="Jl. Lorem Ipsum, City, Location" 
+                value="100 Dermal Plaza, Suite 300, Beverly Hills, CA" 
                 icon={MapPin} 
               />
             </div>
