@@ -192,7 +192,7 @@ function TimeSlots({ slots, selected, onSelect, loading }) {
   );
 }
 
-function ModalLeftPanel({ doctorName, specialty, selectedTreatments = [] }) {
+export function ModalLeftPanel({ doctorName, specialty, selectedTreatments = [] }) {
   return (
     <div className="flex flex-col gap-6 h-full justify-between pb-2">
       <div className="space-y-5">
@@ -277,7 +277,7 @@ function ModalLeftPanel({ doctorName, specialty, selectedTreatments = [] }) {
 }
 
 // ── The inner form with all steps ──────────────────────────────
-function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSelect }) {
+export function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSelect }) {
   const [step, setStep] = useState(0);
   const [doctors, setDoctors] = useState([]);
   const [treatments, setTreatments] = useState([]);

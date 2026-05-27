@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { client } from "../lib/sanityClient";
 import { urlFor } from "../lib/imageBuilder";
 import { PortableText } from "@portabletext/react";
@@ -19,7 +19,6 @@ import {
   Briefcase,
   ClipboardList
 } from "lucide-react";
-import BookingButton from "../components/BookingForm";
 
 // ═══════════════════════════════════════════════════════════════
 // CUSTOM PORTABLE TEXT COMPONENTS (CLINICAL LAYOUT STYLE)
@@ -100,6 +99,7 @@ const createPortableTextComponents = () => ({
 });
 
 export default function BlogDetail() {
+  const navigate = useNavigate();
   const { slug } = useParams();
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -255,14 +255,13 @@ export default function BlogDetail() {
                   Our medical team calibrates laser configurations and safe picosecond sweeping parameters specifically to your Fitzpatrick skin profile.
                 </p>
                 
-                <BookingButton
-                  trigger={
-                    <button className="bg-white hover:bg-slate-50 text-[#024244] font-bold text-xs font-mono px-8 py-3.5 rounded-xl shadow-lg transition-all duration-300 active:scale-95 flex items-center gap-1.5 uppercase">
-                      <span>Initialize Consultation Map</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  }
-                />
+                <button
+                  onClick={() => navigate("/contact?tab=booking")}
+                  className="bg-white hover:bg-slate-50 text-[#024244] font-bold text-xs font-mono px-8 py-3.5 rounded-xl shadow-lg transition-all duration-300 active:scale-95 flex items-center gap-1.5 uppercase"
+                >
+                  <span>Initialize Consultation Map</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           </div>
@@ -306,14 +305,13 @@ export default function BlogDetail() {
 
               {/* Direct Booking trigger inside sidebar */}
               <div className="border-t border-slate-100 pt-5 mt-5">
-                <BookingButton
-                  trigger={
-                    <button className="w-full bg-[#ebf9fa] hover:bg-[#d6f4f6] text-[#024244] border border-[#024244]/12 text-xs font-mono font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-1">
-                      <span>Book Consultation</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  }
-                />
+                <button
+                  onClick={() => navigate("/contact?tab=booking")}
+                  className="w-full bg-[#ebf9fa] hover:bg-[#d6f4f6] text-[#024244] border border-[#024244]/12 text-xs font-mono font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-1"
+                >
+                  <span>Book Consultation</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
 

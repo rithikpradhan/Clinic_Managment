@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import BookingButton from "./BookingForm";
+import { useNavigate } from "react-router-dom";
 
 export default function Contact() {
+  const navigate = useNavigate();
   const TESTIMONIALS = [
     {
       stars: 5,
@@ -63,13 +64,12 @@ export default function Contact() {
           </h3>
 
           <div className="relative z-10">
-            <BookingButton
-              trigger={
-                <button className="bg-white hover:bg-slate-50 text-[#024244] font-bold text-sm px-8 py-3.5 rounded-full shadow-md transition-all duration-300 hover:scale-105 active:scale-95">
-                  Contact Now
-                </button>
-              }
-            />
+            <button
+              onClick={() => navigate("/contact?tab=booking")}
+              className="bg-white hover:bg-slate-50 text-[#024244] font-bold text-sm px-8 py-3.5 rounded-full shadow-md transition-all duration-300 hover:scale-105 active:scale-95"
+            >
+              Contact Now
+            </button>
           </div>
         </motion.div>
 

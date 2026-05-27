@@ -17,7 +17,8 @@ import {
 } from "lucide-react";
 import Footer from "../components/Footer";
 import FloatingBookingButton from "../components/FloatingBookingButton";
-import BookingButton from "../components/BookingForm";
+import BookingButton, { ModalForm, ModalLeftPanel } from "../components/BookingForm";
+import { useSearchParams } from "react-router-dom";
 
 // ═══════════════════════════════════════════════════════════════
 // COPY-TO-CLIPBOARD CONTACT DETAILS CARD
@@ -53,9 +54,16 @@ function CopyContactCard({ label, value, icon: Icon }) {
 }
 
 export default function ContactPage() {
-  const [activeCategory, setActiveCategory] = useState("clinical"); // clinical, scheduling, general
+  const [searchParams] = useSearchParams();
+  const tabParam = searchParams.get("tab");
+
+  const [activeCategory, setActiveCategory] = useState("booking"); // booking, clinical, scheduling, general
   const [ticketId, setTicketId] = useState("");
   const [submitted, setSubmitted] = useState(false);
+
+  // Booking states for inline component
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [selectedTreatments, setSelectedTreatments] = useState([]);
 
   // Form states
   const [name, setName] = useState("");
@@ -64,6 +72,14 @@ export default function ContactPage() {
   const [skinType, setSkinType] = useState("type3");
   const [bookingRef, setBookingRef] = useState("");
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (tabParam) {
+      if (["booking", "clinical", "scheduling", "general"].includes(tabParam)) {
+        setActiveCategory(tabParam);
+      }
+    }
+  }, [tabParam]);
 
 
   const handleSubmit = (e) => {
@@ -138,6 +154,17 @@ export default function ContactPage() {
             <div className="flex gap-2.5 mb-8 overflow-x-auto pb-2 scrollbar-none">
               <button
                 type="button"
+                onClick={() => { setActiveCategory("booking"); resetForm(); }}
+                className={`px-4 py-2.5 rounded-xl border text-xs font-mono font-bold uppercase transition-all whitespace-nowrap ${
+                  activeCategory === "booking"
+                    ? "bg-[#024244] border-transparent text-white shadow-md shadow-[#024244]/10"
+                    : "bg-slate-50 border-slate-100 hover:bg-slate-100 text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                1. Book Appointment
+              </button>
+              <button
+                type="button"
                 onClick={() => { setActiveCategory("clinical"); resetForm(); }}
                 className={`px-4 py-2.5 rounded-xl border text-xs font-mono font-bold uppercase transition-all whitespace-nowrap ${
                   activeCategory === "clinical"
@@ -145,7 +172,7 @@ export default function ContactPage() {
                     : "bg-slate-50 border-slate-100 hover:bg-slate-100 text-slate-500 hover:text-slate-800"
                 }`}
               >
-                1. Clinical Inquiry
+                2. Clinical Inquiry
               </button>
               <button
                 type="button"
@@ -156,7 +183,7 @@ export default function ContactPage() {
                     : "bg-slate-50 border-slate-100 hover:bg-slate-100 text-slate-500 hover:text-slate-800"
                 }`}
               >
-                2. Scheduling
+                3. Scheduling
               </button>
               <button
                 type="button"
@@ -167,13 +194,45 @@ export default function ContactPage() {
                     : "bg-slate-50 border-slate-100 hover:bg-slate-100 text-slate-500 hover:text-slate-800"
                 }`}
               >
-                3. General Questions
+                4. General Questions
               </button>
             </div>
 
             {/* Dynamic Form Content */}
             <AnimatePresence mode="wait">
-              {submitted ? (
+              {activeCategory === "booking" ? (
+                <motion.div
+                  key="booking-inline"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex flex-col md:flex-row border-t border-slate-100 min-h-[490px] -mx-6 sm:-mx-8 lg:-mx-10 -mb-6 sm:-mb-8 lg:-mb-10 rounded-b-[32px] overflow-hidden"
+                >
+                  {/* Left side panel */}
+                  <div className="w-full md:w-[210px] shrink-0 p-6 bg-slate-50/45 border-b md:border-b-0 md:border-r border-slate-100 flex flex-col">
+                    <ModalLeftPanel
+                      doctorName={selectedDoctor?.name}
+                      specialty={selectedDoctor?.specialty}
+                      selectedTreatments={selectedTreatments}
+                    />
+                  </div>
+                  {/* Right side form */}
+                  <div className="flex-1 flex flex-col overflow-hidden relative min-h-[400px] bg-white">
+                    <ModalForm
+                      onClose={() => {
+                        // Reset selection on completion or close
+                        setSelectedDoctor(null);
+                        setSelectedTreatments([]);
+                      }}
+                      onSuccess={() => {}}
+                      prefill={{}}
+                      onDoctorSelect={setSelectedDoctor}
+                      onTreatmentsSelect={setSelectedTreatments}
+                    />
+                  </div>
+                </motion.div>
+              ) : submitted ? (
                 <motion.div
                   key="success"
                   initial={{ opacity: 0, scale: 0.98 }}

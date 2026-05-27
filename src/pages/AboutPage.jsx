@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { Sparkles, ShieldCheck, Award, HeartPulse, Stethoscope, ChevronRight, Activity, Users, Clock, Globe } from "lucide-react";
 import Footer from "../components/Footer";
 import FloatingBookingButton from "../components/FloatingBookingButton";
-import BookingButton from "../components/BookingForm";
 
 export default function AboutPage() {
+  const navigate = useNavigate();
   const BENTO_FACILITIES = [
     {
       title: "Advanced Diagnostic Suite",
@@ -117,13 +118,12 @@ export default function AboutPage() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center"
             >
-              <BookingButton
-                trigger={
-                  <button className="inline-flex items-center justify-center bg-[#024244] hover:bg-[#013537] text-white text-sm font-bold px-8 py-3.5 rounded-full shadow-md hover:-translate-y-0.5 transition-all duration-300">
-                    Book Consultation
-                  </button>
-                }
-              />
+              <button
+                onClick={() => navigate("/contact?tab=booking")}
+                className="inline-flex items-center justify-center bg-[#024244] hover:bg-[#013537] text-white text-sm font-bold px-8 py-3.5 rounded-full shadow-md hover:-translate-y-0.5 transition-all duration-300"
+              >
+                Book Consultation
+              </button>
               {/* Doctor Avatar Badge */}
               <div className="flex items-center gap-3 bg-white/50 border border-slate-100 rounded-full px-4 py-2 shrink-0 self-start sm:self-auto">
                 <div className="flex -space-x-1.5">
@@ -384,13 +384,12 @@ export default function AboutPage() {
           <p className="text-white/60 text-xs sm:text-sm max-w-md mb-8 leading-relaxed">
             Schedule a consultation with our board-certified clinical experts. We evaluate and create customized skin recovery programs.
           </p>
-          <BookingButton
-            trigger={
-              <button className="bg-white hover:bg-slate-50 text-[#024244] font-bold text-sm px-8 py-3.5 rounded-full shadow-md transition-all duration-300 hover:scale-105 active:scale-95">
-                Contact Specialist Now
-              </button>
-            }
-          />
+          <button
+            onClick={() => navigate("/contact?tab=booking")}
+            className="bg-white hover:bg-slate-50 text-[#024244] font-bold text-sm px-8 py-3.5 rounded-full shadow-md transition-all duration-300 hover:scale-105 active:scale-95"
+          >
+            Contact Specialist Now
+          </button>
         </div>
       </section>
 

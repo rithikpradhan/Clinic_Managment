@@ -4,8 +4,10 @@ import { Sparkles, Calendar, ArrowRight, ShieldCheck } from "lucide-react";
 import { client } from "../lib/sanityClient";
 import { urlFor } from "../lib/imageBuilder";
 import HeroImage from "../assets/hero_img.jpg";
+import { useNavigate } from "react-router-dom";
 
 export default function Hero() {
+  const navigate = useNavigate();
   const [hero, setHero] = useState(null);
 
   useEffect(() => {
@@ -190,12 +192,12 @@ export default function Hero() {
               <span>Explore Now</span>
             </a>
 
-            <a
-              href="#contact"
+            <button
+              onClick={() => navigate("/contact?tab=booking")}
               className="inline-flex items-center justify-center border border-[#024244] hover:bg-[#024244]/5 text-[#024244] text-sm font-bold px-8 py-3.5 rounded-full transition-all duration-300 w-full sm:w-auto"
             >
               <span>Book Consultation</span>
-            </a>
+            </button>
           </motion.div>
 
           {/* Stats */}
