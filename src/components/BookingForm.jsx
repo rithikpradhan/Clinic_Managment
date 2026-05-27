@@ -277,7 +277,7 @@ export function ModalLeftPanel({ doctorName, specialty, selectedTreatments = [] 
 }
 
 // ── The inner form with all steps ──────────────────────────────
-export function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSelect }) {
+export function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreatmentsSelect, showSidebar = true }) {
   const [step, setStep] = useState(0);
   const [doctors, setDoctors] = useState([]);
   const [treatments, setTreatments] = useState([]);
@@ -516,7 +516,7 @@ export function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreat
   function Step0() {
     return (
       <div className="flex flex-col h-full">
-        <div className="px-6 pt-5 pb-4 border-b border-gray-100 shrink-0">
+        <div className={`pt-5 pb-4 border-b border-gray-100 shrink-0 transition-all duration-300 ${showSidebar ? "px-6" : "pl-11 pr-6"}`}>
           <h3 className="text-lg font-bold text-gray-900">
             Choose your doctor
           </h3>
@@ -616,7 +616,7 @@ export function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreat
   function Step1() {
     return (
       <div className="flex flex-col h-full">
-        <div className="px-6 pt-5 pb-4 border-b border-gray-100 flex items-center gap-3 shrink-0">
+        <div className={`pt-5 pb-4 border-b border-gray-100 flex items-center gap-3 shrink-0 transition-all duration-300 ${showSidebar ? "px-6" : "pl-11 pr-6"}`}>
           <div>
             <h3 className="text-lg font-bold text-gray-900">
               What brings you in?
@@ -751,7 +751,7 @@ export function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreat
       <div className="flex flex-col md:flex-row h-full">
         {/* Calendar */}
         <div className="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-gray-100 min-w-0 shrink-0">
-          <div className="px-5 pt-5 pb-4 border-b border-gray-100 flex items-center gap-3 shrink-0">
+          <div className={`pt-5 pb-4 border-b border-gray-100 flex items-center gap-3 shrink-0 transition-all duration-300 ${showSidebar ? "px-5" : "pl-11 pr-5"}`}>
             <BackBtn to={1} />
             <p className="font-bold text-gray-900 text-sm">
               Select a Date & Time
@@ -850,7 +850,7 @@ export function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreat
   function Step3() {
     return (
       <div className="flex flex-col h-full">
-        <div className="px-6 pt-5 pb-4 border-b border-gray-100 flex items-center gap-3 shrink-0">
+        <div className={`pt-5 pb-4 border-b border-gray-100 flex items-center gap-3 shrink-0 transition-all duration-300 ${showSidebar ? "px-6" : "pl-11 pr-6"}`}>
           <BackBtn to={2} />
           <div>
             <h3 className="text-lg font-bold text-gray-900">Your details</h3>
@@ -933,7 +933,7 @@ export function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreat
   function Step4() {
     return (
       <div className="flex flex-col h-full">
-        <div className="px-6 pt-5 pb-4 border-b border-gray-100 flex items-center gap-3 shrink-0">
+        <div className={`pt-5 pb-4 border-b border-gray-100 flex items-center gap-3 shrink-0 transition-all duration-300 ${showSidebar ? "px-6" : "pl-11 pr-6"}`}>
           <BackBtn to={3} />
           <h3 className="text-lg font-bold text-gray-900">Confirm Booking</h3>
         </div>
@@ -1118,9 +1118,9 @@ function BookingModal({ onClose, onSuccess, prefill }) {
         <button
           type="button"
           onClick={() => setShowSidebar(!showSidebar)}
-          className="hidden md:flex absolute top-6 z-40 w-6 h-6 rounded-full border border-slate-200 bg-white items-center justify-center text-slate-400 hover:text-[#024244] hover:bg-slate-50 hover:border-[#024244]/30 shadow-sm transition-all duration-300 ease-in-out cursor-pointer"
+          className="hidden md:flex absolute z-40 top-6 w-6 h-6 rounded-full border border-slate-200 bg-white items-center justify-center text-slate-400 hover:text-[#024244] hover:bg-slate-50 hover:border-[#024244]/30 shadow-sm transition-all duration-300 ease-in-out cursor-pointer"
           style={{
-            left: showSidebar ? "218px" : "8px",
+            left: showSidebar ? "218px" : "2px",
           }}
         >
           {showSidebar ? (
@@ -1137,6 +1137,7 @@ function BookingModal({ onClose, onSuccess, prefill }) {
             prefill={prefill}
             onDoctorSelect={setSelectedDoctor}
             onTreatmentsSelect={setSelectedTreatments}
+            showSidebar={showSidebar}
           />
         </div>
 

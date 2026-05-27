@@ -135,7 +135,7 @@ export default function ContactPage() {
                 onClick={() => setShowSidebar(!showSidebar)}
                 className="hidden md:flex absolute top-6 z-40 w-6 h-6 rounded-full border border-slate-200 bg-white items-center justify-center text-slate-400 hover:text-[#024244] hover:bg-slate-50 hover:border-[#024244]/30 shadow-sm transition-all duration-300 ease-in-out cursor-pointer"
                 style={{
-                  left: showSidebar ? "198px" : "8px",
+                  left: showSidebar ? "198px" : "2px",
                 }}
               >
                 {showSidebar ? (
@@ -157,6 +157,7 @@ export default function ContactPage() {
                   prefill={{}}
                   onDoctorSelect={setSelectedDoctor}
                   onTreatmentsSelect={setSelectedTreatments}
+                  showSidebar={showSidebar}
                 />
               </div>
             </div>
