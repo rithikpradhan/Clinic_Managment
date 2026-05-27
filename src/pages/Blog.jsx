@@ -20,6 +20,8 @@ export default function Blog() {
   const [blogs, setBlogs] = useState([]);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     client
@@ -34,7 +36,15 @@ export default function Blog() {
       }
     `,
       )
-      .then(setBlogs);
+      .then((data) => {
+        setBlogs(data || []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Sanity fetch error:", err);
+        setError(err);
+        setLoading(false);
+      });
   }, []);
 
   const handleSubscribe = (e) => {
@@ -75,10 +85,22 @@ export default function Blog() {
         </div>
 
         {/* Fetching State */}
-        {blogs.length === 0 ? (
+        {loading ? (
           <div className="flex flex-col items-center justify-center py-32 text-slate-400">
             <span className="w-6 h-6 border-2 border-[#024244]/30 border-t-[#024244] rounded-full animate-spin mb-4" />
             <p className="text-xs font-mono tracking-widest uppercase">Syncing Medical Archives...</p>
+          </div>
+        ) : error || blogs.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="bg-amber-50/50 border border-amber-200/60 rounded-[28px] p-8 max-w-xl shadow-sm">
+              <h3 className="font-bold text-base text-[#024244] mb-2 uppercase tracking-widest font-mono">Archive Access Restricted</h3>
+              <p className="text-xs text-slate-500 leading-relaxed max-w-md mx-auto mb-4">
+                We encountered a CORS origin configuration block on the content server. To load live articles, please authorize this Vercel domain under your Sanity API settings.
+              </p>
+              <div className="text-[10px] font-mono text-slate-400 bg-white/80 border border-slate-100 rounded-lg px-3 py-1 inline-block">
+                Origin: {window.location.origin}
+              </div>
+            </div>
           </div>
         ) : (
           <motion.div
