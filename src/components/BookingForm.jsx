@@ -283,6 +283,7 @@ export function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreat
   const [treatments, setTreatments] = useState([]);
   const [slots, setSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [docPage, setDocPage] = useState(0);
   const [txPage, setTxPage] = useState(0);
@@ -325,18 +326,25 @@ export function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreat
   }, [form.is_consultation, form.treatment_names, onTreatmentsSelect]);
 
   useEffect(() => {
-    Promise.all([fetchStaff(), fetchTreatments(true), fetchConsultationFee()]).then(([d, t, fee]) => {
-      const availDocs = d.filter((s) => s.available);
-      setDoctors(availDocs);
-      setTreatments(t);
-      setClinicConsultFee(fee);
-      
-      // Auto-advance to Step 1 (Treatments) if only 1 doctor is available
-      if (availDocs.length === 1) {
-        setForm(f => ({ ...f, staff_id: availDocs[0].id }));
-        setStep(1);
-      }
-    });
+    setLoadingData(true);
+    Promise.all([fetchStaff(), fetchTreatments(true), fetchConsultationFee()])
+      .then(([d, t, fee]) => {
+        const availDocs = d.filter((s) => s.available);
+        setDoctors(availDocs);
+        setTreatments(t);
+        setClinicConsultFee(fee);
+        setLoadingData(false);
+        
+        // Auto-advance to Step 1 (Treatments) if only 1 doctor is available
+        if (availDocs.length === 1) {
+          setForm(f => ({ ...f, staff_id: availDocs[0].id }));
+          setStep(1);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching clinical config data:", err);
+        setLoadingData(false);
+      });
   }, []);
 
   useEffect(() => {
@@ -544,10 +552,14 @@ export function ModalForm({ onClose, onSuccess, prefill, onDoctorSelect, onTreat
             )}
           </button>
           
-          {doctors.length === 0 ? (
+          {loadingData ? (
             <div className="flex items-center justify-center h-20 text-sm text-gray-400">
               <Loader2 className="w-4 h-4 animate-spin mr-2" />
               Loading doctors…
+            </div>
+          ) : doctors.length === 0 ? (
+            <div className="flex items-center justify-center h-20 text-sm text-gray-400">
+              No available specialists at this time
             </div>
           ) : (
             doctors.slice(docPage * PER, docPage * PER + PER).map((doc) => {
