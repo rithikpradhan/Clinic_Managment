@@ -1031,6 +1031,7 @@ function BookingModal({ onClose, onSuccess, prefill }) {
   const [visible, setVisible] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [selectedTreatments, setSelectedTreatments] = useState([]);
+  const [showSidebar, setShowSidebar] = useState(true);
 
   useEffect(() => {
     requestAnimationFrame(() => setTimeout(() => setVisible(true), 10));
@@ -1095,13 +1096,39 @@ function BookingModal({ onClose, onSuccess, prefill }) {
         }}
       >
         {/* Left info panel */}
-        <div className="hidden md:block w-[230px] shrink-0 p-7 border-r border-slate-100/80 bg-slate-50/40 overflow-y-auto">
-          <ModalLeftPanel
-            doctorName={selectedDoctor?.name}
-            specialty={selectedDoctor?.specialty}
-            selectedTreatments={selectedTreatments}
-          />
+        <div 
+          className="hidden md:block shrink-0 bg-slate-50/40 overflow-y-auto relative transition-all duration-300 ease-in-out border-r border-slate-100/80"
+          style={{
+            width: showSidebar ? "230px" : "0px",
+            opacity: showSidebar ? 1 : 0,
+            padding: showSidebar ? "1.75rem" : "0px",
+            borderRightWidth: showSidebar ? "1px" : "0px",
+          }}
+        >
+          <div style={{ width: "174px" }}>
+            <ModalLeftPanel
+              doctorName={selectedDoctor?.name}
+              specialty={selectedDoctor?.specialty}
+              selectedTreatments={selectedTreatments}
+            />
+          </div>
         </div>
+
+        {/* Sidebar Toggle Button */}
+        <button
+          type="button"
+          onClick={() => setShowSidebar(!showSidebar)}
+          className="hidden md:flex absolute top-6 z-40 w-6 h-6 rounded-full border border-slate-200 bg-white items-center justify-center text-slate-400 hover:text-[#024244] hover:bg-slate-50 hover:border-[#024244]/30 shadow-sm transition-all duration-300 ease-in-out cursor-pointer"
+          style={{
+            left: showSidebar ? "218px" : "8px",
+          }}
+        >
+          {showSidebar ? (
+            <ChevronLeft className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronRight className="w-3.5 h-3.5" />
+          )}
+        </button>
 
         <div className="flex-1 flex flex-col overflow-hidden relative">
           <ModalForm
